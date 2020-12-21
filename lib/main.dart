@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
@@ -16,15 +17,18 @@ class Review {
   String location;
   String permalink;
   DateTime timestamp;
-  Review({this.restaurantName, this.stars, this.location, this.permalink, this.timestamp});
+  String mediaUrl;
+  Review({this.restaurantName, this.stars, this.location, this.permalink, this.timestamp, this.mediaUrl});
   factory Review.fronJson(Map<String, dynamic> postData) {
     List<dynamic> captionData = postData['caption'].split(" - ");
+    int stars = (captionData[0].contains('💀')) ? 0 : int.parse(captionData[0].substring(0,captionData[0].indexOf('/')));
     return Review(
       restaurantName: captionData[1],
-      stars: int.parse(captionData[0].substring(0,captionData[0].indexOf('/'))),
+      stars: stars,
       location: captionData[2],
       permalink: postData['permalink'],
       timestamp: DateTime.parse(postData['timestamp']),
+      mediaUrl: postData['media_url'],
     );
   }
   @override
@@ -85,6 +89,10 @@ class _InstaCriticState extends State<InstaCritic> {
 
     // Get the list of posts from the response and convert them into Reviews
     List<dynamic> postList = jsonDecode(res.body)['data'];
+    postList.forEach((post) {
+      print(post);
+      print('\n');
+    });
     if(postList.length > 0)
       igUsername = postList[0]['username'];
     for(int i = 0; i < postList.length; i++)
@@ -149,22 +157,29 @@ class _InstaCriticState extends State<InstaCritic> {
   }
   Widget _buildRow(Review review) {
     return GestureDetector(
-      child: Card(child: ListTile(
-        title: Text(
-          review.restaurantName,
-          style: TextStyle(fontSize: 18.0),
-        ),
-        subtitle: Text(
-          review.location
-        ),
-        trailing: IconTheme(
-          data: IconThemeData(
-            color: Colors.amber,
-            size: 25,
+      child: Card(
+        elevation: 3.0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        child: ListTile(
+          leading: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: 44, minHeight: 44, maxHeight: 64, maxWidth: 64),
+            child: Image.network(review.mediaUrl),
           ),
-          child: StarDisplay(value: review.stars)
-        ),
-        ),
+          title: Text(
+            review.restaurantName,
+            style: TextStyle(fontSize: 18.0),
+          ),
+          subtitle: Text(
+            review.location
+          ),
+          trailing: IconTheme(
+            data: IconThemeData(
+              color: Colors.amber,
+              size: 25,
+            ),
+            child: StarDisplay(value: review.stars)
+          ),
+          ),
       ),
       onTap: () {
         _launchInBrowser(review.permalink);
@@ -203,20 +218,22 @@ class _InstaCriticState extends State<InstaCritic> {
           decoration: InputDecoration(
               suffixIcon: Icon(Icons.search),
               hintText: 'Search by restaurant or place name',
-              contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+              contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 6),
               border: OutlineInputBorder(
                   //borderSide: BorderSide(width: 3.1, color: Colors.black),
-                  borderRadius: BorderRadius.circular(10))),
+                  borderRadius: BorderRadius.circular(6))),
         ),
       )
     );
   }
+
   Label _currentSortLabel = _sortLabels[0];
   Widget _buildSortButton() {
     return Container(
-      padding: EdgeInsets.only(top: 13, right: 20),
+      padding: EdgeInsets.only(top: 11, right: 20),
       child: PopupMenuButton(
-        offset: Offset(0,60),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        offset: Offset(0,55),
         tooltip: 'Sort',
         icon: Icon(Icons.sort_rounded, size: 27),
         itemBuilder: (_) => List.generate(_sortLabels.length, (index) {
@@ -287,35 +304,6 @@ class _InstaCriticState extends State<InstaCritic> {
         color: Colors.white,
         initialActiveIndex: 1,
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: const <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.list),
-      //       label: 'List',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.map_rounded),
-      //       label: 'Map',
-      //     ),
-      //   ],
-      //   currentIndex: _selectedIndex,
-      //   selectedItemColor: Colors.amber[800],
-      //   onTap: _onItemTapped
-      // ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () { },
-      //   child: Container(
-      //     width: 60,
-      //     height: 60,
-      //     child: Icon(
-      //       Icons.filter_list_alt,
-      //     ),
-      //     decoration: BoxDecoration(
-      //         shape: BoxShape.circle,
-      //         gradient: LinearGradient(colors: GradientColors.purplePink)),
-      //   ),
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       );
   }
 }
@@ -330,7 +318,7 @@ class StarDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: List.generate(value, (index) {
+      children: (value == 0) ? [Icon(FontAwesomeIcons.skull, size: 20, color: Colors.grey[400])] : List.generate(value, (index) {
         return Icon( Icons.star );
       }),
     );
