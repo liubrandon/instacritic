@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,7 +15,8 @@ class Review {
   int stars;
   String location;
   String permalink;
-  Review({this.restaurantName, this.stars, this.location, this.permalink});
+  DateTime timestamp;
+  Review({this.restaurantName, this.stars, this.location, this.permalink, this.timestamp});
   factory Review.fronJson(Map<String, dynamic> postData) {
     List<dynamic> captionData = postData['caption'].split(" - ");
     return Review(
@@ -22,6 +24,7 @@ class Review {
       stars: int.parse(captionData[0].substring(0,captionData[0].indexOf('/'))),
       location: captionData[2],
       permalink: postData['permalink'],
+      timestamp: DateTime.parse(postData['timestamp']),
     );
   }
   @override
@@ -39,6 +42,19 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+class Label {
+  String text;
+  Function(dynamic) mySort;
+  Label({this.text, this.mySort});
+}
+
+List<Label> _sortLabels = [
+  Label(text: 'Newest',       mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.timestamp.compareTo(a.timestamp));}),
+  Label(text: 'Oldest',       mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.timestamp.compareTo(b.timestamp));}),
+  Label(text: 'Alphabetical', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.restaurantName.compareTo(b.restaurantName));}),
+  Label(text: '★ ascending',  mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.stars.compareTo(b.stars));}),
+  Label(text: '★ descending', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.stars.compareTo(a.stars));}),
+];
 
 class _InstaCriticState extends State<InstaCritic> {
   List<Review> allReviews = [];
@@ -69,12 +85,10 @@ class _InstaCriticState extends State<InstaCritic> {
 
     // Get the list of posts from the response and convert them into Reviews
     List<dynamic> postList = jsonDecode(res.body)['data'];
-    if(postList.length > 0) {
+    if(postList.length > 0)
       igUsername = postList[0]['username'];
-    }
-    for(int i = 0; i < postList.length; i++) {
+    for(int i = 0; i < postList.length; i++)
       allReviews.add(Review.fronJson(postList[i]));
-    }
     // allReviews.sort((a, b) => b.stars.compareTo(a.stars)); // May pre-sort by timestamp
     reviewController.sink.add(allReviews);
     // Rebuild the widget once the reviews have been loaded
@@ -87,11 +101,9 @@ class _InstaCriticState extends State<InstaCritic> {
   bool _error = false;
   // Define an async function to initialize FlutterFire
   void initializeFlutterFire() async {
-    try {
-      // Wait for Firebase to initialize and set `_initialized` state to true
+    try { // Wait for Firebase to initialize and set `_initialized` state to true
       await Firebase.initializeApp();
-    } catch(e) {
-      // Set `_error` state to true if Firebase initialization fails
+    } catch(e) { // Set `_error` state to true if Firebase initialization fails
       setState(() {
         _error = true;
       });
@@ -122,13 +134,14 @@ class _InstaCriticState extends State<InstaCritic> {
       }
     );
   }
+
   Future<void> _launchInBrowser(String url) async {
     if (await canLaunch(url)) {
       await launch(
         url,
         forceSafariVC: false,
         forceWebView: false,
-        headers: <String, String>{'my_header_key': 'my_header_value'},
+        headers: <String, String>{},
       );
     } else {
       throw 'Could not launch $url';
@@ -173,8 +186,8 @@ class _InstaCriticState extends State<InstaCritic> {
       return;
     }
     allReviews.forEach((review) {
-      if(review.restaurantName.toLowerCase().contains(searchQuery.toLowerCase()) ||
-         review.location.toLowerCase().contains(searchQuery.toLowerCase())) {
+      if (review.restaurantName.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          review.location.toLowerCase().contains(searchQuery.toLowerCase())) {
         searchResult.add(review);
       }
     });
@@ -189,8 +202,8 @@ class _InstaCriticState extends State<InstaCritic> {
           onChanged: (text) => _searchUser(text),
           decoration: InputDecoration(
               suffixIcon: Icon(Icons.search),
-              hintText: 'Search by restaurant name or location',
-              contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+              hintText: 'Search by restaurant or place name',
+              contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 8),
               border: OutlineInputBorder(
                   //borderSide: BorderSide(width: 3.1, color: Colors.black),
                   borderRadius: BorderRadius.circular(10))),
@@ -198,56 +211,29 @@ class _InstaCriticState extends State<InstaCritic> {
       )
     );
   }
-  int _currentSortValue = 1;
+  Label _currentSortLabel = _sortLabels[0];
   Widget _buildSortButton() {
     return Container(
       padding: EdgeInsets.only(top: 13, right: 20),
       child: PopupMenuButton(
-        initialValue: _currentSortValue,
         offset: Offset(0,60),
         tooltip: 'Sort',
         icon: Icon(Icons.sort_rounded, size: 27),
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            value: 1,
-            child: Text("Newest"),
-          ),
-          PopupMenuItem(
-            value: 2,
-            child: Text("Oldest"),
-          ),
-          PopupMenuItem(
-            value: 3,
-            child: Text("★ descending"),
-          ),
-          PopupMenuItem(
-            value: 4,
-            child: Text("★ ascending")
-          ),
-          PopupMenuItem(
-            value: 5,
-            child: Text("Alphabetical")
-          ),
-        ],
+        itemBuilder: (_) => List.generate(_sortLabels.length, (index) {
+          return CheckedPopupMenuItem(
+              checked: (_currentSortLabel == _sortLabels[index]),
+              value: _sortLabels[index],
+              child: Text(_sortLabels[index].text),
+            );
+        }),
         onSelected: (value) { setState(() {
-          if(value == 1) {
-            currentReviews.sort((a, b) => b.stars.compareTo(a.stars));
-          }
-          else if(value == 2) {
-            currentReviews.sort((a, b) => a.stars.compareTo(b.stars));
-          }
-          else if(value == 3) {
-            currentReviews.sort((a, b) => a.restaurantName.compareTo(b.restaurantName));
-          }
-          print(currentReviews);
+          value.mySort(currentReviews);
           reviewController.sink.add(currentReviews);
-          _currentSortValue = value; 
+          _currentSortLabel = value; 
         });},
       )
     );
   }
-
-  bool showSortAndFilter = false;
 
   // Used for showing the snackbar
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -276,7 +262,7 @@ class _InstaCriticState extends State<InstaCritic> {
             allReviews = []; // Reset review list
             getReviews(); // Get latest data from IG
             scaffoldKey.currentState.showSnackBar(
-              SnackBar( // Show a snackbar briefly confirming reload
+              SnackBar( // Briefly show a snackbar confirming reload
                 duration: Duration(milliseconds: 750),
                 content: Text('Reloading...'),
               )
@@ -290,35 +276,46 @@ class _InstaCriticState extends State<InstaCritic> {
           _buildReviewList()
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'List',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map_rounded),
-            label: 'Map',
-          ),
+      bottomNavigationBar: ConvexAppBar(
+        items: [
+          TabItem(icon: Icons.map, title: 'Map'),
+          TabItem(icon: Icons.list, title: 'List'),
+          TabItem(icon: Icons.settings, title: 'Settings'),
         ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped
+        style: TabStyle.react,
+        gradient: LinearGradient(colors: GradientColors.purplePink),
+        color: Colors.white,
+        initialActiveIndex: 1,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () { setState(() { showSortAndFilter = true; }); },
-        child: Container(
-          width: 60,
-          height: 60,
-          child: Icon(
-            Icons.filter_list_alt,
-          ),
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(colors: GradientColors.purplePink)),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.list),
+      //       label: 'List',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.map_rounded),
+      //       label: 'Map',
+      //     ),
+      //   ],
+      //   currentIndex: _selectedIndex,
+      //   selectedItemColor: Colors.amber[800],
+      //   onTap: _onItemTapped
+      // ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () { },
+      //   child: Container(
+      //     width: 60,
+      //     height: 60,
+      //     child: Icon(
+      //       Icons.filter_list_alt,
+      //     ),
+      //     decoration: BoxDecoration(
+      //         shape: BoxShape.circle,
+      //         gradient: LinearGradient(colors: GradientColors.purplePink)),
+      //   ),
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       );
   }
 }
