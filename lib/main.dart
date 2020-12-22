@@ -22,7 +22,8 @@ class Review {
   String mediaUrl;
   Review({this.restaurantName, this.stars, this.location, this.permalink, this.timestamp, this.mediaUrl});
   factory Review.fronJson(Map<String, dynamic> postData) {
-    List<dynamic> captionData = postData['caption'].split(" - ");
+    List<dynamic> captionData = postData['caption'].split("-");
+    captionData.forEach((str) { str.trim(); });
     int stars = (captionData[0].contains('💀')) ? 0 : int.parse(captionData[0].substring(0,captionData[0].indexOf('/')));
     return Review(
       restaurantName: captionData[1],
@@ -55,11 +56,11 @@ class Label {
 }
 
 List<Label> _sortLabels = [
-  Label(text: 'Newest',       mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.timestamp.compareTo(a.timestamp));}),
-  Label(text: 'Oldest',       mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.timestamp.compareTo(b.timestamp));}),
-  Label(text: 'Alphabetical', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.restaurantName.compareTo(b.restaurantName));}),
-  Label(text: '★ ascending',  mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.stars.compareTo(b.stars));}),
-  Label(text: '★ descending', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.stars.compareTo(a.stars));}),
+  Label(text: 'Newest',         mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.timestamp.compareTo(a.timestamp));}),
+  Label(text: 'Oldest',         mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.timestamp.compareTo(b.timestamp));}),
+  Label(text: 'A-Z restaurant', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.restaurantName.compareTo(b.restaurantName));}),
+  Label(text: '★ ascending',    mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.stars.compareTo(b.stars));}),
+  Label(text: '★ descending',   mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.stars.compareTo(a.stars));}),
 ];
 
 class _InstaCriticState extends State<InstaCritic> {
@@ -74,6 +75,19 @@ class _InstaCriticState extends State<InstaCritic> {
     initializeFlutterFire();
     getReviews();
     super.initState();
+  }
+
+  bool _initialized = false;
+  bool _error = false;
+  // Define an async function to initialize FlutterFire
+  void initializeFlutterFire() async {
+    try { // Wait for Firebase to initialize and set `_initialized` state to true
+      await Firebase.initializeApp();
+    } catch(e) { // Set `_error` state to true if Firebase initialization fails
+      setState(() {
+        _error = true;
+      });
+    }
   }
   
   Future<String> getInstagramToken() async {
@@ -91,10 +105,10 @@ class _InstaCriticState extends State<InstaCritic> {
 
     // Get the list of posts from the response and convert them into Reviews
     List<dynamic> postList = jsonDecode(res.body)['data'];
-    // postList.forEach((post) {
-    //   print(post);
-    //   print('\n');
-    // });
+    postList.forEach((post) {
+      print(post);
+      print('\n');
+    });
     if(postList.length > 0)
       igUsername = postList[0]['username'];
     for(int i = 0; i < postList.length; i++)
@@ -106,42 +120,36 @@ class _InstaCriticState extends State<InstaCritic> {
       _initialized = true;
     });
   }
+  
+  final List<TabItem> _myTabs = [
+    TabItem(icon: Icons.list,),
+    TabItem(icon: Icons.map,),
+    // TabItem(icon: Icons.settings, title: 'Settings'),
+  ];
 
-  bool _initialized = false;
-  bool _error = false;
-  // Define an async function to initialize FlutterFire
-  void initializeFlutterFire() async {
-    try { // Wait for Firebase to initialize and set `_initialized` state to true
-      await Firebase.initializeApp();
-    } catch(e) { // Set `_error` state to true if Firebase initialization fails
-      setState(() {
-        _error = true;
-      });
-    }
-  }
+  // Used for showing the snackbar
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  @override
+  Widget build(BuildContext context) {
+    // Show error message if initialization failed
+    if(_error) { return Text("Error"); }
+    // Show a loader until FlutterFire is initialized
+    if (!_initialized) { return Text("Loading"); }
 
-  Widget _buildReviewList() {
-    return StreamBuilder(
-      stream: reviewController.stream,
-      builder: (BuildContext buildContext, AsyncSnapshot<List<Review>> snapshot) {
-        if(snapshot == null) {
-          return CircularProgressIndicator();
-        }
-        else if(snapshot.connectionState == ConnectionState.waiting) {
-          return Padding(padding: EdgeInsets.only(top: 100), child: CircularProgressIndicator());
-        }
-        else {
-          currentReviews = snapshot.data;
-          return ListView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: snapshot.data.length,
-              padding: EdgeInsets.all(16.0),
-              itemBuilder: (context, i) {
-                return _buildRow(snapshot.data[i]);
-            });
-        }
-      }
+    return DefaultTabController(
+      length: _myTabs.length,
+      initialIndex: 0,
+      child: Scaffold(
+        key: scaffoldKey,
+        body: TabBarView(
+          physics: NeverScrollableScrollPhysics(),
+          children: [
+            _buildListTabView(),
+            MapScreen(),
+          ],
+        ),
+        bottomNavigationBar: _buildBottomBar(),
+        ),
     );
   }
 
@@ -159,34 +167,32 @@ class _InstaCriticState extends State<InstaCritic> {
   }
 
   Widget _buildRow(Review review) {
-    return GestureDetector(
-      child: Card(
-        elevation: 3.0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        child: ListTile(
-          leading: ConstrainedBox(
-            constraints: BoxConstraints(minWidth: 44, minHeight: 44, maxHeight: 64, maxWidth: 64),
-            child: Image.network(review.mediaUrl),
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      child: ListTile(
+        leading: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: 44, minHeight: 44, maxHeight: 64, maxWidth: 64),
+          child: Image.network(review.mediaUrl),
+        ),
+        title: Text(
+          review.restaurantName,
+          style: TextStyle(fontSize: 18.0),
+        ),
+        subtitle: Text(
+          review.location
+        ),
+        trailing: IconTheme(
+          data: IconThemeData(
+            color: Colors.amber,
+            size: 25,
           ),
-          title: Text(
-            review.restaurantName,
-            style: TextStyle(fontSize: 18.0),
-          ),
-          subtitle: Text(
-            review.location
-          ),
-          trailing: IconTheme(
-            data: IconThemeData(
-              color: Colors.amber,
-              size: 25,
-            ),
-            child: StarDisplay(value: review.stars)
-          ),
-          ),
-      ),
-      onTap: () {
-        _launchInBrowser(review.permalink);
-      },
+          child: StarDisplay(value: review.stars)
+        ),
+        onTap: () {
+          _launchInBrowser(review.permalink);
+        },
+        ),
     );
   }
 
@@ -207,32 +213,30 @@ class _InstaCriticState extends State<InstaCritic> {
   }
 
   Widget _buildSearchBar() {
-    return Flexible(
-      child: Container(
-        padding: const EdgeInsets.only(left: 16, right: 14, top: 16),
+    return Container(
+        padding: const EdgeInsets.only(left: 14, right: 70, top: 10, bottom: 10),
         child: TextField(
           onChanged: (text) => _searchUser(text),
           decoration: InputDecoration(
-              suffixIcon: Icon(Icons.search),
-              hintText: 'Search by restaurant or place name',
-              contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 6),
-              border: OutlineInputBorder(
-                  //borderSide: BorderSide(width: 3.1, color: Colors.black),
-                  borderRadius: BorderRadius.circular(6))),
+              prefixIcon: Icon(Icons.search),
+              hintText: 'Search',
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              focusedBorder: InputBorder.none,
+              border: InputBorder.none,
+          ),
         ),
-      )
-    );
+      );
   }
 
   Label _currentSortLabel = _sortLabels[0];
   Widget _buildSortButton() {
     return Container(
-      padding: EdgeInsets.only(top: 11, right: 20),
+      padding: EdgeInsets.only(right: 20),
       child: PopupMenuButton(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         offset: Offset(0,55),
         tooltip: 'Sort',
-        icon: Icon(Icons.sort_rounded, size: 27),
+        icon: Icon(Icons.sort_rounded, size: 27, color: Colors.black),
         itemBuilder: (_) => List.generate(_sortLabels.length, (index) {
           return CheckedPopupMenuItem(
               checked: (_currentSortLabel == _sortLabels[index]),
@@ -248,72 +252,75 @@ class _InstaCriticState extends State<InstaCritic> {
       )
     );
   }
-  final List<TabItem> _myTabs = [
-    TabItem(icon: Icons.list, title: 'List'),
-    TabItem(icon: Icons.map, title: 'Map'),
-    // TabItem(icon: Icons.settings, title: 'Settings'),
-  ];
-  // Used for showing the snackbar
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  @override
-  Widget build(BuildContext context) {
-    // Show error message if initialization failed
-    if(_error) { return Text("Error"); }
-    // Show a loader until FlutterFire is initialized
-    if (!_initialized) { return Text("Loading"); }
 
-    return DefaultTabController(
-      length: _myTabs.length,
-      initialIndex: 0,
-      child: Scaffold(
-        key: scaffoldKey,
-        appBar: AppBar(
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: GradientColors.purplePink,
-          ))),     
-          title: Text(igUsername + '\'s reviews'),
-          actions: [IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Reload',
-            onPressed: () {
-              allReviews = []; // Reset review list
-              getReviews(); // Get latest data from IG
-              scaffoldKey.currentState.showSnackBar(
-                SnackBar( // Briefly show a snackbar confirming reload
-                  duration: Duration(milliseconds: 750),
-                  content: Text('Reloading...'),
-                )
-              );
-            },
-          )]
-        ),
-        body: TabBarView(
-          physics: NeverScrollableScrollPhysics(),
-          children: [
-            _buildListTabView(),
-            _buildMapTabView(),
-          ],
-        ),
-        bottomNavigationBar: ConvexAppBar(
-          items: _myTabs,
-          style: TabStyle.react,
-          gradient: LinearGradient(colors: GradientColors.purplePink),
-          color: Colors.white,
-        ),
-        ),
+  Widget _buildRefreshButton() {
+    return IconButton(
+      padding: EdgeInsets.only(right: 27),
+      icon: const Icon(Icons.refresh),
+      tooltip: 'Reload',
+      onPressed: () {
+        allReviews = []; // Reset review list
+        getReviews(); // Get latest data from IG
+        scaffoldKey.currentState.showSnackBar(
+          SnackBar( // Briefly show a snackbar confirming reload
+            duration: Duration(milliseconds: 750),
+            content: Text('Reloading...'),
+          ));});
+  }
+
+
+  Widget _buildListTabView() {
+    return StreamBuilder(
+      stream: reviewController.stream,
+      builder: (BuildContext buildContext, AsyncSnapshot<List<Review>> snapshot) {
+        if(snapshot == null || snapshot.connectionState == ConnectionState.waiting)
+          return Padding(padding: EdgeInsets.only(top: 100), child: CircularProgressIndicator());
+        else {
+          currentReviews = snapshot.data;
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                elevation: 0,
+                floating: true,
+                title: Text(igUsername + '\'s reviews'),
+                toolbarHeight: 48,
+                flexibleSpace: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: GradientColors.purplePink,
+                ))),
+                actions: [_buildRefreshButton()],
+              ),
+              SliverAppBar(
+                elevation: 0,
+                pinned: true,
+                backgroundColor: Colors.white,
+                flexibleSpace: _buildSearchBar(),
+                actions: [_buildSortButton()],
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => _buildRow(snapshot.data[index]),
+                  childCount: snapshot.data.length,
+                ),
+              ),
+            ],
+          );
+        }
+      }
     );
   }
 
-  Widget _buildListTabView() {
-    return Column(
-      children: [
-        Row(children: [_buildSearchBar(), _buildSortButton()]),
-        _buildReviewList(),
-      ],
+  Widget _buildBottomBar() {
+    return ConvexAppBar(
+      items: _myTabs,
+      style: TabStyle.reactCircle,
+      gradient: LinearGradient(colors: GradientColors.purplePink),
+      backgroundColor: Color(0xFFcc2b5e),
+      color: Colors.white,
+      height: 42,
     );
   }
 
@@ -334,6 +341,32 @@ class _InstaCriticState extends State<InstaCritic> {
   }
 }
 
+class MapScreen extends StatefulWidget {
+  @override
+  _MapScreenState createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    Completer<GoogleMapController> _controller = Completer();
+    final CameraPosition _kGooglePlex = CameraPosition(
+      target: LatLng(41.3163, -72.9223),
+      zoom: 14.4746,
+    );
+
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition: _kGooglePlex,
+      onMapCreated: (GoogleMapController controller) {
+        _controller.complete(controller);
+      },
+    );
+  }
+}
 // https://medium.com/icnh/a-star-rating-widget-for-flutter-41560f82c8cb
 class StarDisplay extends StatelessWidget {
   final int value;
