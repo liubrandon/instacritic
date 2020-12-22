@@ -249,9 +249,9 @@ class _InstaCriticState extends State<InstaCritic> {
     );
   }
   final List<TabItem> _myTabs = [
-    TabItem(icon: Icons.map, title: 'Map'),
     TabItem(icon: Icons.list, title: 'List'),
-    TabItem(icon: Icons.settings, title: 'Settings'),
+    TabItem(icon: Icons.map, title: 'Map'),
+    // TabItem(icon: Icons.settings, title: 'Settings'),
   ];
   // Used for showing the snackbar
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -294,9 +294,8 @@ class _InstaCriticState extends State<InstaCritic> {
         body: TabBarView(
           physics: NeverScrollableScrollPhysics(),
           children: [
-            _buildMapTabView(),
             _buildListTabView(),
-            Container(),
+            _buildMapTabView(),
           ],
         ),
         bottomNavigationBar: ConvexAppBar(
@@ -321,7 +320,7 @@ class _InstaCriticState extends State<InstaCritic> {
   Widget _buildMapTabView() {
     Completer<GoogleMapController> _controller = Completer();
     final CameraPosition _kGooglePlex = CameraPosition(
-      target: LatLng(37.42796133580664, -122.085749655962),
+      target: LatLng(41.3163, -72.9223),
       zoom: 14.4746,
     );
 
