@@ -6,7 +6,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:rxdart/subjects.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 void main() => runApp(MyApp());
@@ -64,7 +66,7 @@ class _InstaCriticState extends State<InstaCritic> {
   List<Review> allReviews = [];
   List<Review> currentReviews = [];
   String igUsername;
-  final reviewController = StreamController<List<Review>>(); // ignore: close_sinks
+  StreamController<List<Review>> reviewController = BehaviorSubject(); // ignore: close_sinks  
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
@@ -89,10 +91,10 @@ class _InstaCriticState extends State<InstaCritic> {
 
     // Get the list of posts from the response and convert them into Reviews
     List<dynamic> postList = jsonDecode(res.body)['data'];
-    postList.forEach((post) {
-      print(post);
-      print('\n');
-    });
+    // postList.forEach((post) {
+    //   print(post);
+    //   print('\n');
+    // });
     if(postList.length > 0)
       igUsername = postList[0]['username'];
     for(int i = 0; i < postList.length; i++)
@@ -155,6 +157,7 @@ class _InstaCriticState extends State<InstaCritic> {
       throw 'Could not launch $url';
     }
   }
+
   Widget _buildRow(Review review) {
     return GestureDetector(
       child: Card(
@@ -185,12 +188,6 @@ class _InstaCriticState extends State<InstaCritic> {
         _launchInBrowser(review.permalink);
       },
     );
-  }
-  int _selectedIndex = 0;
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
   }
 
   // https://medium.com/level-up-programming/flutter-stream-tutorial-asynchronous-dart-programming-991e6cf97c5a
@@ -251,7 +248,11 @@ class _InstaCriticState extends State<InstaCritic> {
       )
     );
   }
-
+  final List<TabItem> _myTabs = [
+    TabItem(icon: Icons.map, title: 'Map'),
+    TabItem(icon: Icons.list, title: 'List'),
+    TabItem(icon: Icons.settings, title: 'Settings'),
+  ];
   // Used for showing the snackbar
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   @override
@@ -261,50 +262,76 @@ class _InstaCriticState extends State<InstaCritic> {
     // Show a loader until FlutterFire is initialized
     if (!_initialized) { return Text("Loading"); }
 
-    return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: GradientColors.purplePink,
-        ))),     
-        title: Text(igUsername + '\'s reviews'),
-        actions: [IconButton(
-          icon: const Icon(Icons.refresh),
-          tooltip: 'Reload',
-          onPressed: () {
-            allReviews = []; // Reset review list
-            getReviews(); // Get latest data from IG
-            scaffoldKey.currentState.showSnackBar(
-              SnackBar( // Briefly show a snackbar confirming reload
-                duration: Duration(milliseconds: 750),
-                content: Text('Reloading...'),
-              )
-            );
-          },
-        )]
-      ),
-      body: Column(
-        children: [
-          Row(children: [_buildSearchBar(), _buildSortButton()]),
-          _buildReviewList()
-        ],
-      ),
-      bottomNavigationBar: ConvexAppBar(
-        items: [
-          TabItem(icon: Icons.map, title: 'Map'),
-          TabItem(icon: Icons.list, title: 'List'),
-          TabItem(icon: Icons.settings, title: 'Settings'),
-        ],
-        style: TabStyle.react,
-        gradient: LinearGradient(colors: GradientColors.purplePink),
-        color: Colors.white,
-        initialActiveIndex: 1,
-      ),
-      );
+    return DefaultTabController(
+      length: _myTabs.length,
+      initialIndex: 0,
+      child: Scaffold(
+        key: scaffoldKey,
+        appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: GradientColors.purplePink,
+          ))),     
+          title: Text(igUsername + '\'s reviews'),
+          actions: [IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Reload',
+            onPressed: () {
+              allReviews = []; // Reset review list
+              getReviews(); // Get latest data from IG
+              scaffoldKey.currentState.showSnackBar(
+                SnackBar( // Briefly show a snackbar confirming reload
+                  duration: Duration(milliseconds: 750),
+                  content: Text('Reloading...'),
+                )
+              );
+            },
+          )]
+        ),
+        body: TabBarView(
+          physics: NeverScrollableScrollPhysics(),
+          children: [
+            _buildMapTabView(),
+            _buildListTabView(),
+            Container(),
+          ],
+        ),
+        bottomNavigationBar: ConvexAppBar(
+          items: _myTabs,
+          style: TabStyle.react,
+          gradient: LinearGradient(colors: GradientColors.purplePink),
+          color: Colors.white,
+        ),
+        ),
+    );
+  }
+
+  Widget _buildListTabView() {
+    return Column(
+      children: [
+        Row(children: [_buildSearchBar(), _buildSortButton()]),
+        _buildReviewList(),
+      ],
+    );
+  }
+
+  Widget _buildMapTabView() {
+    Completer<GoogleMapController> _controller = Completer();
+    final CameraPosition _kGooglePlex = CameraPosition(
+      target: LatLng(37.42796133580664, -122.085749655962),
+      zoom: 14.4746,
+    );
+
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition: _kGooglePlex,
+      onMapCreated: (GoogleMapController controller) {
+        _controller.complete(controller);
+      },
+    );
   }
 }
 
