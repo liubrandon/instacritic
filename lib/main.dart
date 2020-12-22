@@ -210,15 +210,17 @@ class _InstaCriticState extends State<InstaCritic> {
 
   Widget _buildSearchBar() {
     return Container(
-        padding: const EdgeInsets.only(left: 14, right: 70, top: 5, bottom: 10),
-        child: TextField(
-          onChanged: (text) => _searchUser(text),
-          decoration: InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              hintText: 'Search',
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              focusedBorder: InputBorder.none,
-              border: InputBorder.none,
+        padding: const EdgeInsets.only(left: 14, right: 70,),
+        child: Center(
+                  child: TextField(
+            onChanged: (text) => _searchUser(text),
+            decoration: InputDecoration(
+                prefixIcon: Icon(Icons.search),
+                hintText: 'Search',
+                contentPadding: EdgeInsets.only(top: 15),
+                focusedBorder: InputBorder.none,
+                border: InputBorder.none,
+            ),
           ),
         ),
       );
@@ -229,7 +231,6 @@ class _InstaCriticState extends State<InstaCritic> {
     return Container(
       padding: EdgeInsets.only(right: 20),
       child: PopupMenuButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         offset: Offset(0,55),
         tooltip: 'Sort',
         icon: Icon(Icons.sort_rounded, size: 27, color: Colors.black),
@@ -263,7 +264,6 @@ class _InstaCriticState extends State<InstaCritic> {
             content: Text('Reloading...'),
           ));});
   }
-
 
   Widget _buildListTabView() {
     return StreamBuilder(
