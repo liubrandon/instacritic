@@ -105,10 +105,6 @@ class _InstaCriticState extends State<InstaCritic> {
 
     // Get the list of posts from the response and convert them into Reviews
     List<dynamic> postList = jsonDecode(res.body)['data'];
-    postList.forEach((post) {
-      print(post);
-      print('\n');
-    });
     if(postList.length > 0)
       igUsername = postList[0]['username'];
     for(int i = 0; i < postList.length; i++)
@@ -214,13 +210,13 @@ class _InstaCriticState extends State<InstaCritic> {
 
   Widget _buildSearchBar() {
     return Container(
-        padding: const EdgeInsets.only(left: 14, right: 70, top: 10, bottom: 10),
+        padding: const EdgeInsets.only(left: 14, right: 70, top: 5, bottom: 10),
         child: TextField(
           onChanged: (text) => _searchUser(text),
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
               hintText: 'Search',
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               focusedBorder: InputBorder.none,
               border: InputBorder.none,
           ),
