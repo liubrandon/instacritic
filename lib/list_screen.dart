@@ -40,31 +40,36 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               return Center(child: CircularProgressIndicator());
             else {
               Provider.of<InstagramRepository>(context,listen:false).currentReviews = snapshot.data;
-              List<Widget> sliv = [_buildAppBar(),_buildSearchBar(),];
-              sliv.addAll(_getSliverList(snapshot));
+              List<Widget> slivs = [
+                _buildAppBar(),
+                _buildSearchBar(),
+              ];
+              slivs.addAll(_getSliverList(snapshot));
+              slivs.add(SliverToBoxAdapter(child: Container(height:20))); // Bottom padding for convex
               return CupertinoScrollbar(
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  cacheExtent: 10000.0,
-                  slivers: sliv),
+                  cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
+                  slivers: slivs),
               );}});
   }
 
   List<Widget> _getSliverList(AsyncSnapshot<List<Review>> snapshot) {
-    return snapshot.data.map((f) => SliverToBoxAdapter(child: _buildRow(f))).toList();
+    return snapshot.data.map((review) => SliverToBoxAdapter(child: _buildRow(review))).toList();
   } 
 
-  SliverList _buildReviewList(AsyncSnapshot<List<Review>> snapshot) {
-    return SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildRow(snapshot.data[index]),
-                childCount: snapshot.data.length,
-              ),
-            );
-  }
+  // SliverList _buildReviewList(AsyncSnapshot<List<Review>> snapshot) {
+  //   return SliverList( // Builder seems to crash, so I switched to a list
+  //             delegate: SliverChildBuilderDelegate(
+  //               (context, index) => _buildRow(snapshot.data[index]),
+  //               childCount: snapshot.data.length,
+  //             ),
+  //           );
+  // }
 
   SliverAppBar _buildSearchBar() {
     return SliverAppBar(
+              automaticallyImplyLeading: false,
               elevation: 0,
               pinned: true,
               backgroundColor: Colors.white,
@@ -136,6 +141,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                 splashColor: Colors.transparent,
                 onPressed: () {
                   _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
+                  Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
                   Provider.of<InstagramRepository>(context,listen:false).madeChange();
                   _searchTextController.clear();
                 }, 
@@ -153,6 +159,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
     Provider.of<InstagramRepository>(context,listen:false).currentReviews = [];
     if(searchQuery.isEmpty) {
       _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
+      Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
       Provider.of<InstagramRepository>(context,listen:false).madeChange();
       return;
     }
@@ -162,6 +169,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       }
     });
     _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
+    Provider.of<InstagramRepository>(context,listen:false).showingAll = false;
     Provider.of<InstagramRepository>(context,listen:false).madeChange();
   }
 

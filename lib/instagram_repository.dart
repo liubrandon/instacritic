@@ -9,6 +9,7 @@ class InstagramRepository with ChangeNotifier {
   List<Review> allReviews = [];
   List<Review> currentReviews = [];
   bool ready = false;
+  bool showingAll = true;
 
   InstagramRepository() {
     getReviews();
@@ -40,8 +41,10 @@ class InstagramRepository with ChangeNotifier {
     // postList.forEach((post) => print(post.toString() + '\n'));
     if(postList.length > 0)
       igUsername = postList[0]['username'];
-    for(int i = 0; i < postList.length; i++)
+    for(int i = 0; i < postList.length; i++) {
       allReviews.add(Review.fronJson(postList[i]));
+      currentReviews.add(Review.fronJson(postList[i]));
+    }
     ready = true;
     notifyListeners();
   }
