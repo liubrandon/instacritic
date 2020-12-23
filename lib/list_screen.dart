@@ -93,6 +93,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       child: ListTile(
         leading: CircleAvatar(
+          minRadius: 25,
+          maxRadius: 25,
           // constraints: BoxConstraints(minWidth: 44, minHeight: 44, maxHeight: 44, maxWidth: 44),
           backgroundImage: NetworkImage(review.mediaUrl),
         ),
@@ -170,7 +172,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   Label _currentSortLabel = sortLabels[0];
   Widget _buildSortButton() {
     return Container(
-      padding: EdgeInsets.only(right: 17),
+      padding: EdgeInsets.only(right: 14),
       child: PopupMenuButton(
         offset: Offset(0,55),
         tooltip: 'Sort',
@@ -197,6 +199,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       onPressed: () {
         Provider.of<InstagramRepository>(context,listen:false).allReviews = []; // Reset review list
         Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
+        _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews); // Get latest data from IG
       });
   }
 }
