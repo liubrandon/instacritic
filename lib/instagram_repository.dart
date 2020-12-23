@@ -28,9 +28,15 @@ class InstagramRepository with ChangeNotifier {
     final String igFields = 'caption,id,media_type,media_url,permalink,timestamp,username';
     String queryString = Uri(queryParameters: {'fields': igFields, 'access_token': igToken}).query;
     var res = await http.get(igUrl + '?' + queryString);
-
+    var curr25 = jsonDecode(res.body);
     // Get the list of posts from the response and convert them into Reviews
-    List<dynamic> postList = jsonDecode(res.body)['data'];
+    List<dynamic> postList = curr25['data'];
+    while(curr25['paging']['next'] != null) {
+      // Get all pages until there are no more
+      res = await http.get(curr25['paging']['next']);
+      curr25 = jsonDecode(res.body);
+      postList.addAll(curr25['data']);
+    }
     // postList.forEach((post) => print(post.toString() + '\n'));
     if(postList.length > 0)
       igUsername = postList[0]['username'];
