@@ -14,6 +14,8 @@ class InstagramRepository with ChangeNotifier {
     getReviews();
   }
 
+  void madeChange() => notifyListeners();
+
   Future<String> getInstagramToken() async {
     DocumentSnapshot doc = await FirebaseFirestore.instance.collection('secrets').doc('chirashibrandon').get();
     return doc.data()['ig_token'];

@@ -18,15 +18,20 @@ class ListScreen extends StatefulWidget {
 class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-
+  bool runOnce = true;
   StreamController<List<Review>> _reviewController = BehaviorSubject(); // ignore: close_sinks  
 
   @override
   Widget build(BuildContext context) {
+    print('Rebuilt list screen');
     super.build(context);
-    if(!Provider.of<InstagramRepository>(context,listen:false).ready)
+    if(!Provider.of<InstagramRepository>(context,listen: true).ready) {
       return Center(child: CircularProgressIndicator());
-    _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
+    }
+    if(runOnce) { // This is the initial building of the list
+      _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
+      runOnce = false;
+    }
     return StreamBuilder( // Get the reviews as a stream so if you search or sort it updates again
           stream: _reviewController.stream,
           builder: (BuildContext buildContext, AsyncSnapshot<List<Review>> snapshot) {
@@ -122,6 +127,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                 splashColor: Colors.transparent,
                 onPressed: () {
                   _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
+                  Provider.of<InstagramRepository>(context,listen:false).madeChange();
                   _searchTextController.clear();
                 }, 
                 icon: Icon(Icons.clear, size: 17),
@@ -138,6 +144,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
     Provider.of<InstagramRepository>(context,listen:false).currentReviews = [];
     if(searchQuery.isEmpty) {
       _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
+      Provider.of<InstagramRepository>(context,listen:false).madeChange();
       return;
     }
     Provider.of<InstagramRepository>(context,listen:false).allReviews.forEach((review) {
@@ -146,6 +153,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       }
     });
     _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
+    Provider.of<InstagramRepository>(context,listen:false).madeChange();
   }
 
   bool _reviewMatchesSearchQuery(Review review, String searchQuery) {
@@ -158,11 +166,11 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   Label _currentSortLabel = sortLabels[0];
   Widget _buildSortButton() {
     return Container(
-      padding: EdgeInsets.only(right: 20),
+      padding: EdgeInsets.only(right: 17),
       child: PopupMenuButton(
         offset: Offset(0,55),
         tooltip: 'Sort',
-        icon: Icon(Icons.sort_rounded, size: 27, color: Colors.black),
+        icon: Icon(Icons.sort, size: 27, color: Colors.black),
         itemBuilder: (_) => List.generate(sortLabels.length, (index) {
           return CheckedPopupMenuItem(
               checked: (_currentSortLabel == sortLabels[index]),

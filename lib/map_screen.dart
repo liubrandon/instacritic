@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:instacritic/instagram_repository.dart';
+import 'package:provider/provider.dart';
 
 class MapScreen extends StatefulWidget {
   @override
@@ -13,6 +15,8 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<InstagramRepository>(context).currentReviews.forEach((review) => print(review));
+    print('\n');
     super.build(context);
     Completer<GoogleMapController> _controller = Completer();
     final CameraPosition _kGooglePlex = CameraPosition(

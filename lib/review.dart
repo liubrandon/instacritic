@@ -12,7 +12,7 @@ class Review {
   // json returned by the Instagram API and creates a Review
   factory Review.fronJson(Map<String, dynamic> postData) {
     List<dynamic> captionData = postData['caption'].split("-");
-    captionData.forEach((str) { str.trim(); });
+    for(int i = 0; i < captionData.length; i++) captionData[i] = captionData[i].trim();
     int stars = (captionData[0].contains('💀')) ? 0 : int.parse(captionData[0].substring(0,captionData[0].indexOf('/')));
     return Review(
       restaurantName: captionData[1],
