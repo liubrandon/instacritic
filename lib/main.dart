@@ -56,11 +56,12 @@ class Label {
 }
 
 List<Label> _sortLabels = [
-  Label(text: 'Newest',         mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.timestamp.compareTo(a.timestamp));}),
-  Label(text: 'Oldest',         mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.timestamp.compareTo(b.timestamp));}),
-  Label(text: 'A-Z restaurant', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.restaurantName.compareTo(b.restaurantName));}),
-  Label(text: '★ ascending',    mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.stars.compareTo(b.stars));}),
-  Label(text: '★ descending',   mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.stars.compareTo(a.stars));}),
+  Label(text: 'Newest', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.timestamp.compareTo(a.timestamp));}),
+  Label(text: 'Oldest', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.timestamp.compareTo(b.timestamp));}),
+  Label(text: 'A-Z by restaurant', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.restaurantName.compareTo(b.restaurantName));}),
+  Label(text: 'A-Z by location', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.location.compareTo(b.location));}),
+  Label(text: 'Rating ascending', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.stars.compareTo(b.stars));}),
+  Label(text: 'Rating descending', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.stars.compareTo(a.stars));}),
 ];
 
 class _InstaCriticState extends State<InstaCritic> {
@@ -208,16 +209,32 @@ class _InstaCriticState extends State<InstaCritic> {
     reviewController.sink.add(searchResult);
   }
 
+  TextEditingController _searchTextController = TextEditingController();
+
   Widget _buildSearchBar() {
     return Container(
-        padding: const EdgeInsets.only(left: 14, right: 70,),
+        padding: const EdgeInsets.only(left: 12, right: 70),
         child: Center(
-                  child: TextField(
-            onChanged: (text) => _searchUser(text),
+          child: TextField(
+            controller: _searchTextController,
+            onChanged: (text) {
+              _searchUser(text);
+            },
+            onTap: () => _searchTextController.selection = TextSelection(baseOffset: 0, extentOffset: _searchTextController.value.text.length),
             decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
+                suffixIcon: (_searchTextController.text.length > 0) ? IconButton(
+                  color:  Colors.black,
+                  focusColor: Colors.transparent, hoverColor: Colors.transparent, highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  onPressed: () {
+                    reviewController.sink.add(allReviews);
+                    _searchTextController.clear();
+                  }, 
+                  icon: Icon(Icons.clear, size: 17),
+                ) : null,
                 hintText: 'Search',
-                contentPadding: EdgeInsets.only(top: 15),
+                contentPadding: EdgeInsets.only(top: 14),
                 focusedBorder: InputBorder.none,
                 border: InputBorder.none,
             ),
