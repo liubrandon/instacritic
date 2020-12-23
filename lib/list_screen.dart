@@ -40,6 +40,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
             else {
               Provider.of<InstagramRepository>(context,listen:false).currentReviews = snapshot.data;
               return CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics (),
+                cacheExtent: 10000.0,
                 slivers: [
                   _buildAppBar(),
                   _buildSearchBar(),
