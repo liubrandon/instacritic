@@ -39,15 +39,17 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               return Center(child: CircularProgressIndicator());
             else {
               Provider.of<InstagramRepository>(context,listen:false).currentReviews = snapshot.data;
+              List<Widget> sliv = [_buildAppBar(),_buildSearchBar(),];
+              sliv.addAll(_getSliverList(snapshot));
               return CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics (),
+                physics: const AlwaysScrollableScrollPhysics(),
                 cacheExtent: 10000.0,
-                slivers: [
-                  _buildAppBar(),
-                  _buildSearchBar(),
-                  _buildReviewList(snapshot),
-                ],);}});
+                slivers: sliv);}});
   }
+
+  List<Widget> _getSliverList(AsyncSnapshot<List<Review>> snapshot) {
+    return snapshot.data.map((f) => SliverToBoxAdapter(child: _buildRow(f))).toList();
+  } 
 
   SliverList _buildReviewList(AsyncSnapshot<List<Review>> snapshot) {
     return SliverList(
@@ -88,11 +90,11 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   Widget _buildRow(Review review) {
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       child: ListTile(
-        leading: ConstrainedBox(
-          constraints: BoxConstraints(minWidth: 44, minHeight: 44, maxHeight: 64, maxWidth: 64),
-          child: Image.network(review.mediaUrl),
+        leading: CircleAvatar(
+          // constraints: BoxConstraints(minWidth: 44, minHeight: 44, maxHeight: 44, maxWidth: 44),
+          backgroundImage: NetworkImage(review.mediaUrl),
         ),
         title: Text(review.restaurantName, style: TextStyle(fontSize: 18.0),),
         subtitle: Text(review.location),
