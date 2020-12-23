@@ -44,7 +44,7 @@ class _InstacriticState extends State<Instacritic> {
       gradient: LinearGradient(colors: GradientColors.purplePink),
       backgroundColor: Color(0xFFcc2b5e),
       color: Colors.white,
-      height: 42,
+      height: 45,
     );
   }
 }

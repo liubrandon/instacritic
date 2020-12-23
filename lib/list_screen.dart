@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:provider/provider.dart';
@@ -41,10 +42,12 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               Provider.of<InstagramRepository>(context,listen:false).currentReviews = snapshot.data;
               List<Widget> sliv = [_buildAppBar(),_buildSearchBar(),];
               sliv.addAll(_getSliverList(snapshot));
-              return CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                cacheExtent: 10000.0,
-                slivers: sliv);}});
+              return CupertinoScrollbar(
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  cacheExtent: 10000.0,
+                  slivers: sliv),
+              );}});
   }
 
   List<Widget> _getSliverList(AsyncSnapshot<List<Review>> snapshot) {

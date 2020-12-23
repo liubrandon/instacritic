@@ -15,8 +15,8 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<InstagramRepository>(context).currentReviews.forEach((review) => print(review));
-    print('\n');
+    // Provider.of<InstagramRepository>(context).currentReviews.forEach((review) => print(review));
+    // print('\n');
     super.build(context);
     Completer<GoogleMapController> _controller = Completer();
     final CameraPosition _kGooglePlex = CameraPosition(
