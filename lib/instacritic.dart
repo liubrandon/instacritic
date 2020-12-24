@@ -61,7 +61,7 @@ class _InstacriticState extends State<Instacritic> {
             hoverColor: Colors.transparent,
             splashColor: Colors.transparent,
             focusColor: Colors.transparent,
-            label: Text(_getNumReviewsString(), style: TextStyle(fontSize: 14, letterSpacing: .65)),
+            label: Text(_getNumReviewsString(), style: TextStyle(fontSize: 14, letterSpacing: .575)),
           ),
         ),
       );

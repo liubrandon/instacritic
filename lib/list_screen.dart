@@ -117,16 +117,24 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           data: IconThemeData(color: Colors.amber, size: 25),
           child: StarDisplay(value: review.stars)
         ),
-        onTap: () => _launchInBrowser(review.permalink),
+        onTap: () => _launchUniversalLinkIos(review.permalink),
       ),
     );
   }
 
-  Future<void> _launchInBrowser(String url) async {
+  Future<void> _launchUniversalLinkIos(String url) async {
     if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: false, forceWebView: false);
-    } else {
-      throw 'Could not launch $url';
+      final bool nativeAppLaunchSucceeded = await launch(
+        url,
+        forceSafariVC: false,
+        universalLinksOnly: true,
+      );
+      if (!nativeAppLaunchSucceeded) {
+        await launch(
+          url,
+          forceSafariVC: true,
+        );
+      }
     }
   }
 
