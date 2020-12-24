@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
     // final Instacritic icMap = Instacritic(1);
     return WillPopScope(
       onWillPop: () async => false,
-          child: ChangeNotifierProvider(
+      child: ChangeNotifierProvider(
         create: (_) => InstagramRepository(),
         child: MaterialApp(
           home: Instacritic(0),
