@@ -21,6 +21,7 @@ class Instacritic extends StatefulWidget {
 
 class _InstacriticState extends State<Instacritic> {
   ScrollController scrollController = ScrollController();
+  FocusNode searchBoxFocusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +31,11 @@ class _InstacriticState extends State<Instacritic> {
       child: HideFabOnScrollScaffold(
         body: TabBarView(
           physics: NeverScrollableScrollPhysics(),
-          children: [ListScreen(scrollController),MapScreen()],
+          children: [ListScreen(scrollController, searchBoxFocusNode),MapScreen()],
         ),
         floatingActionButton: _buildReviewCountFAB(),
         controller: scrollController,
+        focusNode: searchBoxFocusNode,
       ),
     );
   }
@@ -75,11 +77,13 @@ class HideFabOnScrollScaffold extends StatefulWidget {
     this.body,
     this.floatingActionButton,
     this.controller,
+    this.focusNode,
   }) : super(key: key);
 
   final Widget body;
   final Widget floatingActionButton;
   final ScrollController controller;
+  final FocusNode focusNode;
 
   @override
   State<StatefulWidget> createState() => HideFabOnScrollScaffoldState();
@@ -92,6 +96,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
   void initState() {
     super.initState();
     widget.controller.addListener(_updateFabVisible);
+    widget.focusNode.addListener(_updateFabVisible);
   }
 
   @override
@@ -101,7 +106,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
   }
 
   void _updateFabVisible() {
-    final newFabVisible = (widget.controller.position.userScrollDirection == ScrollDirection.forward);
+    final newFabVisible = (widget.controller.position.userScrollDirection == ScrollDirection.forward || widget.focusNode.hasFocus);
     if (_fabVisible != newFabVisible) {
       setState(() {
         _fabVisible = newFabVisible;

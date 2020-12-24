@@ -13,7 +13,8 @@ import 'label.dart';
 
 class ListScreen extends StatefulWidget {
   final ScrollController scrollController;
-  const ListScreen(this.scrollController);
+  final FocusNode searchBoxFocusNode;
+  const ListScreen(this.scrollController, this.searchBoxFocusNode);
   @override
   State<ListScreen> createState() => _ListScreenState();
 }
@@ -128,12 +129,13 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
     }
   }
 
-  TextEditingController _searchTextController = TextEditingController();
+  final TextEditingController _searchTextController = TextEditingController();
   Widget _buildSearchTextField() {
     return Container(
       padding: const EdgeInsets.only(left: 12, right: 70),
       child: Center(
         child: TextField(
+          focusNode: widget.searchBoxFocusNode,
           controller: _searchTextController,
           onChanged: (text) => _updateCurrentReviews(text),
           decoration: InputDecoration(
