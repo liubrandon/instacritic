@@ -1,6 +1,6 @@
 
 import 'dart:async';
-import 'package:url_launcher_web/url_launcher_web.dart';
+import 'dart:html' as html;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
@@ -120,9 +120,15 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           data: IconThemeData(color: Colors.amber[500], size: 25),
           child: StarDisplay(value: review.stars)
         ),
-        onTap: () => _launchUniversalLinkIos(review.permalink),
+        onTap: () => openNewWindow(review.permalink),
       ),
     );
+  }
+
+  html.Window _window;
+  html.WindowBase openNewWindow(String url, {String webOnlyWindowName}) {
+    final target = '_top';
+    return _window.open(url, target);
   }
 
   Future<void> _launchUniversalLinkIos(String url) async {
