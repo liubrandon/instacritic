@@ -133,7 +133,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       if (!nativeAppLaunchSucceeded) {
         await launch(
           url,
-          forceSafariVC: true,
+          // forceSafariVC: true,
         );
       }
     }

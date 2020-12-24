@@ -27,18 +27,21 @@ class _InstacriticState extends State<Instacritic> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: _homeTabs.length,
-      initialIndex: 0,
-      child: HideFabOnScrollScaffold(
-        body: TabBarView(
-          physics: NeverScrollableScrollPhysics(),
-          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: DefaultTabController(
+        length: _homeTabs.length,
+        initialIndex: 0,
+        child: HideFabOnScrollScaffold(
+          body: TabBarView(
+            physics: NeverScrollableScrollPhysics(),
+            children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
+          ),
+          floatingActionButton: _buildReviewCountFAB(),
+          scrollController: _scrollController,
+          textController: _textController,
+          focusNode: _searchBoxFocusNode,
         ),
-        floatingActionButton: _buildReviewCountFAB(),
-        scrollController: _scrollController,
-        textController: _textController,
-        focusNode: _searchBoxFocusNode,
       ),
     );
   }
