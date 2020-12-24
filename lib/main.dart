@@ -24,17 +24,19 @@ Future<void> initializeFlutterFire() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final Instacritic icList = Instacritic(0);
+    // final Instacritic icMap = Instacritic(1);
     return ChangeNotifierProvider(
       create: (_) => InstagramRepository(),
       child: MaterialApp(
-        home: Instacritic(0),
+        // home: Instacritic(0),
         theme: ThemeData(
           accentColor: Colors.grey,
         ),
-        initialRoute: Instacritic.route,
+        initialRoute: '/',
         routes: {
-          ListScreen.route: (context) => Instacritic(0),
-          MapScreen.route: (context) => Instacritic(1),
+          '/': (context) => icList,
+          // MapScreen.route: (context) => icMap,
         }
       ),
     );
