@@ -12,7 +12,8 @@ import 'review.dart';
 import 'label.dart';
 
 class ListScreen extends StatefulWidget {
-  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode);
+  static final route = '/list';
+  const ListScreen({this.scrollController, this.textController, this.searchBoxFocusNode});
   final ScrollController scrollController;
   final TextEditingController textController;
   final FocusNode searchBoxFocusNode;

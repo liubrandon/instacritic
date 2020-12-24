@@ -27,11 +27,15 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => InstagramRepository(),
       child: MaterialApp(
-        home: Instacritic(),
+        home: Instacritic(0),
         theme: ThemeData(
           accentColor: Colors.grey,
         ),
         initialRoute: Instacritic.route,
+        routes: {
+          ListScreen.route: (context) => Instacritic(0),
+          MapScreen.route: (context) => Instacritic(1),
+        }
       ),
     );
   }

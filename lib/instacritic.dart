@@ -15,34 +15,50 @@ const List<TabItem> _homeTabs = [
 ];
 
 class Instacritic extends StatefulWidget {
+  const Instacritic(this.initialPageIndex);
+  final int initialPageIndex;
   static final route = '/';
   @override
   _InstacriticState createState() => _InstacriticState();
 }
 
-class _InstacriticState extends State<Instacritic> {
+class _InstacriticState extends State<Instacritic> with SingleTickerProviderStateMixin {
   // Used by ListScreen and HideFabOnScrollScaffold
   TextEditingController _textController = TextEditingController();
   ScrollController _scrollController = ScrollController();
   FocusNode _searchBoxFocusNode = FocusNode();
+  TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(vsync: this, length: _homeTabs.length, initialIndex: widget.initialPageIndex);
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _scrollController.dispose();
+    _searchBoxFocusNode.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async => false,
-      child: DefaultTabController(
-        length: _homeTabs.length,
-        initialIndex: 0,
-        child: HideFabOnScrollScaffold(
-          body: TabBarView(
-            physics: const NeverScrollableScrollPhysics(),
-            children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
-          ),
-          floatingActionButton: _buildReviewCountFAB(),
-          scrollController: _scrollController,
-          textController: _textController,
-          focusNode: _searchBoxFocusNode,
+      child: HideFabOnScrollScaffold(
+        body: TabBarView(
+          controller: _tabController,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [ListScreen(scrollController: _scrollController, textController:  _textController, searchBoxFocusNode: _searchBoxFocusNode),MapScreen()],
         ),
+        floatingActionButton: _buildReviewCountFAB(),
+        scrollController: _scrollController,
+        textController: _textController,
+        focusNode: _searchBoxFocusNode,
+        tabController: _tabController,
       ),
     );
   }
@@ -86,6 +102,7 @@ class HideFabOnScrollScaffold extends StatefulWidget {
     this.scrollController,
     this.textController,
     this.focusNode,
+    this.tabController,
   }) : super(key: key);
 
   final Widget body;
@@ -93,6 +110,7 @@ class HideFabOnScrollScaffold extends StatefulWidget {
   final ScrollController scrollController;
   final TextEditingController textController;
   final FocusNode focusNode;
+  final TabController tabController;
 
   @override
   State<StatefulWidget> createState() => HideFabOnScrollScaffoldState();
@@ -136,7 +154,6 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           child: InfoScreen(),
         ),
       ),
-
       drawerEnableOpenDragGesture: false,
       bottomNavigationBar: _buildBottomBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
@@ -144,6 +161,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
   }
   Widget _buildBottomBar() {
     return ConvexAppBar(
+      controller: widget.tabController,
       items: _homeTabs,
       elevation: 0,
       style: TabStyle.reactCircle,

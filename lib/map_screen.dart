@@ -5,8 +5,8 @@ import 'package:instacritic/instagram_repository.dart';
 import 'package:provider/provider.dart';
 
 class MapScreen extends StatefulWidget {
-  @override
-  _MapScreenState createState() => _MapScreenState();
+  static final route = '/map';
+  @override _MapScreenState createState() => _MapScreenState();
 }
 /* TODO: 
 - Make custom markers work (or just use regular markers)
@@ -38,7 +38,6 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
 
     final CameraPosition _kGooglePlex = CameraPosition(
       target: LatLng(41.3163, -72.9223),
