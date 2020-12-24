@@ -116,7 +116,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         title: Text(review.restaurantName, style: TextStyle(fontSize: 18.0),),
         subtitle: Text(review.location),
         trailing: IconTheme(
-          data: IconThemeData(color: Colors.amber, size: 25),
+          data: IconThemeData(color: Colors.amber[500], size: 25),
           child: StarDisplay(value: review.stars)
         ),
         onTap: () => _launchUniversalLinkIos(review.permalink),
@@ -223,9 +223,10 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       icon: const Icon(Icons.refresh),
       tooltip: 'Reload',
       onPressed: () {
-        Provider.of<InstagramRepository>(context,listen:false).allReviews = []; // Reset review list
-        Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
-        _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews); // Get latest data from IG
+          Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
+          _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews); // Get latest data from IG
+          widget.textController.clear();
+          Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
       });
   }
 
