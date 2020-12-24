@@ -150,7 +150,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           child: InfoScreen(),
         ),
       ),
-      drawerEnableOpenDragGesture: false,
+      drawerEnableOpenDragGesture: true,
       bottomNavigationBar: _buildBottomBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
     );
