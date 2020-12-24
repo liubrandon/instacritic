@@ -20,8 +20,8 @@ Future<void> initializeFlutterFire() async {
 }
 
 class MyApp extends StatelessWidget {
-  ICRouterDelegate _routerDelegate = ICRouterDelegate();
-  ICRouteInformationParser _routeInformationParser = ICRouteInformationParser();
+  final ICRouterDelegate _routerDelegate = ICRouterDelegate();
+  final ICRouteInformationParser _routeInformationParser = ICRouteInformationParser();
   
   @override
   Widget build(BuildContext context) {
@@ -43,14 +43,12 @@ class ICRouteInformationParser extends RouteInformationParser<ICRoutePath> {
     if(uri.pathSegments.length == 0)
       return ICRoutePath.home();
     
-    // Handle '/book/:id' TODO: Add /list and /map
-    // if (uri.pathSegments.length == 2) {
-    //   if (uri.pathSegments[0] != 'book') return BookRoutePath.unknown();
-    //   var remaining = uri.pathSegments[1];
-    //   var id = int.tryParse(remaining);
-    //   if (id == null) return BookRoutePath.unknown();
-    //   return BookRoutePath.details(id);
-    // }
+    // Handle /list and /map
+    if (uri.pathSegments.length == 1) {
+      if (uri.pathSegments[0] == 'list') return ICRoutePath.home();
+      if (uri.pathSegments[0] == 'map') return ICRoutePath.map();
+      return ICRoutePath.unknown();
+    }
 
     // Handle unknown routes
     return ICRoutePath.unknown();
@@ -58,25 +56,32 @@ class ICRouteInformationParser extends RouteInformationParser<ICRoutePath> {
 
   @override
   RouteInformation restoreRouteInformation(ICRoutePath path) {
-    if (path.isUnknown) {
+    if (path.isUnknown)
       return RouteInformation(location: '/404');
-    }
-    if (path.isHomePage) {
-      return RouteInformation(location: '/');
-    }
+    if (path.isHomePage)
+      return RouteInformation(location: '/list');
+    if (path.isMapPage)
+      return RouteInformation(location: '/map');
     return null;
   }
 }
 
-
 class ICRouterDelegate extends RouterDelegate<ICRoutePath>
   with ChangeNotifier, PopNavigatorRouterDelegateMixin<ICRoutePath> {
   final GlobalKey<NavigatorState> navigatorKey;
+  int _currPageId = 0;
   bool show404 = false;
   ICRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>();
+
   ICRoutePath get currentConfiguration { 
-    if(show404) return ICRoutePath.unknown();
-    return ICRoutePath.home(); 
+    if(_currPageId == 0)
+      return ICRoutePath.home();
+    else if(_currPageId == 1)
+      return ICRoutePath.map();
+    else if(show404)
+      return ICRoutePath.unknown();
+    print('ISSUE: Should never get here in routing...');
+    return ICRoutePath.unknown();
   }
 
   @override
@@ -87,7 +92,9 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
       pages: [
         MaterialPage(
           key: ValueKey('Instacritic'),
-          child: Instacritic(0),
+          child: Instacritic(
+            bottomBarTapped: _updateUrl,
+          ),
         ),
         if(show404)
           MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen())
@@ -101,6 +108,11 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
     );
   }
 
+  void _updateUrl(int i) {
+    _currPageId = i;
+    notifyListeners();
+  }
+  
   @override
   Future<void> setNewRoutePath(ICRoutePath path) async {
     if(path.isUnknown) {
@@ -114,9 +126,12 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
 class ICRoutePath {
   final int pageId;
   final bool isUnknown;
-  ICRoutePath.home() : pageId = null, isUnknown = false;
+  ICRoutePath.home() : pageId = 0, isUnknown = false;
+  ICRoutePath.map() : pageId = 1, isUnknown = false;
   ICRoutePath.unknown() : pageId = null, isUnknown = true;
-  bool get isHomePage => pageId == null && isUnknown == false;
+
+  bool get isHomePage => pageId == 0 && isUnknown == false;
+  bool get isMapPage => pageId == 1 && isUnknown == false;
 }
 
 class NoAnimationTransitionDelegate extends TransitionDelegate<void> {
@@ -158,7 +173,7 @@ class UnknownScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(backgroundColor: Colors.purple,),
       body: Center(
         child: Text('404!'),
       ),
