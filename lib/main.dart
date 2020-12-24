@@ -24,24 +24,25 @@ Future<void> initializeFlutterFire() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // final Instacritic icList = Instacritic(0);
-    // final Instacritic icMap = Instacritic(1);
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: ChangeNotifierProvider(
+    return ChangeNotifierProvider(
         create: (_) => InstagramRepository(),
         child: MaterialApp(
-          home: Instacritic(0),
+          home: Navigator(
+            pages: [
+              MaterialPage(
+                key: ValueKey('Instacritic'),
+                child: Instacritic(0)
+              ),
+            ],
+            onPopPage: (route, result) {
+              if(!route.didPop(result)) return false;
+              return true;
+            }
+          ),
           theme: ThemeData(
             accentColor: Colors.grey,
           ),
-          // initialRoute: '/',
-          // routes: {
-          //   '/': (context) => icList,
-          //   // MapScreen.route: (context) => icMap,
-          // }
         ),
-      ),
-    );
+      );
   }
 }

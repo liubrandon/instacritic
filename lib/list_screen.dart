@@ -112,7 +112,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       child: Link(
         uri: Uri.parse(review.permalink),
         target: LinkTarget.blank,
-        builder: (BuildContext context, FollowLink followLink) => ListTile(
+        builder: (_, FollowLink followLink) => ListTile(
           leading: CircleAvatar(
             minRadius: 25, maxRadius: 25,
             backgroundColor: Colors.grey,
@@ -129,23 +129,6 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       ),
     );
   }
-
-  // Future<void> _launchUniversalLinkIos(String url) async {
-  //   if (await canLaunch(url)) {
-  //     final bool nativeAppLaunchSucceeded = await launch(
-  //       url,
-  //       forceSafariVC: false,
-  //       universalLinksOnly: true,
-  //     );
-  //     print('universal link failed');
-  //     if (!nativeAppLaunchSucceeded) {
-  //       await launch(
-  //         url,
-  //         forceSafariVC: true,
-  //       );
-  //     }
-  //   }
-  // }
 
   Widget _buildSearchTextField() {
     return Container(
