@@ -45,7 +45,7 @@ class _InstacriticState extends State<Instacritic> {
 
   SizedBox _buildReviewCountFAB() {
     return SizedBox(
-        width: 110,
+        width: 120,
         height: 35,
         child: Container(
           decoration: BoxDecoration(
@@ -61,7 +61,7 @@ class _InstacriticState extends State<Instacritic> {
             hoverColor: Colors.transparent,
             splashColor: Colors.transparent,
             focusColor: Colors.transparent,
-            label: Text(_getNumReviewsString(), style: TextStyle(color: Colors.white, fontSize: 14, letterSpacing: .575)),
+            label: Text(_getNumReviewsString(), style: TextStyle(color: Colors.white, fontSize: 15, letterSpacing: .5)),
           ),
         ),
       );

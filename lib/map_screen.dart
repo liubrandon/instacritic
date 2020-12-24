@@ -10,21 +10,40 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin {
+  @override bool get wantKeepAlive => true; // Used to keep tab alive
+
+  BitmapDescriptor pinLocationIcon;
+  Set<Marker> _markers = {};
+  Completer<GoogleMapController> _controller = Completer();
+
   @override
-  bool get wantKeepAlive => true;
+  void initState() {
+    super.initState();
+    BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(devicePixelRatio: 2.5),
+      'assets/marker.png').then((onValue) {
+        pinLocationIcon = onValue;
+      });
+    LatLng steamedPos = LatLng(41.3126, -72.9218);
+    _markers.add(Marker(
+      markerId: MarkerId('Steamed'),
+      position: steamedPos,
+      icon: pinLocationIcon,
+      ));
+  }
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<InstagramRepository>(context).currentReviews.forEach((review) => print(review));
-    print('\n');
     super.build(context);
-    Completer<GoogleMapController> _controller = Completer();
+    
+
     final CameraPosition _kGooglePlex = CameraPosition(
       target: LatLng(41.3163, -72.9223),
       zoom: 14.4746,
     );
 
     return GoogleMap(
+      markers: _markers,
       mapType: MapType.normal,
       initialCameraPosition: _kGooglePlex,
       onMapCreated: (GoogleMapController controller) {
