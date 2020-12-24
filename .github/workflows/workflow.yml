@@ -34,5 +34,5 @@ runs-on: ubuntu-latest
         git remote add secure-origin https://${{ secrets.ACCESS_TOKEN }}@github.com/liubrandon/instacritic.git
         git checkout -b gh-pages
         git add .
-        git commit -m "Updated docs"
+        git commit -m "Update instacritic"
         git push --force secure-origin gh-pages
