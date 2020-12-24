@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'configure_web.dart';
 import 'package:provider/provider.dart';
 import 'instagram_repository.dart';
 import 'instacritic.dart';
 Future<void> main() async {
+  configureApp();
   await initializeFlutterFire();
   runApp(MyApp());
 }
