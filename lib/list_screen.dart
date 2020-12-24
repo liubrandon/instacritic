@@ -119,7 +119,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           data: IconThemeData(color: Colors.amber[500], size: 25),
           child: StarDisplay(value: review.stars)
         ),
-        onTap: () => _launchUniversalLinkIos(review.permalink),
+        onTap: () => launch(review.permalink),
       ),
     );
   }
