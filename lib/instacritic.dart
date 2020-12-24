@@ -1,45 +1,39 @@
 
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:provider/provider.dart';
 import 'info_screen.dart';
 import 'instagram_repository.dart';
 import 'map_screen.dart';
 import 'list_screen.dart';
+
+const List<TabItem> _homeTabs = [
+  TabItem(icon: Icons.list,),
+  TabItem(icon: Icons.map,),
+];
+
 class Instacritic extends StatefulWidget {
   @override
   _InstacriticState createState() => _InstacriticState();
 }
 
 class _InstacriticState extends State<Instacritic> {
-  static const List<TabItem> _homeTabs = [
-    TabItem(icon: Icons.list,),
-    TabItem(icon: Icons.map,),
-  ];
+  ScrollController scrollController = ScrollController();
 
-  // Used for showing the snackbar
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: _homeTabs.length,
       initialIndex: 0,
-      child: Scaffold(
-        key: scaffoldKey,
-        drawer: Container(
-          width: 150,
-          child: Drawer(
-            child: InfoScreen(),
-          ),
-        ),
+      child: HideFabOnScrollScaffold(
         body: TabBarView(
           physics: NeverScrollableScrollPhysics(),
-          children: [ListScreen(),MapScreen()],
+          children: [ListScreen(scrollController),MapScreen()],
         ),
-        bottomNavigationBar: _buildBottomBar(),
         floatingActionButton: _buildReviewCountFAB(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
+        controller: scrollController,
       ),
     );
   }
@@ -72,6 +66,63 @@ class _InstacriticState extends State<Instacritic> {
     if(_numReviews == 1)
       return '$_numReviews Review';
     return '$_numReviews Reviews';
+  }
+}
+
+class HideFabOnScrollScaffold extends StatefulWidget {
+  const HideFabOnScrollScaffold({
+    Key key,
+    this.body,
+    this.floatingActionButton,
+    this.controller,
+  }) : super(key: key);
+
+  final Widget body;
+  final Widget floatingActionButton;
+  final ScrollController controller;
+
+  @override
+  State<StatefulWidget> createState() => HideFabOnScrollScaffoldState();
+}
+
+class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
+  bool _fabVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_updateFabVisible);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_updateFabVisible);
+    super.dispose();
+  }
+
+  void _updateFabVisible() {
+    final newFabVisible = (widget.controller.position.userScrollDirection == ScrollDirection.forward);
+    if (_fabVisible != newFabVisible) {
+      setState(() {
+        _fabVisible = newFabVisible;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: widget.body,
+      floatingActionButton: _fabVisible ? widget.floatingActionButton : null,
+      drawer: Container(
+        width: 250,
+        child: Drawer(
+          child: InfoScreen(),
+        ),
+      ),
+      bottomNavigationBar: _buildBottomBar(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
+    );
   }
   Widget _buildBottomBar() {
     return ConvexAppBar(

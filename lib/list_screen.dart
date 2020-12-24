@@ -12,6 +12,8 @@ import 'review.dart';
 import 'label.dart';
 
 class ListScreen extends StatefulWidget {
+  final ScrollController scrollController;
+  const ListScreen(this.scrollController);
   @override
   State<ListScreen> createState() => _ListScreenState();
 }
@@ -48,6 +50,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               slivs.add(SliverToBoxAdapter(child: Container(height:20))); // Bottom padding for convex
               return CupertinoScrollbar(
                 child: CustomScrollView(
+                  controller: widget.scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
                   cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
                   slivers: slivs),
@@ -212,5 +215,12 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
         _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews); // Get latest data from IG
       });
+  }
+
+  @override
+  void dispose() {
+    _reviewController.close();
+    _searchTextController.dispose();
+    super.dispose();
   }
 }
