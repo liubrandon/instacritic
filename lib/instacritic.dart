@@ -10,8 +10,8 @@ import 'map_screen.dart';
 import 'list_screen.dart';
 
 const List<TabItem> _homeTabs = [
-  TabItem(icon: Icons.list,),
-  TabItem(icon: Icons.map,),
+  TabItem(icon: Icons.list),
+  TabItem(icon: Icons.map),
 ];
 
 class Instacritic extends StatefulWidget {
@@ -20,8 +20,10 @@ class Instacritic extends StatefulWidget {
 }
 
 class _InstacriticState extends State<Instacritic> {
-  ScrollController scrollController = ScrollController();
-  FocusNode searchBoxFocusNode = FocusNode();
+  // Used by ListScreen and HideFabOnScrollScaffold
+  TextEditingController _textController = TextEditingController();
+  ScrollController _scrollController = ScrollController();
+  FocusNode _searchBoxFocusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +33,12 @@ class _InstacriticState extends State<Instacritic> {
       child: HideFabOnScrollScaffold(
         body: TabBarView(
           physics: NeverScrollableScrollPhysics(),
-          children: [ListScreen(scrollController, searchBoxFocusNode),MapScreen()],
+          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
         ),
         floatingActionButton: _buildReviewCountFAB(),
-        controller: scrollController,
-        focusNode: searchBoxFocusNode,
+        scrollController: _scrollController,
+        textController: _textController,
+        focusNode: _searchBoxFocusNode,
       ),
     );
   }
@@ -58,13 +61,13 @@ class _InstacriticState extends State<Instacritic> {
             hoverColor: Colors.transparent,
             splashColor: Colors.transparent,
             focusColor: Colors.transparent,
-            label: Text(_getNumReviewsString(), style: TextStyle(fontSize: 12)),
+            label: Text(_getNumReviewsString(), style: TextStyle(fontSize: 14, letterSpacing: .65)),
           ),
         ),
       );
   }
   String _getNumReviewsString() {
-    final int _numReviews = (Provider.of<InstagramRepository>(context).showingAll) ? Provider.of<InstagramRepository>(context).allReviews.length : Provider.of<InstagramRepository>(context).currentReviews.length;
+    final int _numReviews = Provider.of<InstagramRepository>(context).getNumReviewsShown();
     if(_numReviews == 1)
       return '$_numReviews Review';
     return '$_numReviews Reviews';
@@ -76,13 +79,15 @@ class HideFabOnScrollScaffold extends StatefulWidget {
     Key key,
     this.body,
     this.floatingActionButton,
-    this.controller,
+    this.scrollController,
+    this.textController,
     this.focusNode,
   }) : super(key: key);
 
   final Widget body;
   final Widget floatingActionButton;
-  final ScrollController controller;
+  final ScrollController scrollController;
+  final TextEditingController textController;
   final FocusNode focusNode;
 
   @override
@@ -95,18 +100,20 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(_updateFabVisible);
+    widget.scrollController.addListener(_updateFabVisible);
     widget.focusNode.addListener(_updateFabVisible);
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(_updateFabVisible);
+    widget.scrollController.removeListener(_updateFabVisible);
+    widget.focusNode.removeListener(_updateFabVisible);
     super.dispose();
   }
 
   void _updateFabVisible() {
-    final newFabVisible = (widget.controller.position.userScrollDirection == ScrollDirection.forward || widget.focusNode.hasFocus);
+    final newFabVisible = (widget.scrollController.position.userScrollDirection == ScrollDirection.forward
+                          || widget.focusNode.hasFocus); // || widget.textController.text.isNotEmpty);
     if (_fabVisible != newFabVisible) {
       setState(() {
         _fabVisible = newFabVisible;
@@ -138,6 +145,12 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
       backgroundColor: Color(0xFFcc2b5e),
       color: Colors.white,
       height: 45,
+      onTap: (int i) {
+        if(i == 1) // Map screen
+          setState(() {
+            _fabVisible = true;
+          });
+      },
     );
   }
 }

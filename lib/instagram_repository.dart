@@ -22,6 +22,8 @@ class InstagramRepository with ChangeNotifier {
     return doc.data()['ig_token'];
   }
 
+  int getNumReviewsShown() => (showingAll) ? allReviews.length : currentReviews.length;
+
   Future<void> getReviews() async {
     // Construct the Instagram API call and get the response
     final String igToken = await getInstagramToken();

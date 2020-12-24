@@ -12,9 +12,10 @@ import 'review.dart';
 import 'label.dart';
 
 class ListScreen extends StatefulWidget {
+  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode);
   final ScrollController scrollController;
+  final TextEditingController textController;
   final FocusNode searchBoxFocusNode;
-  const ListScreen(this.scrollController, this.searchBoxFocusNode);
   @override
   State<ListScreen> createState() => _ListScreenState();
 }
@@ -129,18 +130,17 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
     }
   }
 
-  final TextEditingController _searchTextController = TextEditingController();
   Widget _buildSearchTextField() {
     return Container(
       padding: const EdgeInsets.only(left: 12, right: 70),
       child: Center(
         child: TextField(
           focusNode: widget.searchBoxFocusNode,
-          controller: _searchTextController,
+          controller: widget.textController,
           onChanged: (text) => _updateCurrentReviews(text),
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
-              suffixIcon: (_searchTextController.text.length > 0) ? IconButton(
+              suffixIcon: (widget.textController.text.length > 0) ? IconButton(
                 color:  Colors.black,
                 focusColor: Colors.transparent, hoverColor: Colors.transparent, highlightColor: Colors.transparent,
                 splashColor: Colors.transparent,
@@ -148,7 +148,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
                   Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
                   Provider.of<InstagramRepository>(context,listen:false).madeChange();
-                  _searchTextController.clear();
+                  widget.textController.clear();
                 }, 
                 icon: Icon(Icons.clear, size: 17),
               ) : null,
@@ -222,7 +222,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   @override
   void dispose() {
     _reviewController.close();
-    _searchTextController.dispose();
+    widget.textController.dispose();
     super.dispose();
   }
 }
