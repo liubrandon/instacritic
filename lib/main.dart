@@ -22,7 +22,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => InstagramRepository(),
-      child: MaterialApp(home: Instacritic()),
-      );
+      child: MaterialApp(
+        home: Instacritic(),
+        theme: ThemeData(
+          accentColor: Colors.grey,
+        ),
+      ),
+    );
   }
 }

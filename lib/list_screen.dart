@@ -47,9 +47,10 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               List<Widget> slivs = [
                 _buildAppBar(),
                 _buildSearchBar(),
+                _buildSliverPadding(height: 4)
               ];
               slivs.addAll(_getSliverList(snapshot));
-              slivs.add(SliverToBoxAdapter(child: Container(height:20))); // Bottom padding for convex
+              slivs.add(_buildSliverPadding(height: 20)); // Bottom padding for convex
               return CupertinoScrollbar(
                 child: CustomScrollView(
                   controller: widget.scrollController,
@@ -58,6 +59,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   slivers: slivs),
               );}});
   }
+
+  SliverToBoxAdapter _buildSliverPadding({double height}) => SliverToBoxAdapter(child: Container(height:height));
 
   List<Widget> _getSliverList(AsyncSnapshot<List<Review>> snapshot) {
     return snapshot.data.map((review) => SliverToBoxAdapter(child: _buildRow(review))).toList();
@@ -103,7 +106,6 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   Widget _buildRow(Review review) {
     return Card(
       elevation: 0,
-      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       child: ListTile(
         leading: CircleAvatar(
           minRadius: 25,
@@ -200,7 +202,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       child: PopupMenuButton(
         offset: Offset(0,55),
         tooltip: 'Sort',
-        icon: Icon(Icons.sort, size: 27, color: Colors.black),
+        icon: Icon(Icons.sort, size: 27, color: Colors.grey),
         itemBuilder: (_) => List.generate(sortLabels.length, (index) {
           return CheckedPopupMenuItem(
               checked: (_currentSortLabel == sortLabels[index]),
@@ -208,16 +210,16 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               child: Text(sortLabels[index].text),
             );
         }),
-        onSelected: (value) { 
-          value.mySort(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
+        onSelected: (sortLabel) { 
+          sortLabel.mySort(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
           _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
-          _currentSortLabel = value;
+          _currentSortLabel = sortLabel;
         },));
   }
 
   Widget _buildRefreshButton() {
     return IconButton(
-      padding: EdgeInsets.only(right: 27),
+      padding: EdgeInsets.only(right: 23),
       icon: const Icon(Icons.refresh),
       tooltip: 'Reload',
       onPressed: () {
@@ -229,7 +231,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   @override
   void dispose() {
-    _reviewController.close();
+    _reviewController.close(); // Not sure if needed
     widget.textController.dispose();
     super.dispose();
   }

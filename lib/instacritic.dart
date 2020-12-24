@@ -61,7 +61,7 @@ class _InstacriticState extends State<Instacritic> {
             hoverColor: Colors.transparent,
             splashColor: Colors.transparent,
             focusColor: Colors.transparent,
-            label: Text(_getNumReviewsString(), style: TextStyle(fontSize: 14, letterSpacing: .575)),
+            label: Text(_getNumReviewsString(), style: TextStyle(color: Colors.white, fontSize: 14, letterSpacing: .575)),
           ),
         ),
       );
@@ -146,10 +146,14 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
       color: Colors.white,
       height: 45,
       onTap: (int i) {
-        if(i == 1) // Map screen
+        if(i == 1) { // Map screen
           setState(() {
             _fabVisible = true;
+            widget.scrollController.removeListener(_updateFabVisible);
           });
+        } else if(i == 0) {
+          widget.scrollController.addListener(_updateFabVisible);
+        }
       },
     );
   }
