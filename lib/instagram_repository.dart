@@ -40,6 +40,7 @@ class InstagramRepository with ChangeNotifier {
       curr25 = jsonDecode(res.body);
       postList.addAll(curr25['data']);
     }
+    // postList.forEach((post) {print(post); print('\n');});
     if(postList.length > 0)
       igUsername = postList[0]['username'];
     allReviews = [];

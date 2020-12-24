@@ -28,7 +28,6 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   ScrollController _scrollController = ScrollController();
   FocusNode _searchBoxFocusNode = FocusNode();
   TabController _tabController;
-
   @override
   void initState() {
     super.initState();

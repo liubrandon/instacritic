@@ -131,10 +131,11 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         forceSafariVC: false,
         universalLinksOnly: true,
       );
+      print('universal link failed');
       if (!nativeAppLaunchSucceeded) {
         await launch(
           url,
-          forceSafariVC: false,
+          forceSafariVC: true,
         );
       }
     }
