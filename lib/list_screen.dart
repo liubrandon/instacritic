@@ -38,9 +38,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
       runOnce = false;
     }
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: StreamBuilder( // Get the reviews as a stream so if you search or sort it updates again
+    return StreamBuilder( // Get the reviews as a stream so if you search or sort it updates again
             stream: _reviewController.stream,
             builder: (BuildContext buildContext, AsyncSnapshot<List<Review>> snapshot) {
               if(snapshot == null || snapshot.connectionState == ConnectionState.waiting)
@@ -60,8 +58,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                     physics: const AlwaysScrollableScrollPhysics(),
                     cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
                     slivers: slivs),
-                );}}),
-    );
+                );}});
   }
 
   SliverToBoxAdapter _buildSliverPadding({double height}) => SliverToBoxAdapter(child: Container(height:height));

@@ -46,9 +46,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: HideFabOnScrollScaffold(
+    return HideFabOnScrollScaffold(
         body: TabBarView(
           controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
@@ -59,8 +57,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
         textController: _textController,
         focusNode: _searchBoxFocusNode,
         tabController: _tabController,
-      ),
-    );
+      );
   }
 
   SizedBox _buildReviewCountFAB() {
