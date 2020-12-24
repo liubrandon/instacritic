@@ -15,6 +15,7 @@ const List<TabItem> _homeTabs = [
 ];
 
 class Instacritic extends StatefulWidget {
+  static final route = '/';
   @override
   _InstacriticState createState() => _InstacriticState();
 }
@@ -135,6 +136,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           child: InfoScreen(),
         ),
       ),
+
       drawerEnableOpenDragGesture: false,
       bottomNavigationBar: _buildBottomBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,

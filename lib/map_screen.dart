@@ -45,13 +45,16 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       zoom: 14.4746,
     );
 
-    return GoogleMap(
-      markers: _markers,
-      mapType: MapType.normal,
-      initialCameraPosition: _kGooglePlex,
-      onMapCreated: (GoogleMapController controller) {
-        _controller.complete(controller);
-      },
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: GoogleMap(
+        markers: _markers,
+        mapType: MapType.normal,
+        initialCameraPosition: _kGooglePlex,
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
+        },
+      ),
     );
   }
 }
