@@ -15,7 +15,11 @@ const List<TabItem> _homeTabs = [
 ];
 
 class Instacritic extends StatefulWidget {
-  const Instacritic({this.bottomBarTapped});
+  const Instacritic({
+    this.initialTabIndex,
+    this.bottomBarTapped
+  });
+  final int initialTabIndex;
   final ValueChanged<int> bottomBarTapped;
   static final route = '/';
   @override
@@ -31,7 +35,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: _homeTabs.length, initialIndex: 0);
+    _tabController = TabController(vsync: this, length: _homeTabs.length, initialIndex: widget.initialTabIndex);
   }
 
   @override
@@ -49,7 +53,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
         body: TabBarView(
           controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
-          children: [ListScreen(scrollController: _scrollController, textController:  _textController, searchBoxFocusNode: _searchBoxFocusNode),MapScreen()],
+          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
         ),
         floatingActionButton: _buildReviewCountFAB(),
         scrollController: _scrollController,

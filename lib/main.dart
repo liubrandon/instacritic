@@ -44,14 +44,14 @@ class ICRouteInformationParser extends RouteInformationParser<ICRoutePath> {
       return ICRoutePath.home();
     
     // Handle /list and /map
-    if (uri.pathSegments.length == 1) {
-      if (uri.pathSegments[0] == 'list') return ICRoutePath.home();
-      if (uri.pathSegments[0] == 'map') return ICRoutePath.map();
-      return ICRoutePath.unknown();
-    }
+    // if (uri.pathSegments.length == 1) {
+    //   if (uri.pathSegments[0] == 'list') return ICRoutePath.home();
+    //   if (uri.pathSegments[0] == 'map') return ICRoutePath.map();
+    //   return ICRoutePath.unknown();
+    // }
 
     // Handle unknown routes
-    return ICRoutePath.unknown();
+    return ICRoutePath.home();
   }
 
   @override
@@ -59,9 +59,9 @@ class ICRouteInformationParser extends RouteInformationParser<ICRoutePath> {
     if (path.isUnknown)
       return RouteInformation(location: '/404');
     if (path.isHomePage)
-      return RouteInformation(location: '/list');
-    if (path.isMapPage)
-      return RouteInformation(location: '/map');
+      return RouteInformation(location: '/');
+    // if (path.isMapPage)
+    //   return RouteInformation(location: '/map');
     return null;
   }
 }
@@ -76,8 +76,8 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
   ICRoutePath get currentConfiguration { 
     if(_currPageId == 0)
       return ICRoutePath.home();
-    else if(_currPageId == 1)
-      return ICRoutePath.map();
+    // else if(_currPageId == 1)
+    //   return ICRoutePath.map();
     else if(show404)
       return ICRoutePath.unknown();
     print('ISSUE: Should never get here in routing...');
@@ -93,6 +93,7 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
         MaterialPage(
           key: ValueKey('Instacritic'),
           child: Instacritic(
+            initialTabIndex: 0, // Always start on list tab
             bottomBarTapped: _updateUrl,
           ),
         ),
@@ -119,6 +120,13 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
       show404 = true;
       return;
     }
+    else if(path.isHomePage) {
+      _currPageId = 0;
+      return;
+    }
+    // else if(path.isMapPage) {
+    //   _currPageId = 1;
+    // }
     show404 = false;
   }
 }
@@ -127,11 +135,11 @@ class ICRoutePath {
   final int pageId;
   final bool isUnknown;
   ICRoutePath.home() : pageId = 0, isUnknown = false;
-  ICRoutePath.map() : pageId = 1, isUnknown = false;
+  // ICRoutePath.map() : pageId = 1, isUnknown = false;
   ICRoutePath.unknown() : pageId = null, isUnknown = true;
 
   bool get isHomePage => pageId == 0 && isUnknown == false;
-  bool get isMapPage => pageId == 1 && isUnknown == false;
+  // bool get isMapPage => pageId == 1 && isUnknown == false;
 }
 
 class NoAnimationTransitionDelegate extends TransitionDelegate<void> {

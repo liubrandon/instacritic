@@ -1,13 +1,11 @@
 
 import 'dart:async';
-import 'dart:html' as html;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:url_launcher/link.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'instagram_repository.dart';
 import 'star_display.dart';
 import 'review.dart';
@@ -15,7 +13,7 @@ import 'label.dart';
 
 class ListScreen extends StatefulWidget {
   static final route = '/list';
-  const ListScreen({this.scrollController, this.textController, this.searchBoxFocusNode});
+  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode);
   final ScrollController scrollController;
   final TextEditingController textController;
   final FocusNode searchBoxFocusNode;
