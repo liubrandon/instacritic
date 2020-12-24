@@ -34,7 +34,7 @@ class _InstacriticState extends State<Instacritic> {
         initialIndex: 0,
         child: HideFabOnScrollScaffold(
           body: TabBarView(
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
           ),
           floatingActionButton: _buildReviewCountFAB(),
@@ -135,6 +135,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           child: InfoScreen(),
         ),
       ),
+      drawerEnableOpenDragGesture: false,
       bottomNavigationBar: _buildBottomBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
     );
