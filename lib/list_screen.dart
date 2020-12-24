@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'instagram_repository.dart';
 import 'star_display.dart';
@@ -108,45 +109,43 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   Widget _buildRow(Review review) {
     return Card(
       elevation: 0,
-      child: ListTile(
-        leading: CircleAvatar(
-          minRadius: 25, maxRadius: 25,
-          backgroundColor: Colors.grey,
-          backgroundImage: NetworkImage(review.mediaUrl),
+      child: Link(
+        uri: Uri.parse(review.permalink),
+        target: LinkTarget.blank,
+        builder: (BuildContext context, FollowLink followLink) => ListTile(
+          leading: CircleAvatar(
+            minRadius: 25, maxRadius: 25,
+            backgroundColor: Colors.grey,
+            backgroundImage: NetworkImage(review.mediaUrl),
+          ),
+          title: Text(review.restaurantName, style: TextStyle(fontSize: 18.0),),
+          subtitle: Text(review.location),
+          trailing: IconTheme(
+            data: IconThemeData(color: Colors.amber[500], size: 25),
+            child: StarDisplay(value: review.stars)
+          ),
+          onTap: () => followLink(),
         ),
-        title: Text(review.restaurantName, style: TextStyle(fontSize: 18.0),),
-        subtitle: Text(review.location),
-        trailing: IconTheme(
-          data: IconThemeData(color: Colors.amber[500], size: 25),
-          child: StarDisplay(value: review.stars)
-        ),
-        onTap: () => openNewWindow(review.permalink),
       ),
     );
   }
 
-  html.Window _window;
-  html.WindowBase openNewWindow(String url, {String webOnlyWindowName}) {
-    final target = '_top';
-    return _window.open(url, target);
-  }
-
-  Future<void> _launchUniversalLinkIos(String url) async {
-    if (await canLaunch(url)) {
-      final bool nativeAppLaunchSucceeded = await launch(
-        url,
-        forceSafariVC: false,
-        universalLinksOnly: true,
-      );
-      print('universal link failed');
-      if (!nativeAppLaunchSucceeded) {
-        await launch(
-          url,
-          forceSafariVC: true,
-        );
-      }
-    }
-  }
+  // Future<void> _launchUniversalLinkIos(String url) async {
+  //   if (await canLaunch(url)) {
+  //     final bool nativeAppLaunchSucceeded = await launch(
+  //       url,
+  //       forceSafariVC: false,
+  //       universalLinksOnly: true,
+  //     );
+  //     print('universal link failed');
+  //     if (!nativeAppLaunchSucceeded) {
+  //       await launch(
+  //         url,
+  //         forceSafariVC: true,
+  //       );
+  //     }
+  //   }
+  // }
 
   Widget _buildSearchTextField() {
     return Container(
