@@ -108,9 +108,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       elevation: 0,
       child: ListTile(
         leading: CircleAvatar(
-          minRadius: 25,
-          maxRadius: 25,
-          // constraints: BoxConstraints(minWidth: 44, minHeight: 44, maxHeight: 44, maxWidth: 44),
+          minRadius: 25, maxRadius: 25,
+          backgroundColor: Colors.grey,
           backgroundImage: NetworkImage(review.mediaUrl),
         ),
         title: Text(review.restaurantName, style: TextStyle(fontSize: 18.0),),
@@ -160,7 +159,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   Provider.of<InstagramRepository>(context,listen:false).madeChange();
                   widget.textController.clear();
                 }, 
-                icon: Icon(Icons.clear, size: 17),
+                icon: Icon(Icons.clear, size: 17, color: Colors.grey,),
               ) : null,
               hintText: 'Search',
               contentPadding: EdgeInsets.only(top: 14),

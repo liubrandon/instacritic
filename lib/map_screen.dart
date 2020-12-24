@@ -8,7 +8,10 @@ class MapScreen extends StatefulWidget {
   @override
   _MapScreenState createState() => _MapScreenState();
 }
-
+/* TODO: 
+- Make custom markers work (or just use regular markers)
+- Get lat lon for each restaurant
+*/
 class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin {
   @override bool get wantKeepAlive => true; // Used to keep tab alive
 
