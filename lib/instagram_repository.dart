@@ -43,7 +43,7 @@ class InstagramRepository with ChangeNotifier {
       'post_timestamp': r.postTimestamp,
       'media_url': r.mediaUrl,
       'media_id': r.mediaId, // Stored as the document id
-    }).then((value) => print("Review for ${r.restaurantName} added"))
+    }, SetOptions(merge: true)).then((value) => print("Review for ${r.restaurantName} added"))
     .catchError((error) => print("Failed to add review: ${r.restaurantName} $error"));
   }
 
