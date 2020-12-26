@@ -1,16 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Review {
   String restaurantName;
   int stars;
   String location;
   String permalink;
-  DateTime timestamp;
+  DateTime postTimestamp;
   String mediaUrl;
+  String mediaId;
   
-  Review({this.restaurantName, this.stars, this.location, this.permalink, this.timestamp, this.mediaUrl});
+  Review({
+    this.restaurantName, 
+    this.stars, 
+    this.location, 
+    this.permalink, 
+    this.postTimestamp, 
+    this.mediaUrl, 
+    this.mediaId
+  });
   
-  // Takes in a map representing a single Instagrom post from the
+  // Takes in a map representing a single Instagram post from the
   // json returned by the Instagram API and creates a Review
-  factory Review.fronJson(Map<String, dynamic> postData) {
+  factory Review.fromJson(Map<String, dynamic> postData) {
     List<dynamic> captionData = postData['caption'].split("-");
     for(int i = 0; i < captionData.length; i++) captionData[i] = captionData[i].trim();
     int stars = (captionData[0].contains('💀')) ? 0 : int.parse(captionData[0].substring(0,captionData[0].indexOf('/')));
@@ -19,12 +30,45 @@ class Review {
       stars: stars,
       location: captionData[2],
       permalink: postData['permalink'],
-      timestamp: DateTime.parse(postData['timestamp']),
+      postTimestamp: DateTime.parse(postData['timestamp']),
       mediaUrl: postData['media_url'],
+      mediaId: postData['id'],
     );
   }
+
+  factory Review.fromFirestoreDocSnap(DocumentSnapshot doc) {
+    return Review(
+      restaurantName: doc['restaurant_name'],
+      stars: doc['stars'],
+      location: doc['location'],
+      permalink: doc['permalink'],
+      postTimestamp: doc['post_timestamp'].toDate(),
+      mediaUrl: doc['media_url'],
+      mediaId: doc['media_id'],
+    );
+  }
+
   @override
   String toString() {
-    return "(" + restaurantName + " " + stars.toString() + " " + location + ")";
+    return restaurantName+'/'+
+    stars.toString()+'/'+
+    location+'/'+
+    permalink+'/'+
+    postTimestamp.toString()+'/'+
+    mediaUrl+'/'+
+    mediaId;
+  }
+
+  static bool reviewsEqual(Review a, Review b) {
+    if (a.restaurantName == b.restaurantName &&
+        a.stars == b.stars &&
+        a.location == b.location &&
+        a.permalink == b.permalink &&
+        // a.postTimestamp == b.postTimestamp && // Ignore differences in DateTime objects (looks slight)
+        a.mediaUrl == b.mediaUrl &&
+        a.mediaId == b.mediaId) {
+          return true;
+    }
+    return false;
   }
 }

@@ -80,8 +80,8 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
     //   return ICRoutePath.map();
     else if(show404)
       return ICRoutePath.unknown();
-    print('ISSUE: Should never get here in routing...');
-    return ICRoutePath.unknown();
+    // print('ISSUE: Should never get here in routing...');
+    return ICRoutePath.home();
   }
 
   @override

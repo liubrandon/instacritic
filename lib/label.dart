@@ -7,8 +7,8 @@ class Label {
 }
 
 final List<Label> sortLabels = [
-  Label(text: 'Newest', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.timestamp.compareTo(a.timestamp));}),
-  Label(text: 'Oldest', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.timestamp.compareTo(b.timestamp));}),
+  Label(text: 'Newest', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.postTimestamp.compareTo(a.postTimestamp));}),
+  Label(text: 'Oldest', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.postTimestamp.compareTo(b.postTimestamp));}),
   Label(text: 'A-Z by restaurant', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.restaurantName.compareTo(b.restaurantName));}),
   Label(text: 'A-Z by location', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.location.compareTo(b.location));}),
   Label(text: 'Rating ascending', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.stars.compareTo(b.stars));}),

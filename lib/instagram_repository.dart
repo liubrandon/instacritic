@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'review.dart';
 
 class InstagramRepository with ChangeNotifier {
-  var _places = gp.GoogleMapsPlaces(apiKey: "AIzaSyDagGkzsqL5cDnTJoSzM3jLYHWPW8dWSds");
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   String igUsername;
   List<Review> allReviews = [];
@@ -24,9 +23,28 @@ class InstagramRepository with ChangeNotifier {
     return doc.data()['ig_token'];
   }
 
-  Future<bool> reviewExistsInFirestore(String media_id) async {
-    var docData = await firestore.collection('users/$igUsername/reviews').doc('$media_id').get();
-    return docData.exists;
+  Future<Review> getReviewFromFirestore(String mediaId) async {
+    DocumentSnapshot doc = await firestore.collection('users/$igUsername/reviews').doc('$mediaId').get();
+    if(!doc.exists)
+      return Review(); // if nothing in Firestore return empty review
+    return Review.fromFirestoreDocSnap(doc);
+  }
+
+  Future<Stream<QuerySnapshot>> getReviewsAsStream() async =>
+    FirebaseFirestore.instance.collection('users/$igUsername/reviews').snapshots();
+
+  void addReviewToFirestore(Review r) {
+    DocumentReference newReview = FirebaseFirestore.instance.collection('users/$igUsername/reviews/').doc('${r.mediaId}');
+    newReview.set({
+      'restaurant_name': r.restaurantName,
+      'stars': r.stars,
+      'location': r.location,
+      'permalink': r.permalink,
+      'post_timestamp': r.postTimestamp,
+      'media_url': r.mediaUrl,
+      'media_id': r.mediaId, // Stored as the document id
+    }).then((value) => print("Review for ${r.restaurantName} added"))
+    .catchError((error) => print("Failed to add review: ${r.restaurantName} $error"));
   }
 
   int getNumReviewsShown() => (showingAll) ? allReviews.length : currentReviews.length;
@@ -53,9 +71,14 @@ class InstagramRepository with ChangeNotifier {
     allReviews = [];
     currentReviews = [];
     for(int i = 0; i < postList.length; i++) {
-      Review rev = Review.fronJson(postList[i]);
+      Review rev = Review.fromJson(postList[i]);
       allReviews.add(rev);
       currentReviews.add(rev);
+      Review firestoreReview = await getReviewFromFirestore(rev.mediaId);
+      if(!Review.reviewsEqual(rev, firestoreReview)) {
+        // Update Firestore if the data from Instagram is different
+        addReviewToFirestore(rev);
+      }
     }
     ready = true;
     notifyListeners();
