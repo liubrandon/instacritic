@@ -74,11 +74,12 @@ class InstagramRepository with ChangeNotifier {
       Review rev = Review.fromJson(postList[i]);
       allReviews.add(rev);
       currentReviews.add(rev);
-      Review firestoreReview = await getReviewFromFirestore(rev.mediaId);
-      if(!Review.reviewsEqual(rev, firestoreReview)) {
-        // Update Firestore if the data from Instagram is different
-        addReviewToFirestore(rev);
-      }
+      getReviewFromFirestore(rev.mediaId).then((firestoreReview) {
+        if(!Review.reviewsEqual(rev, firestoreReview)) {
+          // Update Firestore if the data from Instagram is different
+          addReviewToFirestore(rev);
+        }
+      });
     }
     ready = true;
     notifyListeners();
