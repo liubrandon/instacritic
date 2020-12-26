@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'review.dart';
 
 class InstagramRepository with ChangeNotifier {
+  var _places = gp.GoogleMapsPlaces(apiKey: "AIzaSyDagGkzsqL5cDnTJoSzM3jLYHWPW8dWSds");
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   String igUsername;
   List<Review> allReviews = [];
   List<Review> currentReviews = [];
@@ -18,8 +20,13 @@ class InstagramRepository with ChangeNotifier {
   void madeChange() => notifyListeners();
 
   Future<String> getInstagramToken() async {
-    DocumentSnapshot doc = await FirebaseFirestore.instance.collection('secrets').doc('chirashibrandon').get();
+    DocumentSnapshot doc = await firestore.collection('users').doc('chirashibrandon').get();
     return doc.data()['ig_token'];
+  }
+
+  Future<bool> reviewExistsInFirestore(String media_id) async {
+    var docData = await firestore.collection('users/$igUsername/reviews').doc('$media_id').get();
+    return docData.exists;
   }
 
   int getNumReviewsShown() => (showingAll) ? allReviews.length : currentReviews.length;
