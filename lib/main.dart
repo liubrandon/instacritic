@@ -92,10 +92,7 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
       pages: [
         MaterialPage(
           key: ValueKey('Instacritic'),
-          child: Instacritic(
-            initialTabIndex: 0, // Always start on list tab
-            bottomBarTapped: _updateUrl,
-          ),
+          child: Instacritic(),
         ),
         if(show404)
           MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen())
@@ -109,11 +106,6 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
     );
   }
 
-  void _updateUrl(int i) {
-    _currPageId = i;
-    notifyListeners();
-  }
-  
   @override
   Future<void> setNewRoutePath(ICRoutePath path) async {
     if(path.isUnknown) {

@@ -1,8 +1,11 @@
 
+import 'dart:async';
+
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'info_screen.dart';
 import 'instagram_repository.dart';
@@ -15,13 +18,6 @@ const List<TabItem> _homeTabs = [
 ];
 
 class Instacritic extends StatefulWidget {
-  const Instacritic({
-    this.initialTabIndex,
-    this.bottomBarTapped
-  });
-  final int initialTabIndex;
-  final ValueChanged<int> bottomBarTapped;
-  static final route = '/';
   @override
   _InstacriticState createState() => _InstacriticState();
 }
@@ -32,10 +28,16 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   ScrollController _scrollController = ScrollController();
   FocusNode _searchBoxFocusNode = FocusNode();
   TabController _tabController;
+  Completer<GoogleMapController> _mapController = Completer();
+
+  void passBoundsUp({LatLng northeast, LatLng southwest}) {
+
+  }
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: _homeTabs.length, initialIndex: widget.initialTabIndex);
+    _tabController = TabController(vsync: this, length: _homeTabs.length, initialIndex: 0);
   }
 
   @override
@@ -53,14 +55,13 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
         body: TabBarView(
           controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
-          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
+          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen(mapController: _mapController)],
         ),
         floatingActionButton: _buildReviewCountFAB(),
         scrollController: _scrollController,
         textController: _textController,
         focusNode: _searchBoxFocusNode,
         tabController: _tabController,
-        bottomBarTapped: widget.bottomBarTapped,
       );
   }
 
@@ -104,7 +105,6 @@ class HideFabOnScrollScaffold extends StatefulWidget {
     this.textController,
     this.focusNode,
     this.tabController,
-    this.bottomBarTapped,
   }) : super(key: key);
 
   final Widget body;
@@ -113,7 +113,6 @@ class HideFabOnScrollScaffold extends StatefulWidget {
   final TextEditingController textController;
   final FocusNode focusNode;
   final TabController tabController;
-  final ValueChanged<int> bottomBarTapped;
 
   @override
   State<StatefulWidget> createState() => HideFabOnScrollScaffoldState();
@@ -182,7 +181,6 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
         } else if(i == 0) {
           widget.scrollController.addListener(_updateFabVisible);
         }
-        widget.bottomBarTapped(i); // This makes the callback in main to update the URL
       },
     );
   }
