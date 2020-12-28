@@ -45,7 +45,6 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    // print('rebuild map screen');
     return FutureBuilder(
       future: Provider.of<InstagramRepository>(context,listen: false).getReviewsAsStream(),
       builder: (_, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
@@ -61,6 +60,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
             _updateMarkers(snapshot);
             return Scaffold(
               body: GoogleMap(
+                zoomControlsEnabled: false,
                 markers: _markers,
                 mapType: MapType.normal,
                 initialCameraPosition: CameraPosition(
@@ -70,7 +70,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                 onMapCreated: _onMapCreated,
               ),
               floatingActionButton: _buildUpdateBoundsButton(),
-              floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+              // floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
             );
           }
         );
@@ -80,20 +80,18 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
   Padding _buildUpdateBoundsButton() {
     return Padding(
-                  padding: const EdgeInsets.only(bottom: 22),
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: SizedBox(
                     width: 42,
                     height: 42,
                     child: FloatingActionButton(
                         onPressed: _updateMapBounds,
-                        elevation: 3,
-                        hoverElevation: 3,
                         foregroundColor: Color(0xff666666),
                         backgroundColor: Colors.white,
                         hoverColor: Colors.transparent,
                         splashColor: Colors.transparent,
                         focusColor: Colors.transparent,
-                        child: Transform.rotate(child:Icon(Icons.control_camera), angle: 0.785398),
+                        child: Transform.rotate(child:Icon(Icons.control_camera, size: 33), angle: 0.785398),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
                       ),
                     ),
@@ -103,8 +101,6 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Future _updateMapBounds() async {
     LatLng ne = LatLng(maxLat,maxLng);
     LatLng sw = LatLng(minLat,minLng);
-    print(ne);
-    print(sw);
     if(_mapController != null) {
       _mapController.animateCamera(
         CameraUpdate.newLatLngBounds(

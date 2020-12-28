@@ -29,7 +29,6 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   @override
   Widget build(BuildContext context) {
-    print('Rebuilt list screen');
     super.build(context);
     if(!Provider.of<InstagramRepository>(context,listen: true).ready) {
       return Center(child: CircularProgressIndicator());
