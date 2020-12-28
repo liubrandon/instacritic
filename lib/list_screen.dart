@@ -108,7 +108,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       elevation: 0,
       child: Link(
         uri: Uri.parse(review.permalink),
-        target: LinkTarget.self,
+        target: LinkTarget.blank,
         builder: (_, FollowLink followLink) => ListTile(
           leading: CircleAvatar(
             minRadius: 25, maxRadius: 25,
