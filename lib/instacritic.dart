@@ -28,11 +28,6 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   ScrollController _scrollController = ScrollController();
   FocusNode _searchBoxFocusNode = FocusNode();
   TabController _tabController;
-  Completer<GoogleMapController> _mapController = Completer();
-
-  void passBoundsUp({LatLng northeast, LatLng southwest}) {
-
-  }
 
   @override
   void initState() {
@@ -54,8 +49,8 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     return HideFabOnScrollScaffold(
         body: TabBarView(
           controller: _tabController,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen(mapController: _mapController)],
+          // physics: const NeverScrollableScrollPhysics(),
+          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
         ),
         floatingActionButton: _buildReviewCountFAB(),
         scrollController: _scrollController,

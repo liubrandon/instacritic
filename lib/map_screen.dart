@@ -9,15 +9,13 @@ import 'package:instacritic/review.dart';
 import 'package:provider/provider.dart';
 
 class MapScreen extends StatefulWidget {
-  final Completer<GoogleMapController> mapController;
-  final void Function({LatLng northeast, LatLng southwest}) passBoundsUp;
-  const MapScreen({this.mapController, this.passBoundsUp});
   @override _MapScreenState createState() => _MapScreenState();
 }
 /* TODO: 
 - Make custom markers work (or just use regular markers)
 - Get lat lon for each restaurant
 */
+bool _firstRun = true;
 class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin {
   @override bool get wantKeepAlive => true; // Used to keep tab alive
   Set<Marker> _markers = {};
@@ -25,11 +23,18 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   GoogleMapController _mapController;
   double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
 
-
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
     // Workaround from https://github.com/flutter/flutter/issues/34473#issuecomment-592962722
     Timer(Duration(milliseconds: 500), _updateMapBounds); 
+    print(_firstRun);
+    if(!_firstRun) {
+      Timer(Duration(milliseconds: 500), () {
+        for(int i = 0; i < 8; i++)
+          _mapController?.animateCamera(CameraUpdate.zoomIn());
+      }); 
+    }
+    _firstRun = false;
   }
   
   @override
@@ -47,14 +52,14 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     // print('rebuild map screen');
     return FutureBuilder(
       future: Provider.of<InstagramRepository>(context,listen: false).getReviewsAsStream(),
-      builder: (context, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
+      builder: (_, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
         if(!snapshot.hasData)
           return Center(child: CircularProgressIndicator());
         return StreamBuilder(
           stream: snapshot.data,
           builder: (context, snapshot) {
             if(snapshot == null || snapshot.connectionState == ConnectionState.waiting ||
-              !Provider.of<InstagramRepository>(context,listen:false).ready || _markerIcons[4] == null) {
+              !Provider.of<InstagramRepository>(context).ready || _markerIcons[4] == null) {
               return Center(child: CircularProgressIndicator());
             }
             _updateMarkers(snapshot);
@@ -85,8 +90,8 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                     height: 42,
                     child: FloatingActionButton(
                         onPressed: _updateMapBounds,
-                        elevation: 1,
-                        hoverElevation: 1,
+                        elevation: 3,
+                        hoverElevation: 3,
                         foregroundColor: Color(0xff666666),
                         backgroundColor: Colors.white,
                         hoverColor: Colors.transparent,
@@ -102,35 +107,39 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Future _updateMapBounds() async {
     LatLng ne = LatLng(maxLat,maxLng);
     LatLng sw = LatLng(minLat,minLng);
-    // print(ne);
-    // print(sw);
-    _mapController.animateCamera(
-      CameraUpdate.newLatLngBounds(
-        LatLngBounds(
-          northeast: ne,
-          southwest: sw,
-        ),
-        10.0,
-      )
-    );    
+    print(ne);
+    print(sw);
+    if(_mapController != null) {
+      _mapController.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          LatLngBounds(
+            northeast: ne,
+            southwest: sw,
+          ),
+          10.0,
+        )
+      );    
+    }
   }
 
-  Future<void> _updateMarkers(AsyncSnapshot<QuerySnapshot> snapshot) async {
+  void _updateMarkers(AsyncSnapshot<QuerySnapshot> snapshot) {
     _markers = {};
     List<Review> currReviews = Provider.of<InstagramRepository>(context, listen: false).currentReviews;
     Set<String> currMediaIds = {};
     currReviews.forEach((rev) {currMediaIds.add(rev.mediaId);});
     List<QueryDocumentSnapshot> docs = snapshot.data.docs;
-    maxLat = -90.0; minLat =  90.0; maxLng = -180.0; minLng = 180.0;
-    for(int i = 0; i < docs.length; i++) {
-      Map<String, dynamic> review = docs[i].data();
-      if(review['gmap_location'] != null && currMediaIds.contains(review['media_id'])) {
-        double lat = review['gmap_location'].latitude;
-        double lng = review['gmap_location'].longitude;
-        maxLat = max(maxLat, lat); maxLng = max(maxLng, lng);
-        minLat = min(minLat, lat); minLng = min(minLng, lng);
-        Marker m = _markerFromFirestoreDocSnap(review);
-        _markers.add(m);
+    if(currMediaIds.isNotEmpty) {
+      maxLat = -90.0; minLat =  90.0; maxLng = -180.0; minLng = 180.0;
+      for(int i = 0; i < docs.length; i++) {
+        Map<String, dynamic> review = docs[i].data();
+        if(review['gmap_location'] != null && currMediaIds.contains(review['media_id'])) {
+          double lat = review['gmap_location'].latitude;
+          double lng = review['gmap_location'].longitude;
+          maxLat = max(maxLat, lat); maxLng = max(maxLng, lng);
+          minLat = min(minLat, lat); minLng = min(minLng, lng);
+          Marker m = _markerFromFirestoreDocSnap(review);
+          _markers.add(m);
+        }
       }
     }
   }
