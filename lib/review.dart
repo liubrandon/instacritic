@@ -22,7 +22,14 @@ class Review {
   // Takes in a map representing a single Instagram post from the
   // json returned by the Instagram API and creates a Review
   factory Review.fromJson(Map<String, dynamic> postData) {
-    List<dynamic> captionData = postData['caption'].split("-");
+    List<dynamic> captionData; 
+    try {
+      captionData = postData['caption'].split("-");
+    } catch (e) {
+      print(e);
+      return null;
+    }
+    if(captionData.length != 3) return null;
     for(int i = 0; i < captionData.length; i++) captionData[i] = captionData[i].trim();
     int stars = (captionData[0].contains('💀')) ? 0 : int.parse(captionData[0].substring(0,captionData[0].indexOf('/')));
     return Review(

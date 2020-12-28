@@ -19,13 +19,17 @@ class InstagramRepository with ChangeNotifier {
   void madeChange() => notifyListeners();
 
   Future<String> getInstagramToken() async {
-    DocumentSnapshot doc = await firestore.collection('users').doc('unagibrandon').get();
-    return doc.data()['ig_token'];
+    String username = 'unagibrandon';
+    if(String.fromEnvironment('USERNAME', defaultValue: '') != '')
+      username = String.fromEnvironment('USERNAME');
+    DocumentSnapshot doc = await firestore.collection('users').doc('$username').get();
+    return doc.data()['ig_long_lived_token'];
   }
 
   Future<Map<String, Review>> getReviewsAsMap() async {
     CollectionReference reviewsCollection = firestore.collection('users/$igUsername/reviews');
     QuerySnapshot reviews = await reviewsCollection.get();
+    if(reviews.docs.length == 0) return null;
     Map<String, Review> reviewMap = {};
     for(int i = 0; i < reviews.docs.length; i++) {
       Review r = Review.fromFirestoreDocSnap(reviews.docs[i]);
@@ -54,7 +58,7 @@ class InstagramRepository with ChangeNotifier {
       'post_timestamp': r.postTimestamp,
       'media_url': r.mediaUrl,
       'media_id': r.mediaId, // Stored as the document id
-    }, SetOptions(merge: true)).then((value) => print("Review for ${r.restaurantName} added"))
+    }, SetOptions(merge: true)).then((value) => print("Review for ${r.restaurantName} added to Firestore"))
     .catchError((error) => print("Failed to add review: ${r.restaurantName} $error"));
   }
 
@@ -85,9 +89,10 @@ class InstagramRepository with ChangeNotifier {
     Map<String, Review> reviewsMap = await getReviewsAsMap();
     for(int i = 0; i < postList.length; i++) {
       Review rev = Review.fromJson(postList[i]);
+      if(rev == null) continue;
       allReviews.add(rev);
       currentReviews.add(rev);
-      if(!Review.reviewsEqual(rev, reviewsMap[rev.mediaId])) { // Update Firestore if the data from Instagram is different
+      if(reviewsMap == null || !Review.reviewsEqual(rev, reviewsMap[rev.mediaId])) { // Update Firestore if the data from Instagram is different
           addReviewToFirestore(rev);
       }
     }
