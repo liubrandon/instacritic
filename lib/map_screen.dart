@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:instacritic/instagram_repository.dart';
@@ -11,10 +10,7 @@ import 'package:provider/provider.dart';
 class MapScreen extends StatefulWidget {
   @override _MapScreenState createState() => _MapScreenState();
 }
-/* TODO: 
-- Make custom markers work (or just use regular markers)
-- Get lat lon for each restaurant
-*/
+
 bool _firstRun = true;
 class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin {
   @override bool get wantKeepAlive => true; // Used to keep tab alive

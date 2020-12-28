@@ -1,11 +1,8 @@
 
-import 'dart:async';
-
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'info_screen.dart';
 import 'instagram_repository.dart';
@@ -167,7 +164,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
       gradient: LinearGradient(colors: GradientColors.purplePink),
       backgroundColor: Color(0xFFcc2b5e),
       color: Colors.white,
-      height: 45,
+      height: 48,
       onTap: (int i) {
         if(i == 1) { // Map screen
           setState(() {
