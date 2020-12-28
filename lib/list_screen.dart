@@ -109,7 +109,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       elevation: 0,
       child: Link(
         uri: Uri.parse(review.permalink),
-        target: LinkTarget.blank,
+        target: LinkTarget.self,
         builder: (_, FollowLink followLink) => ListTile(
           leading: CircleAvatar(
             minRadius: 25, maxRadius: 25,
@@ -122,7 +122,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
             data: IconThemeData(color: Colors.amber[500], size: 25),
             child: StarDisplay(value: review.stars)
           ),
-          onTap: () => followLink(),
+          onTap: followLink,
         ),
       ),
     );
