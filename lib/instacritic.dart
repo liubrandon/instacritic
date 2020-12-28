@@ -177,7 +177,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           });
         } else if(i == 0) {
           widget.scrollController.addListener(_updateFabVisible);
-          _swipingEnabled = false;
+          _swipingEnabled = true;
         }
       },
     );

@@ -84,7 +84,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
   Padding _buildUpdateBoundsButton() {
     return Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
+                  padding: const EdgeInsets.only(bottom: 22),
                   child: SizedBox(
                     width: 42,
                     height: 42,
