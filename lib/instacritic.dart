@@ -49,7 +49,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     return HideFabOnScrollScaffold(
         body: TabBarView(
           controller: _tabController,
-          // physics: _appDrawerSwipingEnabled ? const AlwaysScrollableScrollPhysics() : const NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
         ),
         floatingActionButton: _buildReviewCountFAB(),
@@ -176,8 +176,10 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
             _appDrawerSwipingEnabled = false;
           });
         } else if(i == 0) {
-          widget.scrollController.addListener(_updateFabVisible);
-          _appDrawerSwipingEnabled = true;
+          setState(() {
+            widget.scrollController.addListener(_updateFabVisible);
+            _appDrawerSwipingEnabled = true;
+          });
         }
       },
     );
