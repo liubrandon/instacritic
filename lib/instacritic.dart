@@ -22,7 +22,6 @@ class Instacritic extends StatefulWidget {
   _InstacriticState createState() => _InstacriticState();
 }
 
-bool _swipingEnabled = true;
 class _InstacriticState extends State<Instacritic> with SingleTickerProviderStateMixin {
   // Used by ListScreen and HideFabOnScrollScaffold
   TextEditingController _textController = TextEditingController();
@@ -50,7 +49,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     return HideFabOnScrollScaffold(
         body: TabBarView(
           controller: _tabController,
-          physics: _swipingEnabled ? const AlwaysScrollableScrollPhysics() : const NeverScrollableScrollPhysics(),
+          // physics: _appDrawerSwipingEnabled ? const AlwaysScrollableScrollPhysics() : const NeverScrollableScrollPhysics(),
           children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
         ),
         floatingActionButton: _buildReviewCountFAB(),
@@ -116,6 +115,7 @@ class HideFabOnScrollScaffold extends StatefulWidget {
 
 class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
   bool _fabVisible = true;
+  bool _appDrawerSwipingEnabled = true;
 
   @override
   void initState() {
@@ -152,7 +152,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           child: InfoScreen(),
         ),
       ),
-      drawerEnableOpenDragGesture: _swipingEnabled,
+      drawerEnableOpenDragGesture: _appDrawerSwipingEnabled,
       bottomNavigationBar: _buildBottomBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
     );
@@ -173,11 +173,11 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           setState(() {
             _fabVisible = true;
             widget.scrollController.removeListener(_updateFabVisible);
-            _swipingEnabled = false;
+            _appDrawerSwipingEnabled = false;
           });
         } else if(i == 0) {
           widget.scrollController.addListener(_updateFabVisible);
-          _swipingEnabled = true;
+          _appDrawerSwipingEnabled = true;
         }
       },
     );
