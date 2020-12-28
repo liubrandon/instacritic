@@ -34,7 +34,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
 
   @override
   void dispose() {
-    _textController.dispose();
+    // _textController.dispose();
     _scrollController.dispose();
     _searchBoxFocusNode.dispose();
     _tabController.dispose();

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:instacritic/instagram_repository.dart';
@@ -24,7 +26,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     // Workaround from https://github.com/flutter/flutter/issues/34473#issuecomment-592962722
     Timer(Duration(milliseconds: 500), _updateMapBounds); 
     print(_firstRun);
-    if(!_firstRun) {
+    if(!_firstRun || Provider.of<InstagramRepository>(context).showingAll) { // TODO: UNTESTED
       Timer(Duration(milliseconds: 500), () {
         for(int i = 0; i < 8; i++)
           _mapController?.animateCamera(CameraUpdate.zoomIn());
@@ -46,7 +48,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Widget build(BuildContext context) {
     super.build(context);
     return FutureBuilder(
-      future: Provider.of<InstagramRepository>(context,listen: false).getReviewsAsStream(),
+      future: Provider.of<InstagramRepository>(context).getReviewsAsStream(),
       builder: (_, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
         if(!snapshot.hasData)
           return Center(child: CircularProgressIndicator());
@@ -59,16 +61,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
             }
             _updateMarkers(snapshot);
             return Scaffold(
-              body: GoogleMap(
-                zoomControlsEnabled: false,
-                markers: _markers,
-                mapType: MapType.normal,
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(0, 0),
-                  zoom: 0,
-                ),
-                onMapCreated: _onMapCreated,
-              ),
+              body: _buildGoogleMap(),
               floatingActionButton: _buildUpdateBoundsButton(),
               // floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
             );
@@ -76,6 +69,23 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
         );
       }
     );
+  }
+
+  GoogleMap _buildGoogleMap() {
+    return GoogleMap(
+              zoomControlsEnabled: false,
+              markers: _markers,
+              mapType: MapType.normal,
+              initialCameraPosition: CameraPosition(
+                target: LatLng(0, 0),
+                zoom: 0,
+              ),
+              onMapCreated: _onMapCreated,
+              //https://stackoverflow.com/questions/54280541/google-map-in-flutter-not-responding-to-touch-events
+              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+                 new Factory<OneSequenceGestureRecognizer>(() => new EagerGestureRecognizer(),),
+              ].toSet(),
+            );
   }
 
   Padding _buildUpdateBoundsButton() {

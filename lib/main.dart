@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:instacritic/setup_screen.dart';
 import 'configure_web.dart';
 import 'package:provider/provider.dart';
 import 'instagram_repository.dart';
@@ -43,15 +44,14 @@ class ICRouteInformationParser extends RouteInformationParser<ICRoutePath> {
     if(uri.pathSegments.length == 0)
       return ICRoutePath.home();
     
-    // Handle /list and /map
-    // if (uri.pathSegments.length == 1) {
-    //   if (uri.pathSegments[0] == 'list') return ICRoutePath.home();
-    //   if (uri.pathSegments[0] == 'map') return ICRoutePath.map();
-    //   return ICRoutePath.unknown();
-    // }
+    // Handle /setup
+    if (uri.pathSegments.length == 1) {
+      if (uri.pathSegments[0] == 'setup') return ICRoutePath.setup();
+      return ICRoutePath.unknown();
+    }
 
     // Handle unknown routes
-    return ICRoutePath.home();
+    return ICRoutePath.unknown();
   }
 
   @override
@@ -60,8 +60,8 @@ class ICRouteInformationParser extends RouteInformationParser<ICRoutePath> {
       return RouteInformation(location: '/404');
     if (path.isHomePage)
       return RouteInformation(location: '/');
-    // if (path.isMapPage)
-    //   return RouteInformation(location: '/map');
+    if (path.isSetupPage)
+      return RouteInformation(location: '/setup');
     return null;
   }
 }
@@ -76,8 +76,8 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
   ICRoutePath get currentConfiguration { 
     if(_currPageId == 0)
       return ICRoutePath.home();
-    // else if(_currPageId == 1)
-    //   return ICRoutePath.map();
+    else if(_currPageId == 1)
+      return ICRoutePath.setup();
     else if(show404)
       return ICRoutePath.unknown();
     // print('ISSUE: Should never get here in routing...');
@@ -90,12 +90,18 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
       key: navigatorKey,
       // transitionDelegate: NoAnimationTransitionDelegate(),
       pages: [
-        MaterialPage(
-          key: ValueKey('Instacritic'),
-          child: Instacritic(),
-        ),
+        if(_currPageId == 0)
+          MaterialPage(
+            key: ValueKey('Instacritic'),
+            child: Instacritic(),
+          ),
         if(show404)
-          MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen())
+          MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen()),
+        if(_currPageId == 1)
+          MaterialPage(
+            key: ValueKey('Instacritic Setup'),
+            child: SetupScreen(),
+          ),
       ],
       onPopPage: (route, result) {
         if(!route.didPop(result)) return false;
@@ -116,9 +122,9 @@ class ICRouterDelegate extends RouterDelegate<ICRoutePath>
       _currPageId = 0;
       return;
     }
-    // else if(path.isMapPage) {
-    //   _currPageId = 1;
-    // }
+    else if(path.isSetupPage) {
+      _currPageId = 1;
+    }
     show404 = false;
   }
 }
@@ -127,11 +133,11 @@ class ICRoutePath {
   final int pageId;
   final bool isUnknown;
   ICRoutePath.home() : pageId = 0, isUnknown = false;
-  // ICRoutePath.map() : pageId = 1, isUnknown = false;
+  ICRoutePath.setup() : pageId = 1, isUnknown = false;
   ICRoutePath.unknown() : pageId = null, isUnknown = true;
 
   bool get isHomePage => pageId == 0 && isUnknown == false;
-  // bool get isMapPage => pageId == 1 && isUnknown == false;
+  bool get isSetupPage => pageId == 1 && isUnknown == false;
 }
 
 class NoAnimationTransitionDelegate extends TransitionDelegate<void> {
