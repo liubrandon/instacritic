@@ -19,7 +19,7 @@ class InstagramRepository with ChangeNotifier {
   void madeChange() => notifyListeners();
 
   Future<String> getInstagramToken() async {
-    DocumentSnapshot doc = await firestore.collection('users').doc('chirashibrandon').get();
+    DocumentSnapshot doc = await firestore.collection('users').doc('unagibrandon').get();
     return doc.data()['ig_token'];
   }
 
