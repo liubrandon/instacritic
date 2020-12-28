@@ -22,13 +22,14 @@ class Instacritic extends StatefulWidget {
   _InstacriticState createState() => _InstacriticState();
 }
 
+bool _swipingEnabled = true;
 class _InstacriticState extends State<Instacritic> with SingleTickerProviderStateMixin {
   // Used by ListScreen and HideFabOnScrollScaffold
   TextEditingController _textController = TextEditingController();
   ScrollController _scrollController = ScrollController();
   FocusNode _searchBoxFocusNode = FocusNode();
   TabController _tabController;
-
+  
   @override
   void initState() {
     super.initState();
@@ -49,7 +50,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     return HideFabOnScrollScaffold(
         body: TabBarView(
           controller: _tabController,
-          // physics: const NeverScrollableScrollPhysics(),
+          physics: _swipingEnabled ? const AlwaysScrollableScrollPhysics() : const NeverScrollableScrollPhysics(),
           children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen()],
         ),
         floatingActionButton: _buildReviewCountFAB(),
@@ -151,7 +152,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           child: InfoScreen(),
         ),
       ),
-      drawerEnableOpenDragGesture: true,
+      drawerEnableOpenDragGesture: _swipingEnabled,
       bottomNavigationBar: _buildBottomBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
     );
@@ -172,9 +173,11 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           setState(() {
             _fabVisible = true;
             widget.scrollController.removeListener(_updateFabVisible);
+            _swipingEnabled = false;
           });
         } else if(i == 0) {
           widget.scrollController.addListener(_updateFabVisible);
+          _swipingEnabled = false;
         }
       },
     );
