@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:instacritic/instagram_repository.dart';
@@ -19,35 +20,31 @@ class MapScreen extends StatefulWidget {
 */
 class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin {
   @override bool get wantKeepAlive => true; // Used to keep tab alive
-  BitmapDescriptor pinLocationIcon;
   Set<Marker> _markers = {};
-  List<BitmapDescriptor> _markerIcons = [null,null,null,null,null];
+  List<BitmapDescriptor> _markerIcons = List.filled(5,null);
+  GoogleMapController _mapController;
+  double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
 
-  double maxLat = -91.0, minLat =  91.0, maxLng = -181.0, minLng = 181.0;
+
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+    // Workaround from https://github.com/flutter/flutter/issues/34473#issuecomment-592962722
+    Timer(Duration(milliseconds: 500), _updateMapBounds); 
+  }
   
   @override
   void initState() {
-    initMarkerIcons();
     super.initState();
-  }
-
-  Future<void> initMarkerIcons() async {
-    _markerIcons[0] = await BitmapDescriptor.fromAssetImage(ImageConfiguration(), 'assets/number_0.png');
-    _markerIcons[1] = await BitmapDescriptor.fromAssetImage(ImageConfiguration(), 'assets/number_1.png');
-    _markerIcons[2] = await BitmapDescriptor.fromAssetImage(ImageConfiguration(), 'assets/number_2.png');
-    _markerIcons[3] = await BitmapDescriptor.fromAssetImage(ImageConfiguration(), 'assets/number_3.png');
-    _markerIcons[4] = await BitmapDescriptor.fromAssetImage(ImageConfiguration(), 'assets/number_4.png');
+    for(int i = 0; i < _markerIcons.length; i++) { // initialize custom markers
+      BitmapDescriptor.fromAssetImage(ImageConfiguration(), 'assets/number_$i.png').then(
+        (value) => _markerIcons[i] = value);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    print('rebuild map screen');
-    final CameraPosition _kGooglePlex = CameraPosition(
-      target: LatLng(41.3163, -72.9223),
-      zoom: 14.4746,
-    );
-
+    // print('rebuild map screen');
     return FutureBuilder(
       future: Provider.of<InstagramRepository>(context,listen: false).getReviewsAsStream(),
       builder: (context, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
@@ -57,18 +54,22 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
           stream: snapshot.data,
           builder: (context, snapshot) {
             if(snapshot == null || snapshot.connectionState == ConnectionState.waiting ||
-              !Provider.of<InstagramRepository>(context).ready) {
+              !Provider.of<InstagramRepository>(context,listen:false).ready || _markerIcons[4] == null) {
               return Center(child: CircularProgressIndicator());
             }
             _updateMarkers(snapshot);
-            return GoogleMap(
-              markers: _markers,
-              mapType: MapType.normal,
-              initialCameraPosition: _kGooglePlex,
-              onMapCreated: (GoogleMapController controller) {
-                if(!widget.mapController.isCompleted)
-                  widget.mapController.complete(controller);
-              },
+            return Scaffold(
+              body: GoogleMap(
+                markers: _markers,
+                mapType: MapType.normal,
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(0, 0),
+                  zoom: 0,
+                ),
+                onMapCreated: _onMapCreated,
+              ),
+              floatingActionButton: _buildUpdateBoundsButton(),
+              floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
             );
           }
         );
@@ -76,13 +77,51 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     );
   }
 
+  Padding _buildUpdateBoundsButton() {
+    return Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: SizedBox(
+                    width: 42,
+                    height: 42,
+                    child: FloatingActionButton(
+                        onPressed: _updateMapBounds,
+                        elevation: 1,
+                        hoverElevation: 1,
+                        foregroundColor: Color(0xff666666),
+                        backgroundColor: Colors.white,
+                        hoverColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        child: Transform.rotate(child:Icon(Icons.control_camera), angle: 0.785398),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                      ),
+                    ),
+                );
+  }
+
+  Future _updateMapBounds() async {
+    LatLng ne = LatLng(maxLat,maxLng);
+    LatLng sw = LatLng(minLat,minLng);
+    // print(ne);
+    // print(sw);
+    _mapController.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          northeast: ne,
+          southwest: sw,
+        ),
+        10.0,
+      )
+    );    
+  }
+
   Future<void> _updateMarkers(AsyncSnapshot<QuerySnapshot> snapshot) async {
     _markers = {};
-    List<Review> currReviews = Provider.of<InstagramRepository>(context).currentReviews;
+    List<Review> currReviews = Provider.of<InstagramRepository>(context, listen: false).currentReviews;
     Set<String> currMediaIds = {};
     currReviews.forEach((rev) {currMediaIds.add(rev.mediaId);});
     List<QueryDocumentSnapshot> docs = snapshot.data.docs;
-    maxLat = -91.0; minLat =  91.0; maxLng = -181.0; minLng = 181.0;
+    maxLat = -90.0; minLat =  90.0; maxLng = -180.0; minLng = 180.0;
     for(int i = 0; i < docs.length; i++) {
       Map<String, dynamic> review = docs[i].data();
       if(review['gmap_location'] != null && currMediaIds.contains(review['media_id'])) {
@@ -94,22 +133,6 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
         _markers.add(m);
       }
     }
-    // widget.passBoundsUp(
-    //   northeast: LatLng(maxLng,maxLat),
-    //   southwest: LatLng(minLng,minLat),
-    // );
-    // final GoogleMapController controller = await widget.mapController.future;
-    // controller.moveCamera(
-    //   CameraUpdate.newLatLngBounds(
-    //     LatLngBounds(
-    //       // northeast: LatLng(maxLng,maxLat),
-    //       // southwest: LatLng(minLng,minLat),
-    //       northeast: LatLng(41.4993, -81.6944),
-    //       southwest: LatLng(39.9612, -82.9988), 
-    //     ),
-    //     32.0,
-    //   )
-    // );
   }
 
   Marker _markerFromFirestoreDocSnap(Map<String, dynamic> review) {

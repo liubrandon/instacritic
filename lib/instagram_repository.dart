@@ -23,6 +23,17 @@ class InstagramRepository with ChangeNotifier {
     return doc.data()['ig_token'];
   }
 
+  Future<Map<String, Review>> getReviewsAsMap() async {
+    CollectionReference reviewsCollection = firestore.collection('users/$igUsername/reviews');
+    QuerySnapshot reviews = await reviewsCollection.get();
+    Map<String, Review> reviewMap = {};
+    for(int i = 0; i < reviews.docs.length; i++) {
+      Review r = Review.fromFirestoreDocSnap(reviews.docs[i]);
+      reviewMap['${r.mediaId}'] = r;
+    }
+    return reviewMap;
+  }
+  
   Future<Review> getReviewFromFirestore(String mediaId) async {
     DocumentSnapshot doc = await firestore.collection('users/$igUsername/reviews').doc('$mediaId').get();
     if(!doc.exists)
@@ -32,7 +43,7 @@ class InstagramRepository with ChangeNotifier {
 
   Future<Stream<QuerySnapshot>> getReviewsAsStream() async =>
     FirebaseFirestore.instance.collection('users/$igUsername/reviews').snapshots();
-
+  
   void addReviewToFirestore(Review r) {
     DocumentReference newReview = FirebaseFirestore.instance.collection('users/$igUsername/reviews/').doc('${r.mediaId}');
     newReview.set({
@@ -65,21 +76,18 @@ class InstagramRepository with ChangeNotifier {
       curr25 = jsonDecode(res.body);
       postList.addAll(curr25['data']);
     }
-    // postList.forEach((post) {print(post); print('\n');});
     if(postList.length > 0)
       igUsername = postList[0]['username'];
     allReviews = [];
     currentReviews = [];
+    Map<String, Review> reviewsMap = await getReviewsAsMap();
     for(int i = 0; i < postList.length; i++) {
       Review rev = Review.fromJson(postList[i]);
       allReviews.add(rev);
       currentReviews.add(rev);
-      getReviewFromFirestore(rev.mediaId).then((firestoreReview) {
-        if(!Review.reviewsEqual(rev, firestoreReview)) {
-          // Update Firestore if the data from Instagram is different
+      if(!Review.reviewsEqual(rev, reviewsMap[rev.mediaId])) { // Update Firestore if the data from Instagram is different
           addReviewToFirestore(rev);
-        }
-      });
+      }
     }
     ready = true;
     notifyListeners();
