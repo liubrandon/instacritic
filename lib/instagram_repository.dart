@@ -20,8 +20,12 @@ class InstagramRepository with ChangeNotifier {
 
   Future<String> getInstagramToken() async {
     String username = 'unagibrandon';
-    if(String.fromEnvironment('USERNAME', defaultValue: '') != '')
-      username = String.fromEnvironment('USERNAME');
+    const username_override = const String.fromEnvironment('USERNAME');
+    if(username_override != null) {
+      username = username_override;
+      print('entered if');
+    }
+    print(username);
     DocumentSnapshot doc = await firestore.collection('users').doc('$username').get();
     return doc.data()['ig_long_lived_token'];
   }
