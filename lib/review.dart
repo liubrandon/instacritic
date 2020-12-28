@@ -67,6 +67,8 @@ class Review {
   }
 
   static bool reviewsEqual(Review a, Review b) {
+    if(a == null || b == null)
+      return false;
     if (a.restaurantName == b.restaurantName &&
         a.stars == b.stars &&
         a.location == b.location &&
