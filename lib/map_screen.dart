@@ -26,7 +26,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     // Workaround from https://github.com/flutter/flutter/issues/34473#issuecomment-592962722
     Timer(Duration(milliseconds: 500), _updateMapBounds); 
     print(_firstRun);
-    if(!_firstRun || Provider.of<InstagramRepository>(context).showingAll) { // TODO: UNTESTED
+    if(!_firstRun || !Provider.of<InstagramRepository>(context).showingAll) { // TODO: UNTESTED
       Timer(Duration(milliseconds: 500), () {
         for(int i = 0; i < 8; i++)
           _mapController?.animateCamera(CameraUpdate.zoomIn());
