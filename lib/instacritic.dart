@@ -142,12 +142,6 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize( //https://stackoverflow.com/questions/49441187/how-to-change-status-bar-and-app-bar-color-in-flutter
-        preferredSize: Size.fromHeight(0),
-        child: AppBar( // Here we create one to set status bar color
-          backgroundColor: Constants.myPurple, // Set any color of status bar you want; or it defaults to your theme's primary color
-        )
-      ),
       body: widget.body,
       floatingActionButton: _fabVisible ? widget.floatingActionButton : null,
       drawer: Container(
