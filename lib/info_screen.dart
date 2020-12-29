@@ -9,7 +9,7 @@ import 'instagram_repository.dart';
 class InfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    
+    List<Review> reviewsWithErrors = Provider.of<InstagramRepository>(context).reviewsWithErrors;
     return Padding(
       padding: EdgeInsets.only(left: 10),
       child: Column(
@@ -24,16 +24,17 @@ class InfoScreen extends StatelessWidget {
           Padding(padding: EdgeInsets.all(5)),
           Text('Version: ${const String.fromEnvironment('APP_VERSION')}.', style: TextStyle(fontSize: 14),),
           Padding(padding: EdgeInsets.all(15)),
-          Text('Could not import these posts:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
-          _buildReviewsWithErrorsList(context),
+          if(reviewsWithErrors.isNotEmpty) 
+            Text('Could not import these posts:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
+          if(reviewsWithErrors.isNotEmpty)   
+            _buildReviewsWithErrorsList(context, reviewsWithErrors),
         ],
       ),
     );
                 
   }
 
-  Widget _buildReviewsWithErrorsList(BuildContext context) {
-    List<Review> reviewsWithErrors = Provider.of<InstagramRepository>(context).reviewsWithErrors;
+  Widget _buildReviewsWithErrorsList(BuildContext context, List<Review> reviewsWithErrors) {
     return Expanded(
           child: Container(
                 height: MediaQuery.of(context).size.height,

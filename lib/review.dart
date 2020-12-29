@@ -9,6 +9,7 @@ class Review {
   String mediaUrl;
   String mediaId;
   bool hasError;
+  bool isVideo;
 
   Review({
     this.restaurantName, 
@@ -31,17 +32,21 @@ class Review {
       print(e);
       return null;
     }
+    String mediaUrl = (postData['media_type'] == 'VIDEO') ? postData['thumbnail_url'] : postData['media_url'];
     if(captionData.length != 3)
       return Review(hasError: true, restaurantName: postData['caption'], permalink: postData['permalink'], postTimestamp: DateTime.parse(postData['timestamp']));
     for(int i = 0; i < captionData.length; i++) captionData[i] = captionData[i].trim();
     int stars = (captionData[0].contains('💀')) ? 0 : int.parse(captionData[0].substring(0,captionData[0].indexOf('/')));
+    String location = captionData[2];
+    if(location == 'New York, New York')
+      location = 'New York, NY';
     return Review(
       restaurantName: captionData[1],
       stars: stars,
-      location: captionData[2],
+      location: location,
       permalink: postData['permalink'],
       postTimestamp: DateTime.parse(postData['timestamp']),
-      mediaUrl: postData['media_url'],
+      mediaUrl: mediaUrl,
       mediaId: postData['id'],
     );
   }

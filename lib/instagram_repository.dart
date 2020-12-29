@@ -73,7 +73,7 @@ class InstagramRepository with ChangeNotifier {
     // Construct the Instagram API call and get the response
     final String igToken = await getInstagramToken();
     final String igUrl = 'https://graph.instagram.com/me/media';
-    final String igFields = 'caption,id,media_type,media_url,permalink,timestamp,username';
+    final String igFields = 'caption,id,media_type,thumbnail_url,media_url,permalink,timestamp,username';
     String queryString = Uri(queryParameters: {'fields': igFields, 'access_token': igToken}).query;
     var res = await http.get(igUrl + '?' + queryString);
     var curr25 = jsonDecode(res.body);
