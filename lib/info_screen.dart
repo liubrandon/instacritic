@@ -43,7 +43,7 @@ class InfoScreen extends StatelessWidget {
                       itemBuilder: (BuildContext context, int i) {  
                         return Link(
                           uri: Uri.parse(reviewsWithErrors[i].permalink),
-                          target: LinkTarget.blank,
+                          target: LinkTarget.self,
                           builder: (_, followLink) {
                             return ListTile(
                               title: Text('Caption: ' + reviewsWithErrors[i].restaurantName,
