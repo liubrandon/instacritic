@@ -8,7 +8,8 @@ class Review {
   DateTime postTimestamp;
   String mediaUrl;
   String mediaId;
-  
+  bool hasError;
+
   Review({
     this.restaurantName, 
     this.stars, 
@@ -16,7 +17,8 @@ class Review {
     this.permalink, 
     this.postTimestamp, 
     this.mediaUrl, 
-    this.mediaId
+    this.mediaId,
+    this.hasError = false,
   });
   
   // Takes in a map representing a single Instagram post from the
@@ -29,7 +31,8 @@ class Review {
       print(e);
       return null;
     }
-    if(captionData.length != 3) return null;
+    if(captionData.length != 3)
+      return Review(hasError: true, restaurantName: postData['caption'], permalink: postData['permalink'], postTimestamp: DateTime.parse(postData['timestamp']));
     for(int i = 0; i < captionData.length; i++) captionData[i] = captionData[i].trim();
     int stars = (captionData[0].contains('💀')) ? 0 : int.parse(captionData[0].substring(0,captionData[0].indexOf('/')));
     return Review(

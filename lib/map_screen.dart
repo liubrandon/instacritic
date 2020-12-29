@@ -13,13 +13,13 @@ class MapScreen extends StatefulWidget {
   @override _MapScreenState createState() => _MapScreenState();
 }
 
-bool _firstRun = true;
 class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin {
   @override bool get wantKeepAlive => true; // Used to keep tab alive
   Set<Marker> _markers = {};
   List<BitmapDescriptor> _markerIcons = List.filled(5,null);
   GoogleMapController _mapController;
   double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
+  bool _firstRun = true;
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
@@ -39,7 +39,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   void initState() {
     super.initState();
     for(int i = 0; i < _markerIcons.length; i++) { // initialize custom markers
-      BitmapDescriptor.fromAssetImage(ImageConfiguration(), 'assets/number_$i.png').then(
+      BitmapDescriptor.fromAssetImage(ImageConfiguration(), 'assets/star-$i.png').then(
         (value) => _markerIcons[i] = value);
     }
   }
@@ -50,7 +50,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     return FutureBuilder(
       future: Provider.of<InstagramRepository>(context).getReviewsAsStream(),
       builder: (_, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
-        if(!snapshot.hasData)
+        if(!snapshot.hasData || !Provider.of<InstagramRepository>(context).ready)
           return Center(child: CircularProgressIndicator());
         return StreamBuilder(
           stream: snapshot.data,
@@ -148,7 +148,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
   Marker _markerFromFirestoreDocSnap(Map<String, dynamic> review) {
     InfoWindow infoWindow = InfoWindow(
-      title: review['restaurant_name'],
+      title: review['restaurant_name'] + ' (${review['stars']}/4 ⭐)',
       snippet: review['gmap_address'],
     );
     return Marker(

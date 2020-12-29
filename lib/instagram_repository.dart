@@ -9,6 +9,7 @@ class InstagramRepository with ChangeNotifier {
   String igUsername;
   List<Review> allReviews = [];
   List<Review> currentReviews = [];
+  List<Review> reviewsWithErrors = [];
   bool ready = false;
   bool showingAll = true;
 
@@ -88,14 +89,20 @@ class InstagramRepository with ChangeNotifier {
       igUsername = postList[0]['username'];
     allReviews = [];
     currentReviews = [];
-    Map<String, Review> reviewsMap = await getReviewsAsMap();
+    reviewsWithErrors = [];
     for(int i = 0; i < postList.length; i++) {
       Review rev = Review.fromJson(postList[i]);
-      if(rev == null) continue;
-      allReviews.add(rev);
-      currentReviews.add(rev);
-      if(reviewsMap == null || !Review.reviewsEqual(rev, reviewsMap[rev.mediaId])) { // Update Firestore if the data from Instagram is different
-          addReviewToFirestore(rev);
+      if(rev.hasError) { // Issue parsing review
+        reviewsWithErrors.add(rev);
+      }
+      else {
+        allReviews.add(rev);
+        currentReviews.add(rev);
+        getReviewFromFirestore(rev.mediaId).then((firestoreReview) {
+          if(!Review.reviewsEqual(rev, firestoreReview)) { // Update Firestore if the data from Instagram is different
+              addReviewToFirestore(rev);
+          }
+        });
       }
     }
     ready = true;
