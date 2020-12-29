@@ -3,6 +3,7 @@ import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
+import 'package:instacritic/constants.dart';
 import 'package:provider/provider.dart';
 import 'info_screen.dart';
 import 'instagram_repository.dart';
@@ -141,6 +142,12 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize( //https://stackoverflow.com/questions/49441187/how-to-change-status-bar-and-app-bar-color-in-flutter
+        preferredSize: Size.fromHeight(0),
+        child: AppBar( // Here we create one to set status bar color
+          backgroundColor: Constants.myPurple, // Set any color of status bar you want; or it defaults to your theme's primary color
+        )
+      ),
       body: widget.body,
       floatingActionButton: _fabVisible ? widget.floatingActionButton : null,
       drawer: Container(
@@ -162,7 +169,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
       elevation: 0,
       style: TabStyle.reactCircle,
       gradient: LinearGradient(colors: GradientColors.purplePink),
-      backgroundColor: Color(0xFFcc2b5e),
+      backgroundColor: Constants.myPurple,
       color: Colors.white,
       height: 48,
       onTap: (int i) {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
+import 'package:instacritic/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:url_launcher/link.dart';
@@ -92,7 +93,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               floating: true,
               title: Text(Provider.of<InstagramRepository>(context,listen:false).igUsername + '\'s reviews'),
               toolbarHeight: 48,
-              backgroundColor: Color(0xFFcc2b5e),
+              backgroundColor: Constants.myPurple,
               // flexibleSpace: Container(
               //     decoration: BoxDecoration(
               //       gradient: LinearGradient(
