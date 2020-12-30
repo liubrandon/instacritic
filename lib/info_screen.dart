@@ -11,7 +11,7 @@ class InfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Review> reviewsWithErrors = Provider.of<InstagramRepository>(context).reviewsWithErrors;
     return Padding(
-      padding: EdgeInsets.only(left: 15),
+      padding: EdgeInsets.only(left: 15, right: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

@@ -94,13 +94,6 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               title: Text(Provider.of<InstagramRepository>(context,listen:false).igUsername + '\'s reviews'),
               toolbarHeight: 48,
               backgroundColor: Constants.myPurple,
-              // flexibleSpace: Container(
-              //     decoration: BoxDecoration(
-              //       gradient: LinearGradient(
-              //       begin: Alignment.topLeft,
-              //       end: Alignment.bottomRight,
-              //       colors: GradientColors.purplePink,
-              // ))),
               actions: [_buildRefreshButton()],
             );
   }
