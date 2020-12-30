@@ -92,7 +92,6 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   int touchedIndex;
   Future<void> _showFilterModal() {
     return showModalBottomSheet(
-
             context: context,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
@@ -392,7 +391,6 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
   }
 
   Widget _buildBottomBar() {
-    
     return ConvexAppBar(
       controller: widget.tabController,
       items: _homeTabs,
@@ -411,6 +409,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           });
         } else if(i == 0) {
           setState(() {
+            _fabVisible = true;
             widget.scrollController.addListener(_updateFabVisible);
             _appDrawerSwipingEnabled = true;
           });

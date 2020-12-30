@@ -48,9 +48,10 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                 List<Widget> slivs = [
                   _buildAppBar(),
                   _buildSearchBar(),
-                  _buildSliverPadding(height: 4)
+                  _buildSliverPadding(height: 4),
+                  _buildReviewList(snapshot),
                 ];
-                slivs.addAll(_getSliverList(snapshot));
+                // slivs.addAll(_getSliverList(snapshot));
                 slivs.add(_buildSliverPadding(height: 20)); // Bottom padding for convex
                 return CupertinoScrollbar(
                   child: CustomScrollView(
@@ -67,14 +68,14 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
     return snapshot.data.map((review) => SliverToBoxAdapter(child: _buildRow(review))).toList();
   } 
 
-  // SliverList _buildReviewList(AsyncSnapshot<List<Review>> snapshot) {
-  //   return SliverList( // Builder seems to crash, so I switched to a list
-  //             delegate: SliverChildBuilderDelegate(
-  //               (context, index) => _buildRow(snapshot.data[index]),
-  //               childCount: snapshot.data.length,
-  //             ),
-  //           );
-  // }
+  SliverList _buildReviewList(AsyncSnapshot<List<Review>> snapshot) {
+    return SliverList( // Builder seems to crash, so I switched to a list
+              delegate: SliverChildBuilderDelegate(
+                (_, index) => _buildRow(snapshot.data[index]),
+                childCount: snapshot.data.length,
+              ),
+            );
+  }
 
   SliverAppBar _buildSearchBar() {
     return SliverAppBar(
