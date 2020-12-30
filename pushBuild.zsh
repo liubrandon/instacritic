@@ -9,6 +9,8 @@ git commit -m $1
 git push
 
 # Backup .git in build/web
+mkdir temp
+mkdir temp/.git
 cp -r build/web/.git ./temp/.git
 
 # Then build the app for my site and push it
