@@ -224,26 +224,29 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
 
   Widget _buildChart(StateSetter state) {
     return Expanded(
-          child: Center(
-            // aspectRatio: 1,
-            child: PieChart(
-              PieChartData(
-                  pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
-                    state(() {
-                      if (pieTouchResponse.touchInput is FlLongPressEnd ||
-                          pieTouchResponse.touchInput is FlPanEnd) {
-                        touchedIndex = -1;
-                      } else {
-                        touchedIndex = pieTouchResponse.touchedSectionIndex;
-                      }
-                    });
-                  }),
-                  borderData: FlBorderData(
-                    show: false,
-                  ),
-                  sectionsSpace: 0,
-                  centerSpaceRadius: 20,
-                  sections: showingSections()),
+          child: Container(
+            height: 120,
+            child: Center(
+              // aspectRatio: 1,
+              child: PieChart(
+                PieChartData(
+                    pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
+                      state(() {
+                        if (pieTouchResponse.touchInput is FlLongPressEnd ||
+                            pieTouchResponse.touchInput is FlPanEnd) {
+                          touchedIndex = -1;
+                        } else {
+                          touchedIndex = pieTouchResponse.touchedSectionIndex;
+                        }
+                      });
+                    }),
+                    borderData: FlBorderData(
+                      show: false,
+                    ),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 20,
+                    sections: showingSections()),
+              ),
             ),
           ),
         );
