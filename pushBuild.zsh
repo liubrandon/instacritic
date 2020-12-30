@@ -16,8 +16,8 @@ git init
 git remote add unagibrandon git@github.com:liubrandon/instacritic.git
 git checkout -b gh-pages
 git add .
-git commit -m $1
-git push unagibrandon gh-pages
+git commit -m $1 --quiet
+git push -f unagibrandon gh-pages
 popd
 sed -i '' 's#"/instacritic/"#"/"#' web/index.html # Undo relative path href base
 
@@ -29,7 +29,7 @@ git init
 git remote add asiayum git@github.com:instacritic/asiayum.git
 git checkout -b gh-pages
 git add .
-git commit -m $1
+git commit -m $1 --quiet
 git push -f asiayum gh-pages
 popd
 sed -i '' 's#"/asiayum/"#"/"#' web/index.html # Undo relative path href base
