@@ -365,7 +365,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
 
   void _updateFabVisible() {
     final newFabVisible = (widget.scrollController.position.userScrollDirection == ScrollDirection.forward
-                          || widget.focusNode.hasFocus); // || widget.textController.text.isNotEmpty);
+                          || widget.focusNode.hasFocus || widget.tabController.index == 1); // || widget.textController.text.isNotEmpty);
     if (_fabVisible != newFabVisible) {
       setState(() {
         _fabVisible = newFabVisible;
