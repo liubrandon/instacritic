@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:instacritic/constants.dart';
 import 'package:provider/provider.dart';
@@ -64,9 +65,9 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   SliverToBoxAdapter _buildSliverPadding({double height}) => SliverToBoxAdapter(child: Container(height:height));
 
-  List<Widget> _getSliverList(AsyncSnapshot<List<Review>> snapshot) {
-    return snapshot.data.map((review) => SliverToBoxAdapter(child: _buildRow(review))).toList();
-  } 
+  // List<Widget> _getSliverList(AsyncSnapshot<List<Review>> snapshot) {
+  //   return snapshot.data.map((review) => SliverToBoxAdapter(child: _buildRow(review))).toList();
+  // } 
 
   SliverList _buildReviewList(AsyncSnapshot<List<Review>> snapshot) {
     return SliverList( // Builder seems to crash, so I switched to a list
@@ -131,7 +132,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           focusNode: widget.searchBoxFocusNode,
           controller: widget.textController,
           onChanged: (text) => _updateCurrentReviews(text),
-          onSubmitted: (text) {
+          onEditingComplete: () {
             widget.tabController.animateTo(1);
           },
           decoration: InputDecoration(
@@ -152,7 +153,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               contentPadding: EdgeInsets.only(top: 14),
               focusedBorder: InputBorder.none,
               border: InputBorder.none,
-          ),),),);
+          ),),));
   }
 
   // https://medium.com/level-up-programming/flutter-stream-tutorial-asynchronous-dart-programming-991e6cf97c5a

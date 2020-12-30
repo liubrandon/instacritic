@@ -87,23 +87,23 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
             elevation: 3.0,
             shape: RoundedRectangleBorder(borderRadius: borderRadius),
             child: TextField(
-              controller: widget.textController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: borderRadius,
+                controller: widget.textController,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: borderRadius,
+                  ),
+                  prefixIcon: Icon(Icons.search),
+                  hintText: 'Search',
+                  contentPadding: EdgeInsets.only(top: 14),
                 ),
-                prefixIcon: Icon(Icons.search),
-                hintText: 'Search',
-                contentPadding: EdgeInsets.only(top: 14),
+                onTap: () {
+                  widget.tabController.animateTo(0);
+                  widget.searchBoxFocusNode.requestFocus();
+                } ,
               ),
-              onTap: () {
-                widget.tabController.animateTo(0);
-                widget.searchBoxFocusNode.requestFocus();
-              } ,
-            ),
           ),
         ),
       ),
@@ -111,19 +111,19 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   }
   GoogleMap _buildGoogleMap() {
     return GoogleMap(
-              zoomControlsEnabled: false,
-              markers: _markers,
-              mapType: MapType.normal,
-              initialCameraPosition: CameraPosition(
-                target: LatLng(0, 0),
-                zoom: 0,
-              ),
-              onMapCreated: _onMapCreated,
-              //https://stackoverflow.com/questions/54280541/google-map-in-flutter-not-responding-to-touch-events
-              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-                Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer(),),
-              ].toSet(),
-            );
+      zoomControlsEnabled: false,
+      markers: _markers,
+      mapType: MapType.normal,
+      initialCameraPosition: CameraPosition(
+        target: LatLng(0, 0),
+        zoom: 0,
+      ),
+      onMapCreated: _onMapCreated,
+      //https://stackoverflow.com/questions/54280541/google-map-in-flutter-not-responding-to-touch-events
+      gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+        Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer(),),
+      ].toSet(),
+    );
   }
 
   Padding _buildUpdateBoundsButton() {

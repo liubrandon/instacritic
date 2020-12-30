@@ -98,11 +98,11 @@ class InstagramRepository with ChangeNotifier {
       else {
         allReviews.add(rev);
         currentReviews.add(rev);
-        // getReviewFromFirestore(rev.mediaId).then((firestoreReview) {
-        //   if(!Review.reviewsEqual(rev, firestoreReview)) { // Update Firestore if the data from Instagram is different
-        //       addReviewToFirestore(rev);
-        //   }
-        // });
+        getReviewFromFirestore(rev.mediaId).then((firestoreReview) {
+          if(!Review.reviewsEqual(rev, firestoreReview)) { // Update Firestore if the data from Instagram is different
+              addReviewToFirestore(rev);
+          }
+        });
       }
     }
     ready = true;
