@@ -2,11 +2,8 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:instacritic/constants.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/subjects.dart';
 import 'package:url_launcher/link.dart';
 import 'instagram_repository.dart';
 import 'star_display.dart';
@@ -14,11 +11,12 @@ import 'review.dart';
 import 'label.dart';
 
 class ListScreen extends StatefulWidget {
+  final StreamController<List<Review>> reviewController; // ignore: close_sinks  
   final TabController tabController;
   final ScrollController scrollController;
   final TextEditingController textController;
   final FocusNode searchBoxFocusNode;
-  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode, this.tabController);
+  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode, this.tabController, this.reviewController);
   @override
   State<ListScreen> createState() => _ListScreenState();
 }
@@ -27,7 +25,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   @override
   bool get wantKeepAlive => true;
   bool runOnce = true;
-  StreamController<List<Review>> _reviewController = BehaviorSubject(); // ignore: close_sinks  
+  
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +34,11 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       return Center(child: CircularProgressIndicator());
     }
     if(runOnce) { // This is the initial building of the list
-      _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
+      widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
       runOnce = false;
     }
     return StreamBuilder( // Get the reviews as a stream so if you search or sort it updates again
-            stream: _reviewController.stream,
+            stream: widget.reviewController.stream,
             builder: (BuildContext buildContext, AsyncSnapshot<List<Review>> snapshot) {
               if(snapshot == null || snapshot.connectionState == ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator());
@@ -131,10 +129,13 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         child: TextField(
           focusNode: widget.searchBoxFocusNode,
           controller: widget.textController,
+          textInputAction: TextInputAction.search,
           onChanged: (text) => _updateCurrentReviews(text),
-          onEditingComplete: () {
-            widget.tabController.animateTo(1);
-            widget.searchBoxFocusNode.unfocus();
+          onSubmitted: (text) {
+            if(text.isNotEmpty) {
+              widget.tabController.animateTo(1);
+              widget.searchBoxFocusNode.unfocus();
+            }
           },
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
@@ -143,7 +144,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                 focusColor: Colors.transparent, hoverColor: Colors.transparent, highlightColor: Colors.transparent,
                 splashColor: Colors.transparent,
                 onPressed: () {
-                  _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
+                  widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
                   Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
                   Provider.of<InstagramRepository>(context,listen:false).madeChange();
                   widget.textController.clear();
@@ -161,7 +162,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   void _updateCurrentReviews(String searchQuery) {
     Provider.of<InstagramRepository>(context,listen:false).currentReviews = [];
     if(searchQuery.isEmpty) {
-      _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
+      widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
       Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
       Provider.of<InstagramRepository>(context,listen:false).madeChange();
       return;
@@ -171,7 +172,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         Provider.of<InstagramRepository>(context,listen:false).currentReviews.add(review);
       }
     });
-    _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
+    widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
     Provider.of<InstagramRepository>(context,listen:false).showingAll = false;
     Provider.of<InstagramRepository>(context,listen:false).madeChange();
   }
@@ -200,7 +201,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         }),
         onSelected: (sortLabel) { 
           sortLabel.mySort(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
-          _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
+          widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
           _currentSortLabel = sortLabel;
         },));
   }
@@ -212,7 +213,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       tooltip: 'Reload',
       onPressed: () {
           Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
-          _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews); // Get latest data from IG
+          widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews); // Get latest data from IG
           widget.textController.clear();
           Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
       });
@@ -220,7 +221,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   @override
   void dispose() {
-    _reviewController.close(); // Not sure if needed
+    widget.reviewController.close(); // Not sure if needed
     widget.textController.dispose();
     super.dispose();
   }

@@ -1,12 +1,16 @@
 
+import 'dart:async';
+
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:instacritic/constants.dart';
+import 'package:instacritic/review.dart';
 import 'package:instacritic/star_display.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 import 'info_screen.dart';
 import 'instagram_repository.dart';
 import 'map_screen.dart';
@@ -29,6 +33,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   ScrollController _scrollController = ScrollController();
   FocusNode _searchBoxFocusNode = FocusNode();
   TabController _tabController;
+  StreamController<List<Review>> _reviewController = BehaviorSubject(); 
   List<bool> filterBoxChecked = [true,true,true,true,true];
   double _fabOffset = 0;
 
@@ -53,7 +58,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
         body: TabBarView(
           controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
-          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController),MapScreen(_tabController,_textController,_searchBoxFocusNode)],
+          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController, _reviewController),MapScreen(_tabController,_textController,_searchBoxFocusNode)],
         ),
         floatingActionButton: _buildReviewCountFAB(),
         scrollController: _scrollController,
@@ -111,7 +116,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
                               padding: EdgeInsets.only(top:22, left: 23, bottom: 10),
                               child: Text('Filter', style: TextStyle(fontSize: 20, letterSpacing: .5)),
                             ),
-                            _buildChart(state),
+                            // _buildChart(state),
                             CheckboxListTile(
                               
                               checkColor: Colors.green,
