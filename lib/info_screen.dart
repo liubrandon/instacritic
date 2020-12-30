@@ -11,12 +11,12 @@ class InfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Review> reviewsWithErrors = Provider.of<InstagramRepository>(context).reviewsWithErrors;
     return Padding(
-      padding: EdgeInsets.only(left: 10),
+      padding: EdgeInsets.only(left: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(padding: EdgeInsets.all(5)),
+          Padding(padding: EdgeInsets.all(10)),
           Text('Instacritic', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),),
           Text('Made with ♡ by Brandon Liu.', style: TextStyle(fontSize: 14),),
           Padding(padding: EdgeInsets.all(5)),

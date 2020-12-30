@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:instacritic/constants.dart';
+import 'package:instacritic/star_display.dart';
 import 'package:provider/provider.dart';
 import 'info_screen.dart';
 import 'instagram_repository.dart';
@@ -26,7 +27,9 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   ScrollController _scrollController = ScrollController();
   FocusNode _searchBoxFocusNode = FocusNode();
   TabController _tabController;
-  
+  List<bool> filterBoxChecked = [true,true,true,true,true];
+  double _fabOffset = 0;
+
   @override
   void initState() {
     super.initState();
@@ -58,28 +61,138 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
       );
   }
 
-  SizedBox _buildReviewCountFAB() {
-    return SizedBox(
-        width: 120,
-        height: 35,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: GradientColors.purplePink,
-          )),
-          child: FloatingActionButton.extended(
-            onPressed: null,
-            backgroundColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            focusColor: Colors.transparent,
-            label: Text(_getNumReviewsString(), style: TextStyle(color: Colors.white, fontSize: 15, letterSpacing: .5)),
+  Widget _buildReviewCountFAB() {
+    return Padding(
+        padding: EdgeInsets.only(bottom: _fabOffset),
+        child: SizedBox(
+          width: 120,
+          height: 35,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: GradientColors.purplePink,
+            )),
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                Future<void> f;
+                setState(() {
+                  _fabOffset = 280;
+                  f = _showFilterModal();
+                });
+                f.then((void _) {
+                  setState(() {
+                    _fabOffset = 0;
+                  });
+                });
+              },
+              backgroundColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              focusColor: Colors.transparent,
+              label: Text(_getNumReviewsString(), style: TextStyle(color: Colors.white, fontSize: 15, letterSpacing: .5)),
+            ),
           ),
         ),
-      );
+    );
+  }
+
+  Future<void> _showFilterModal() {
+    return showModalBottomSheet(
+            context: context,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0)
+            ),
+            builder: (context) {
+              return StatefulBuilder(
+                  builder: (BuildContext context, StateSetter state) {
+                    return Theme(
+                    data: ThemeData(unselectedWidgetColor: Colors.transparent),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(top:25, left: 15, bottom: 15),
+                            child: Text('Filter', style: TextStyle(fontSize: 24,), textAlign: TextAlign.left,),
+                          ),
+                          CheckboxListTile(
+                            checkColor: Colors.green,
+                            activeColor: Colors.transparent,
+                            secondary: StarDisplay(value:0),
+                            title: Text(''),
+                            controlAffinity: ListTileControlAffinity.trailing,
+                            onChanged: (bool value) { 
+                              state(() {
+                                filterBoxChecked[0] = value;
+                              });
+                            },
+                            value: filterBoxChecked[0],
+                          ),
+                          CheckboxListTile(
+                            checkColor: Colors.green,
+                            activeColor: Colors.transparent,
+                            secondary: StarDisplay(value:1),
+                            title: Text(''),
+                            controlAffinity: ListTileControlAffinity.trailing,
+                            onChanged: (bool value) { 
+                              state(() {
+                                filterBoxChecked[1] = value;
+                              });
+                            },
+                            value: filterBoxChecked[1],
+                          ),
+                          CheckboxListTile(
+                            checkColor: Colors.green,
+                            activeColor: Colors.transparent,
+                            secondary: StarDisplay(value:2),
+                            title: Text(''),
+                            controlAffinity: ListTileControlAffinity.trailing,
+                            onChanged: (bool value) { 
+                              state(() {
+                                filterBoxChecked[2] = value;
+                              });
+                            },
+                            value: filterBoxChecked[2],
+                          ),
+                          CheckboxListTile(
+                            checkColor: Colors.green,
+                            activeColor: Colors.transparent,
+                            secondary: StarDisplay(value:3),
+                            title: Text(''),
+                            controlAffinity: ListTileControlAffinity.trailing,
+                            onChanged: (bool value) { 
+                              state(() {
+                                filterBoxChecked[3] = value;
+                              });
+                            },
+                            value: filterBoxChecked[3],
+                          ),
+                          CheckboxListTile(
+                            checkColor: Colors.green,
+                            activeColor: Colors.transparent,
+                            secondary: StarDisplay(value:4),
+                            title: Text(''),
+                            controlAffinity: ListTileControlAffinity.trailing,
+                            onChanged: (bool value) { 
+                              state(() {
+                                filterBoxChecked[4] = value;
+                              });
+                            },
+                            value: filterBoxChecked[4],
+                          ),
+                          ButtonBar(
+                            children: [],
+                          ),
+                        ],
+                        ),
+                    );
+                  },
+                );
+              
+            });
   }
   String _getNumReviewsString() {
     final int _numReviews = Provider.of<InstagramRepository>(context).getNumReviewsShown();
