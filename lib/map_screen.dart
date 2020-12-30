@@ -102,7 +102,8 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                 onTap: () {
                   widget.tabController.animateTo(0);
                   widget.searchBoxFocusNode.requestFocus();
-                } ,
+                  widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
+                },
               ),
           ),
         ),
