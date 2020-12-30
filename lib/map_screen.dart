@@ -10,6 +10,10 @@ import 'package:instacritic/review.dart';
 import 'package:provider/provider.dart';
 
 class MapScreen extends StatefulWidget {
+  final TabController tabController;
+  final TextEditingController textController;
+  final FocusNode searchBoxFocusNode;
+  const MapScreen(this.tabController, this.textController, this.searchBoxFocusNode);
   @override _MapScreenState createState() => _MapScreenState();
 }
 
@@ -18,21 +22,16 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Set<Marker> _markers = {};
   List<BitmapDescriptor> _markerIcons = List.filled(5,null);
   GoogleMapController _mapController;
+  
   double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
-  bool _firstRun = true;
+  // bool _firstRun = true;
 
   void _onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
+    if(controller != null && this.mounted) {
+      _mapController = controller;
     // Workaround from https://github.com/flutter/flutter/issues/34473#issuecomment-592962722
-    Timer(Duration(milliseconds: 500), _updateMapBounds); 
-    print(_firstRun);
-    if(!_firstRun || !Provider.of<InstagramRepository>(context, listen: false).showingAll) { // TODO: UNTESTED
-      Timer(Duration(milliseconds: 500), () {
-        for(int i = 0; i < 8; i++)
-          _mapController?.animateCamera(CameraUpdate.zoomIn());
-      }); 
+      Timer(Duration(milliseconds: 500), _updateMapBounds); 
     }
-    _firstRun = false;
   }
   
   @override
@@ -55,22 +54,61 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
         return StreamBuilder(
           stream: snapshot.data,
           builder: (context, snapshot) {
-            if(snapshot == null || snapshot.connectionState == ConnectionState.waiting ||
+            if(!this.mounted || snapshot == null || snapshot.connectionState == ConnectionState.waiting ||
               !Provider.of<InstagramRepository>(context).ready || _markerIcons[4] == null) {
               return Center(child: CircularProgressIndicator());
             }
             _updateMarkers(snapshot);
-            return Scaffold(
-              body: _buildGoogleMap(),
-              floatingActionButton: _buildUpdateBoundsButton(),
-              // floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+            return Stack(
+              children: [
+                Scaffold(
+                  body: _buildGoogleMap(), // TODO: Change to MapBox
+                  floatingActionButton: _buildUpdateBoundsButton(),
+                ),
+                _buildSearchBar(),
+              ]
             );
           }
         );
       }
     );
   }
-
+  Widget _buildSearchBar() {
+    double mobileWidth = 500;
+    bool isMobile = MediaQuery.of(context).size.width < mobileWidth;
+    final borderRadius = BorderRadius.circular(15.0);
+    return Align(
+      alignment: isMobile ? Alignment.topCenter : Alignment.topLeft,
+      child: Padding(
+        padding: EdgeInsets.only(top: 15, left: isMobile ? 0 : 15),
+        child: Container(
+          width: isMobile ? MediaQuery.of(context).size.width - 30 : 400,
+          child: Material(
+            elevation: 3.0,
+            shape: RoundedRectangleBorder(borderRadius: borderRadius),
+            child: TextField(
+              controller: widget.textController,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: borderRadius,
+                ),
+                prefixIcon: Icon(Icons.search),
+                hintText: 'Search',
+                contentPadding: EdgeInsets.only(top: 14),
+              ),
+              onTap: () {
+                widget.tabController.animateTo(0);
+                widget.searchBoxFocusNode.requestFocus();
+              } ,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
   GoogleMap _buildGoogleMap() {
     return GoogleMap(
               zoomControlsEnabled: false,
@@ -83,7 +121,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
               onMapCreated: _onMapCreated,
               //https://stackoverflow.com/questions/54280541/google-map-in-flutter-not-responding-to-touch-events
               gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-                 new Factory<OneSequenceGestureRecognizer>(() => new EagerGestureRecognizer(),),
+                Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer(),),
               ].toSet(),
             );
   }
