@@ -53,7 +53,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
         body: TabBarView(
           controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
-          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode),MapScreen(_tabController,_textController,_searchBoxFocusNode)],
+          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController),MapScreen(_tabController,_textController,_searchBoxFocusNode)],
         ),
         floatingActionButton: _buildReviewCountFAB(),
         scrollController: _scrollController,

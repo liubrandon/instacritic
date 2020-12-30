@@ -13,11 +13,11 @@ import 'review.dart';
 import 'label.dart';
 
 class ListScreen extends StatefulWidget {
-  static final route = '/list';
-  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode);
+  final TabController tabController;
   final ScrollController scrollController;
   final TextEditingController textController;
   final FocusNode searchBoxFocusNode;
+  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode, this.tabController);
   @override
   State<ListScreen> createState() => _ListScreenState();
 }
@@ -130,6 +130,9 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           focusNode: widget.searchBoxFocusNode,
           controller: widget.textController,
           onChanged: (text) => _updateCurrentReviews(text),
+          onSubmitted: (text) {
+            widget.tabController.animateTo(1);
+          },
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
               suffixIcon: (widget.textController.text.length > 0) ? IconButton(
