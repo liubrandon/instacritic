@@ -200,9 +200,10 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     Provider.of<InstagramRepository>(context,listen:false).currentReviews = [];
     Provider.of<InstagramRepository>(context,listen:false).currNumReviewsWithStars = [0,0,0,0,0];
     Provider.of<InstagramRepository>(context,listen:false).allReviews.forEach((review) {
-      if (filterBoxChecked[review.stars] && _reviewMatchesSearchQuery(review, searchQuery)) {
+      if(_reviewMatchesSearchQuery(review, searchQuery)) {
         Provider.of<InstagramRepository>(context,listen:false).currNumReviewsWithStars[review.stars]++;
-        Provider.of<InstagramRepository>(context,listen:false).currentReviews.add(review);
+        if (filterBoxChecked[review.stars])
+          Provider.of<InstagramRepository>(context,listen:false).currentReviews.add(review);
       }
     });
     _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
@@ -278,7 +279,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
       drawer: Container(
         width: 250,
         child: Drawer(
-          child: InfoScreen(),
+          child: InfoScreen(widget.textController),
         ),
       ),
       drawerEnableOpenDragGesture: _appDrawerSwipingEnabled,
