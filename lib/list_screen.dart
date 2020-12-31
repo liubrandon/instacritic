@@ -16,7 +16,8 @@ class ListScreen extends StatefulWidget {
   final ScrollController scrollController;
   final TextEditingController textController;
   final FocusNode searchBoxFocusNode;
-  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode, this.tabController, this.reviewController);
+  final void Function(String) updateCurrentReviews;
+  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode, this.tabController, this.reviewController, this.updateCurrentReviews);
   @override
   State<ListScreen> createState() => _ListScreenState();
 }
@@ -130,7 +131,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           focusNode: widget.searchBoxFocusNode,
           controller: widget.textController,
           textInputAction: TextInputAction.search,
-          onChanged: (text) => _updateCurrentReviews(text),
+          onChanged: (text) => widget.updateCurrentReviews(text),
           onSubmitted: (text) {
             if(text.isNotEmpty) {
               widget.tabController.animateTo(1);
@@ -156,32 +157,6 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               focusedBorder: InputBorder.none,
               border: InputBorder.none,
           ),),));
-  }
-
-  // https://medium.com/level-up-programming/flutter-stream-tutorial-asynchronous-dart-programming-991e6cf97c5a
-  void _updateCurrentReviews(String searchQuery) {
-    Provider.of<InstagramRepository>(context,listen:false).currentReviews = [];
-    if(searchQuery.isEmpty) {
-      widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
-      Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
-      Provider.of<InstagramRepository>(context,listen:false).madeChange();
-      return;
-    }
-    Provider.of<InstagramRepository>(context,listen:false).allReviews.forEach((review) {
-      if (_reviewMatchesSearchQuery(review, searchQuery)) {
-        Provider.of<InstagramRepository>(context,listen:false).currentReviews.add(review);
-      }
-    });
-    widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
-    Provider.of<InstagramRepository>(context,listen:false).showingAll = false;
-    Provider.of<InstagramRepository>(context,listen:false).madeChange();
-  }
-
-  bool _reviewMatchesSearchQuery(Review review, String searchQuery) {
-    Map<String, String> terms = {'name': review.restaurantName, 'place': review.location, 'query': searchQuery};
-    terms.forEach((key, value) => terms[key] = value.toLowerCase().replaceAll(RegExp(r"[^\w]"), ''));
-    return terms['name'].contains(terms['query']) ||
-        terms['place'].toLowerCase().contains(terms['query']);
   }
 
   Label _currentSortLabel = sortLabels[0];

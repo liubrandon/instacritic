@@ -10,6 +10,7 @@ class InstagramRepository with ChangeNotifier {
   List<Review> allReviews = [];
   List<Review> currentReviews = [];
   List<Review> reviewsWithErrors = [];
+  List<int> currNumReviewsWithStars = [0,0,0,0,0];
   bool ready = false;
   bool showingAll = true;
 
@@ -22,9 +23,8 @@ class InstagramRepository with ChangeNotifier {
   Future<String> getInstagramToken() async {
     String username = 'unagibrandon';
     const username_override = const String.fromEnvironment('USERNAME', defaultValue: '');
-    if(username_override != '') {
+    if(username_override != '')
       username = username_override;
-    }
     DocumentSnapshot doc = await firestore.collection('users').doc('$username').get();
     return doc.data()['ig_long_lived_token'];
   }
@@ -65,9 +65,9 @@ class InstagramRepository with ChangeNotifier {
     .catchError((error) => print("Failed to add review: ${r.restaurantName} $error"));
   }
 
-  int getNumReviewsShown() => (showingAll) ? allReviews.length : currentReviews.length;
+  int get numReviewsShown => (showingAll) ? allReviews.length : currentReviews.length;
 
-  int getNumReviews() => allReviews.length;
+  int get totalNumReviews => allReviews.length;
 
   Future<void> getReviews() async {
     // Construct the Instagram API call and get the response
@@ -90,12 +90,14 @@ class InstagramRepository with ChangeNotifier {
     allReviews = [];
     currentReviews = [];
     reviewsWithErrors = [];
+    currNumReviewsWithStars = [0,0,0,0,0];
     for(int i = 0; i < postList.length; i++) {
       Review rev = Review.fromJson(postList[i]);
       if(rev.hasError) { // Issue parsing review
         reviewsWithErrors.add(rev);
       }
       else {
+        currNumReviewsWithStars[rev.stars]++;
         allReviews.add(rev);
         currentReviews.add(rev);
         getReviewFromFirestore(rev.mediaId).then((firestoreReview) {
