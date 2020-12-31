@@ -90,9 +90,8 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
               onPressed: () {
                 Future<void> f = _showFilterModal();
                 f.then((_) {
-                  if(!pressedApply) {
+                  if(!pressedApply)
                     filterBoxChecked = List.from(filterBoxCheckedBackup);
-                  }
                 });
               },
               backgroundColor: Colors.transparent,
@@ -139,7 +138,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   }
 
   CheckboxListTile _buildCheckboxListTile(int i, StateSetter state) {
-    int currNum = Provider.of<InstagramRepository>(context).currNumReviewsWithStars[i];
+    int currNum = Provider.of<InstagramRepository>(context).currNumStars[i];
     return CheckboxListTile(
       checkColor: Colors.green,
       activeColor: Colors.transparent,
@@ -198,10 +197,10 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   // https://medium.com/level-up-programming/flutter-stream-tutorial-asynchronous-dart-programming-991e6cf97c5a
   void _updateCurrentReviews(String searchQuery) {
     Provider.of<InstagramRepository>(context,listen:false).currentReviews = [];
-    Provider.of<InstagramRepository>(context,listen:false).currNumReviewsWithStars = [0,0,0,0,0];
+    Provider.of<InstagramRepository>(context,listen:false).currNumStars = [0,0,0,0,0];
     Provider.of<InstagramRepository>(context,listen:false).allReviews.forEach((review) {
       if(_reviewMatchesSearchQuery(review, searchQuery)) {
-        Provider.of<InstagramRepository>(context,listen:false).currNumReviewsWithStars[review.stars]++;
+        Provider.of<InstagramRepository>(context,listen:false).currNumStars[review.stars]++;
         if (filterBoxChecked[review.stars])
           Provider.of<InstagramRepository>(context,listen:false).currentReviews.add(review);
       }

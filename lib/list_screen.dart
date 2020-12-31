@@ -148,6 +148,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
                   Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
                   Provider.of<InstagramRepository>(context,listen:false).madeChange();
+                  Provider.of<InstagramRepository>(context,listen:false).currNumStars = 
+                    Provider.of<InstagramRepository>(context,listen:false).allNumStars;
                   widget.textController.clear();
                 }, 
                 icon: Icon(Icons.clear, size: 17, color: Colors.grey,),

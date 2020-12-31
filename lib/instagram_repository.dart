@@ -10,7 +10,8 @@ class InstagramRepository with ChangeNotifier {
   List<Review> allReviews = [];
   List<Review> currentReviews = [];
   List<Review> reviewsWithErrors = [];
-  List<int> currNumReviewsWithStars = [0,0,0,0,0];
+  List<int> currNumStars = [0,0,0,0,0];
+  List<int> allNumStars = [0,0,0,0,0];
   bool ready = false;
   bool showingAll = true;
 
@@ -90,14 +91,16 @@ class InstagramRepository with ChangeNotifier {
     allReviews = [];
     currentReviews = [];
     reviewsWithErrors = [];
-    currNumReviewsWithStars = [0,0,0,0,0];
+    allNumStars = [0,0,0,0,0];
+    currNumStars = [0,0,0,0,0];
     for(int i = 0; i < postList.length; i++) {
       Review rev = Review.fromJson(postList[i]);
       if(rev.hasError) { // Issue parsing review
         reviewsWithErrors.add(rev);
       }
       else {
-        currNumReviewsWithStars[rev.stars]++;
+        currNumStars[rev.stars]++;
+        allNumStars[rev.stars]++;
         allReviews.add(rev);
         currentReviews.add(rev);
         getReviewFromFirestore(rev.mediaId).then((firestoreReview) {
