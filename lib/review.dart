@@ -65,12 +65,12 @@ class Review {
 
   @override
   String toString() {
-    return restaurantName+'/'+
-    stars.toString()+'/'+
-    location+'/'+
-    permalink+'/'+
-    postTimestamp.toString()+'/'+
-    mediaUrl+'/'+
+    return restaurantName+'\n'+
+    stars.toString()+'\n'+
+    location+'\n'+
+    permalink+'\n'+
+    // postTimestamp.toString()+'/'+
+    mediaUrl+'\n'+
     mediaId;
   }
 
@@ -82,10 +82,12 @@ class Review {
         a.location == b.location &&
         a.permalink == b.permalink &&
         // a.postTimestamp == b.postTimestamp && // Ignore differences in DateTime objects (looks slight)
-        a.mediaUrl == b.mediaUrl &&
+        // a.mediaUrl == b.mediaUrl && // Instagram CDN changes urls regularly
         a.mediaId == b.mediaId) {
           return true;
     }
+    print(a);
+    print(b);
     return false;
   }
 }

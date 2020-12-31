@@ -1,21 +1,22 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instacritic/constants.dart';
 import 'package:instacritic/review.dart';
 import 'package:instacritic/star_display.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'info_screen.dart';
+import 'chart_screen.dart';
+import 'my_drawer.dart';
 import 'instagram_repository.dart';
 import 'map_screen.dart';
 import 'list_screen.dart';
-import 'indicator.dart';
 
 const List<TabItem> _homeTabs = [
   TabItem(icon: Icons.list),
@@ -87,10 +88,11 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
               colors: GradientColors.purplePink,
             )),
             child: FloatingActionButton.extended(
+              heroTag: 'filterButton',
               onPressed: () {
                 Future<void> f = _showFilterModal();
                 f.then((_) {
-                  if(!pressedApply)
+                  if(!pressedApply) // If you didn't press apply, don't save changes to filter check boxes
                     filterBoxChecked = List.from(filterBoxCheckedBackup);
                 });
               },
@@ -160,8 +162,8 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
 
   Padding _buildFilterLabel() {
     return Padding(
-      padding: EdgeInsets.only(top: 20, left: 20, bottom: 10),
-      child: Text('Filtering ${_getNumReviewsString().split(' ')[0]} reviews', style: TextStyle(fontSize: 20, letterSpacing: .5)),
+      padding: EdgeInsets.only(left: 20, bottom: 10, top: 20),
+      child: Text('Filter ${_getNumReviewsString().split(' ')[0]} reviews', style: TextStyle(fontSize: 20, letterSpacing: .3)),
     );
   }
 
@@ -178,8 +180,9 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
           child: Text('Apply', style: TextStyle(color: Colors.white, fontSize: 14, letterSpacing: .5, fontWeight: FontWeight.w600)),
           onPressed: () {
             state(() {
-              pressedApply = true;
-              _updateCurrentReviews(_textController.text);
+              pressedApply = true; // Used in the modal closed callback to not apply checkbox updates if you swiped out/cancelled
+              if(!ListEquality().equals(filterBoxChecked, filterBoxCheckedBackup)) // Only update if you made a change
+                _updateCurrentReviews(_textController.text);
               Navigator.of(context).pop();
             });
           },
@@ -278,7 +281,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
       drawer: Container(
         width: 250,
         child: Drawer(
-          child: InfoScreen(widget.textController),
+          child: MyDrawer(widget.textController),
         ),
       ),
       drawerEnableOpenDragGesture: _appDrawerSwipingEnabled,
@@ -315,98 +318,3 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
     );
   }
 }
-
-
-// Widget _buildChart(StateSetter state) {
-//   return Expanded(
-//         child: Container(
-//           height: 120,
-//           child: Center(
-//             // aspectRatio: 1,
-//             child: PieChart(
-//               PieChartData(
-//                   pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
-//                     state(() {
-//                       if (pieTouchResponse.touchInput is FlLongPressEnd ||
-//                           pieTouchResponse.touchInput is FlPanEnd) {
-//                         touchedIndex = -1;
-//                       } else {
-//                         touchedIndex = pieTouchResponse.touchedSectionIndex;
-//                       }
-//                     });
-//                   }),
-//                   borderData: FlBorderData(
-//                     show: false,
-//                   ),
-//                   sectionsSpace: 0,
-//                   centerSpaceRadius: 20,
-//                   sections: showingSections()),
-//             ),
-//           ),
-//         ),
-//       );
-// }
-
-// List<PieChartSectionData> showingSections() {
-//     return List.generate(5, (i) {
-//       final isTouched = i == touchedIndex;
-//       final double fontSize = isTouched ? 16 : 14;
-//       final double radius = isTouched ? 60 : 50;
-//       final double widgetSize = isTouched ? 55 : 40;
-
-//       switch (i) {
-//         case 0:
-//           return PieChartSectionData(
-//             color: const Color(0xff0293ee),
-//             value: 40,
-//             title: '36%',
-//             radius: radius,
-//             titleStyle: TextStyle(
-//                 fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
-//             badgePositionPercentageOffset: .98,
-//           );
-//         case 1:
-//           return PieChartSectionData(
-//             color: const Color(0xfff8b250),
-//             value: 30,
-//             title: '30%',
-//             radius: radius,
-//             titleStyle: TextStyle(
-//                 fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
-//             badgePositionPercentageOffset: .98,
-//           );
-//         case 2:
-//           return PieChartSectionData(
-//             color: const Color(0xff845bef),
-//             value: 16,
-//             title: '16%',
-//             radius: radius,
-//             titleStyle: TextStyle(
-//                 fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
-//             badgePositionPercentageOffset: .98,
-//           );
-//         case 3:
-//           return PieChartSectionData(
-//             color: const Color(0xff13d38e),
-//             value: 15,
-//             title: '15%',
-//             radius: radius,
-//             titleStyle: TextStyle(
-//                 fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
-//             badgePositionPercentageOffset: .98,
-//           );
-//         case 4:
-//           return PieChartSectionData(
-//             color: Colors.red,
-//             value: 4,
-//             title: '4%',
-//             radius: radius,
-//             titleStyle: TextStyle(
-//                 fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
-//             badgePositionPercentageOffset: .98,
-//           );
-//         default:
-//           return null;
-//       }
-//     });
-//   }

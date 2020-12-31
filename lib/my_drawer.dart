@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:instacritic/chart_screen.dart';
 import 'package:instacritic/review.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -6,51 +8,65 @@ import 'package:url_launcher/link.dart';
 import 'instagram_repository.dart';
 
 
-class InfoScreen extends StatelessWidget {
+class MyDrawer extends StatelessWidget {
   final TextEditingController textController;
-  const InfoScreen(this.textController);
+  const MyDrawer(this.textController);
   @override
   Widget build(BuildContext context) {
     List<Review> reviewsWithErrors = Provider.of<InstagramRepository>(context).reviewsWithErrors;
-    List<int> numStars = Provider.of<InstagramRepository>(context).currNumStars;
-    int numShown = Provider.of<InstagramRepository>(context).numReviewsShown;
-    int totalReviews = Provider.of<InstagramRepository>(context).numReviewsShown;
-    String searchQuery = textController.text;
     return Padding(
-      padding: EdgeInsets.only(left: 15, right: 15),
+      padding: EdgeInsets.only(left: 0, right: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         children: [
-          Padding(padding: EdgeInsets.all(10)),
-          Text('Instacritic', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),),
+          Padding(padding: EdgeInsets.all(8)),
+          Row(
+            children: [
+              const SizedBox(width: 10),
+              CircleAvatar(
+                minRadius: 25, maxRadius: 25,
+                child: ClipOval(child: Image.asset('assets/icon.png')),
+              ),
+              const SizedBox(width: 10),
+              Text('Instacritic', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),),
+            ],
+          ),
           Padding(padding: EdgeInsets.all(5)),
-          Text('Made with ♡ by Brandon Liu.', style: TextStyle(fontSize: 14),),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            child: Text('Restaurant reviews from Instagram with searching, filtering, and a map.', style: TextStyle(fontSize: 15),)
+          ),
           Padding(padding: EdgeInsets.all(5)),
-          Text('Restaurant reviews from Instagram with searching, filtering, and a map.', style: TextStyle(fontSize: 14),),
-          Padding(padding: EdgeInsets.all(5)),
-          Text('Version: ${const String.fromEnvironment('APP_VERSION')}.', style: TextStyle(fontSize: 14),),
-          Padding(padding: EdgeInsets.all(15)),
-          Text("Breakdown of${searchQuery.isEmpty ? ' all' : ' the'} $numShown reviews${searchQuery.isEmpty ? '' : " matching \"$searchQuery\""}:"),
-          Padding(padding: EdgeInsets.all(5)),
-          Center(child:Text("~${format((numStars[0]/numShown)*100)}% skull")),
-          Center(child:Text("~${format((numStars[1]/numShown)*100)}% 1 star")),
-          Center(child:Text("~${format((numStars[2]/numShown)*100)}% 2 stars")),
-          Center(child:Text("~${format((numStars[3]/numShown)*100)}% 3 stars")),
-          Center(child:Text("~${format((numStars[4]/numShown)*100)}% 4 stars")),
+          ListTile(
+            leading: Icon(Icons.insert_chart_outlined),//, color: Colors.grey[600]),
+            title: Text('Charts'),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>ChartScreen(textController)));
+            },
+          ),
           Padding(padding: EdgeInsets.all(5)),
           if(reviewsWithErrors.isNotEmpty) 
-            Text('Could not import ${reviewsWithErrors.length} post(s):', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Text('Failed to import ${reviewsWithErrors.length} post${reviewsWithErrors.length != 1 ? 's' : ''}:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),)
+            ),
           if(reviewsWithErrors.isNotEmpty)   
             _buildReviewsWithErrorsList(context, reviewsWithErrors),
+          Spacer(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            child: Text('Made with ♡ by Brandon Liu.', style: TextStyle(fontSize: 14),)
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            child: Text('Version 1.${const String.fromEnvironment('APP_VERSION')}.', style: TextStyle(fontSize: 14),),
+          ),
+          Padding(padding: EdgeInsets.all(8)),
         ],
       ),
     );
     
-  }
-
-  String format(double n) {
-    return n.toStringAsFixed(n.round() == n ? 0 : 0);
   }
 
   Widget _buildReviewsWithErrorsList(BuildContext context, List<Review> reviewsWithErrors) {
@@ -66,7 +82,7 @@ class InfoScreen extends StatelessWidget {
                           target: LinkTarget.self,
                           builder: (_, followLink) {
                             return ListTile(
-                              title: Text('Caption: ' + reviewsWithErrors[i].restaurantName,
+                              title: Text(reviewsWithErrors[i].restaurantName,
                                   style: TextStyle(fontSize: 14),
                                   overflow: TextOverflow.ellipsis,
                               ),

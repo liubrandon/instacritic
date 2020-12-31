@@ -134,6 +134,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                     width: 42,
                     height: 42,
                     child: FloatingActionButton(
+                        heroTag: 'updateBoundsButton',
                         onPressed: _updateMapBounds,
                         foregroundColor: Color(0xff666666),
                         backgroundColor: Colors.white,

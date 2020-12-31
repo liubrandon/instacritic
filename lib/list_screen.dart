@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:instacritic/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/link.dart';
+import 'chart_screen.dart';
 import 'instagram_repository.dart';
 import 'star_display.dart';
 import 'review.dart';
@@ -95,7 +96,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               title: Text(Provider.of<InstagramRepository>(context,listen:false).igUsername + '\'s reviews'),
               toolbarHeight: 48,
               backgroundColor: Constants.myPurple,
-              actions: [_buildRefreshButton()],
+              actions: [_buildViewChartsButton()],
             );
   }
 
@@ -181,6 +182,14 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
           _currentSortLabel = sortLabel;
         },));
+  }
+
+  Widget _buildViewChartsButton() {
+    return IconButton(
+        padding: EdgeInsets.only(right: 23),
+        icon: const Icon(Icons.insert_chart_outlined),
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>ChartScreen(widget.textController)))
+      );
   }
 
   Widget _buildRefreshButton() {
