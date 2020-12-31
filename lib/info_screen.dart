@@ -12,7 +12,7 @@ class InfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Review> reviewsWithErrors = Provider.of<InstagramRepository>(context).reviewsWithErrors;
-    List<int> numStars = Provider.of<InstagramRepository>(context).currNumReviewsWithStars;
+    List<int> numStars = Provider.of<InstagramRepository>(context).currNumStars;
     int numShown = Provider.of<InstagramRepository>(context).numReviewsShown;
     int totalReviews = Provider.of<InstagramRepository>(context).numReviewsShown;
     String searchQuery = textController.text;
