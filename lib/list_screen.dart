@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:instacritic/constants.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:url_launcher/link.dart';
 import 'chart_screen.dart';
 import 'instagram_repository.dart';
@@ -24,6 +25,7 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMixin {
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
   @override
   bool get wantKeepAlive => true;
   bool runOnce = true;
@@ -40,27 +42,45 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       runOnce = false;
     }
     return StreamBuilder( // Get the reviews as a stream so if you search or sort it updates again
-            stream: widget.reviewController.stream,
-            builder: (BuildContext buildContext, AsyncSnapshot<List<Review>> snapshot) {
-              if(snapshot == null || snapshot.connectionState == ConnectionState.waiting)
-                return Center(child: CircularProgressIndicator());
-              else {
-                Provider.of<InstagramRepository>(context,listen:false).currentReviews = snapshot.data;
-                List<Widget> slivs = [
-                  _buildAppBar(),
-                  _buildSearchBar(),
-                  _buildSliverPadding(height: 4),
-                  _buildReviewList(snapshot),
-                ];
-                // slivs.addAll(_getSliverList(snapshot));
-                slivs.add(_buildSliverPadding(height: 20)); // Bottom padding for convex
-                return CupertinoScrollbar(
-                  child: CustomScrollView(
-                    controller: widget.scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
-                    slivers: slivs),
-                );}});
+      stream: widget.reviewController.stream,
+      builder: (BuildContext buildContext, AsyncSnapshot<List<Review>> snapshot) {
+        if(snapshot == null || snapshot.connectionState == ConnectionState.waiting)
+          return Center(child: CircularProgressIndicator());
+        else {
+          Provider.of<InstagramRepository>(context,listen:false).currentReviews = snapshot.data;
+          List<Widget> slivs = [
+            _buildSearchBar(),
+            _buildSliverPadding(height: 4),
+            _buildReviewList(snapshot),
+            _buildSliverPadding(height: 20)
+          ];
+          return NestedScrollView(
+            headerSliverBuilder: (context, bool innerBoxIsScrolled) {
+              return [_buildAppBar()];
+            },
+            floatHeaderSlivers: true,
+            body: CupertinoScrollbar(
+              child: SmartRefresher(
+                controller: _refreshController,
+                child: CustomScrollView(
+                  controller: widget.scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
+                  slivers: slivs
+                ),
+                onRefresh: () async {
+                  await Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
+                  widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews); // Get latest data from IG
+                  widget.textController.clear();
+                  _refreshController.refreshCompleted();
+                },
+                onLoading: () async => _refreshController.loadComplete(),
+              ),
+            ),
+          );
+        }
+      }
+    );
   }
 
   SliverToBoxAdapter _buildSliverPadding({double height}) => SliverToBoxAdapter(child: Container(height:height));
@@ -71,33 +91,35 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   SliverList _buildReviewList(AsyncSnapshot<List<Review>> snapshot) {
     return SliverList( // Builder seems to crash, so I switched to a list
-              delegate: SliverChildBuilderDelegate(
-                (_, index) => _buildRow(snapshot.data[index]),
-                childCount: snapshot.data.length,
-              ),
-            );
+      delegate: SliverChildBuilderDelegate(
+        (_, index) => _buildRow(snapshot.data[index]),
+        childCount: snapshot.data.length,
+      ),
+    );
   }
 
   SliverAppBar _buildSearchBar() {
     return SliverAppBar(
-              automaticallyImplyLeading: false,
-              elevation: 0,
-              pinned: true,
-              backgroundColor: Colors.white,
-              flexibleSpace: _buildSearchTextField(),
-              actions: [_buildSortButton()],
-            );
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        pinned: true,
+        backgroundColor: Colors.white,
+        flexibleSpace: _buildSearchTextField(),
+        actions: [_buildSortButton()],
+    );
   }
 
   SliverAppBar _buildAppBar() {
     return SliverAppBar(
-              elevation: 0,
-              floating: true,
-              title: Text(Provider.of<InstagramRepository>(context,listen:false).igUsername + '\'s reviews'),
-              toolbarHeight: 48,
-              backgroundColor: Constants.myPurple,
-              actions: [_buildViewChartsButton()],
-            );
+      elevation: 0,
+      floating: true,
+      pinned: true,
+      centerTitle: true,
+      title: Text(Provider.of<InstagramRepository>(context,listen:false).igUsername + '\'s reviews'),
+      toolbarHeight: 48,
+      backgroundColor: Constants.myPurple,
+      actions: [_buildViewChartsButton()]
+    );
   }
 
   Widget _buildRow(Review review) {
