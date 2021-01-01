@@ -49,14 +49,13 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         else {
           Provider.of<InstagramRepository>(context,listen:false).currentReviews = snapshot.data;
           List<Widget> slivs = [
-            _buildSearchBar(),
             _buildSliverPadding(height: 4),
             _buildReviewList(snapshot),
             _buildSliverPadding(height: 20)
           ];
           return NestedScrollView(
             headerSliverBuilder: (context, bool innerBoxIsScrolled) {
-              return [_buildAppBar()];
+              return [_buildAppBar(),_buildSearchBar()];
             },
             floatHeaderSlivers: true,
             body: CupertinoScrollbar(
