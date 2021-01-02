@@ -30,16 +30,15 @@ class Instacritic extends StatefulWidget {
 
 class _InstacriticState extends State<Instacritic> with SingleTickerProviderStateMixin {
   // Used by ListScreen and HideFabOnScrollScaffold
-  TextEditingController _textController = TextEditingController();
-  ScrollController _scrollController = ScrollController();
-  FocusNode _searchBoxFocusNode = FocusNode();
-  TabController _tabController;
+  final TextEditingController _textController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _searchBoxFocusNode = FocusNode();
   // ignore: close_sinks
-  StreamController<List<Review>> _reviewController = BehaviorSubject(); 
+  final StreamController<List<Review>> _reviewController = BehaviorSubject(); 
+  TabController _tabController;
   List<bool> filterBoxChecked = [true,true,true,true,true];
   List<bool> filterBoxCheckedBackup;
   bool pressedApply = false;
-  double _fabOffset = 0;
 
   @override
   void initState() {
@@ -74,9 +73,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
 
   Widget _buildReviewCountFAB() {
     pressedApply = false;
-    return Padding(
-        padding: EdgeInsets.only(bottom: _fabOffset),
-        child: SizedBox(
+    return SizedBox(
           width: 120,
           height: 35,
           child: Container(
@@ -103,7 +100,6 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
               label: Text(_getNumReviewsString(), style: TextStyle(color: Colors.white, fontSize: 15, letterSpacing: .5)),
             ),
           ),
-        ),
     );
   }
 

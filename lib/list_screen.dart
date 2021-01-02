@@ -128,8 +128,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
     return Card(
       elevation: 0,
       child: ListTile(
-          leading: RawMaterialButton(
-              onPressed: () => launch(review.permalink),
+          leading: InkWell(
+              onTap: () => launch(review.permalink),
               child: FadeInImage.memoryNetwork(
                 height: 50.0, width: 50.0,
                 placeholder: kTransparentImage,
@@ -142,6 +142,13 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
             data: IconThemeData(color: Colors.amber[500], size: 25),
             child: StarDisplay(value: review.stars)
           ),
+          onTap: () async {
+            widget.textController.value = TextEditingValue(text: review.restaurantName);
+            widget.updateCurrentReviews(review.restaurantName);
+            await Future.delayed(Duration(milliseconds: 500));
+            widget.tabController.animateTo(1);
+            widget.searchBoxFocusNode.unfocus();
+          },
         ),
     );
   }

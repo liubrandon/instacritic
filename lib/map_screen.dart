@@ -23,15 +23,19 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Set<Marker> _markers = {};
   List<BitmapDescriptor> _markerIcons = List.filled(5,null);
   GoogleMapController _mapController;
+  String lastSearchQuery = '';
   
   double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
   // bool _firstRun = true;
 
   void _onMapCreated(GoogleMapController controller) {
-    if(controller != null && this.mounted) {
+    if(controller != null) {
       _mapController = controller;
     // Workaround from https://github.com/flutter/flutter/issues/34473#issuecomment-592962722
-      Timer(Duration(milliseconds: 500), _updateMapBounds); 
+      // if(lastSearchQuery.length < widget.textController.text.length)
+      if( ModalRoute.of(context).isCurrent)
+        Timer(Duration(milliseconds: 500), _updateMapBounds); 
+      // lastSearchQuery = widget.textController.text;
     }
   }
   
@@ -59,14 +63,17 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
               !Provider.of<InstagramRepository>(context).ready || _markerIcons[4] == null) {
               return Center(child: CircularProgressIndicator());
             }
-            _updateMarkers(snapshot);
+            if(this.mounted)
+              _updateMarkers(snapshot);
             return Stack(
               children: [
-                Scaffold(
-                  body: _buildGoogleMap(), // TODO: Change to MapBox
-                  floatingActionButton: _buildUpdateBoundsButton(),
-                ),
-                _buildSearchBar(),
+                if(this.mounted)
+                  Scaffold(
+                    body: _buildGoogleMap(), // TODO: Change to MapBox
+                    floatingActionButton: _buildUpdateBoundsButton(),
+                  ),
+                if(this.mounted)
+                  _buildSearchBar(),
               ]
             );
           }
@@ -102,8 +109,8 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                 ),
                 onTap: () {
                   widget.tabController.animateTo(0);
-                  widget.searchBoxFocusNode.requestFocus();
                   widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
+                  widget.searchBoxFocusNode.requestFocus();
                 },
               ),
           ),
@@ -113,6 +120,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   }
   GoogleMap _buildGoogleMap() {
     return GoogleMap(
+      onTap: (_) {},
       zoomControlsEnabled: false,
       markers: _markers,
       mapType: MapType.normal,
@@ -152,16 +160,20 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Future _updateMapBounds() async {
     LatLng ne = LatLng(maxLat,maxLng);
     LatLng sw = LatLng(minLat,minLng);
-    if(_mapController != null) {
+    if(_mapController != null && this.mounted && _markers.isNotEmpty) {
       _mapController.animateCamera(
         CameraUpdate.newLatLngBounds(
           LatLngBounds(
             northeast: ne,
             southwest: sw,
           ),
-          10.0,
+          1000.0,
         )
-      );    
+      );
+      if(_markers.length == 1) {
+        for(int i = 0; i < 5; i++)
+          _mapController.animateCamera(CameraUpdate.zoomOut());    
+      }
     }
   }
 
@@ -192,7 +204,10 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       title: review['restaurant_name'] + ' (${review['stars']}/4 ⭐)',
       snippet: review['gmap_address'],
       onTap: () {
-        launch("https://www.google.com/maps/search/?api=1&query=${review['gmap_address']}&query_place_id=${review['gmap_place_id']}");
+        String cleanedAddress = review['gmap_address'].replaceAll(RegExp(r"[!*'();:@&=+$,/?%#\[\]]"), '');
+        String cleanedUrl = "https://www.google.com/maps/search/?api=1&query=$cleanedAddress&query_place_id=${review['gmap_place_id']}";
+        print(cleanedUrl);
+        launch(cleanedUrl);
       }
     );
     return Marker(

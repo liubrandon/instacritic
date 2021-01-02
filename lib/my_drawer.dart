@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instacritic/chart_screen.dart';
 import 'package:instacritic/review.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/link.dart';
 import 'instagram_repository.dart';
 
@@ -24,9 +24,12 @@ class MyDrawer extends StatelessWidget {
           Row(
             children: [
               const SizedBox(width: 10),
-              CircleAvatar(
-                minRadius: 25, maxRadius: 25,
-                child: ClipOval(child: Image.asset('assets/icon.png')),
+              ClipOval(
+                child: FadeInImage(
+                  height: 50.0, width: 50.0,
+                  image: AssetImage('assets/icon.png'),
+                  placeholder: MemoryImage(kTransparentImage),
+                ),
               ),
               const SizedBox(width: 10),
               Text('Instacritic', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),),
