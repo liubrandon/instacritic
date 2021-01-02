@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:instacritic/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/link.dart';
 import 'chart_screen.dart';
 import 'instagram_repository.dart';
@@ -50,7 +51,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           Provider.of<InstagramRepository>(context,listen:false).currentReviews = snapshot.data;
           List<Widget> slivs = [
             _buildSliverPadding(height: 4),
-            _buildReviewList(snapshot),
+            for(int i = 0; i < snapshot.data.length; i++)
+              SliverToBoxAdapter(child: _buildRow(snapshot.data[i])),
             _buildSliverPadding(height: 20)
           ];
           return NestedScrollView(
@@ -84,9 +86,9 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   SliverToBoxAdapter _buildSliverPadding({double height}) => SliverToBoxAdapter(child: Container(height:height));
 
-  // List<Widget> _getSliverList(AsyncSnapshot<List<Review>> snapshot) {
-  //   return snapshot.data.map((review) => SliverToBoxAdapter(child: _buildRow(review))).toList();
-  // } 
+  List<Widget> _getSliverList(AsyncSnapshot<List<Review>> snapshot) {
+    return snapshot.data.map((review) => SliverToBoxAdapter(child: _buildRow(review))).toList();
+  } 
 
   SliverList _buildReviewList(AsyncSnapshot<List<Review>> snapshot) {
     return SliverList( // Builder seems to crash, so I switched to a list
@@ -128,10 +130,12 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         uri: Uri.parse(review.permalink),
         target: LinkTarget.self,
         builder: (_, FollowLink followLink) => ListTile(
-          leading: CircleAvatar(
-            minRadius: 25, maxRadius: 25,
-            backgroundColor: Colors.grey,
-            backgroundImage: NetworkImage(review.mediaUrl),
+          leading: ClipOval(
+            child: FadeInImage.memoryNetwork(
+              height: 50.0, width: 50.0,
+              placeholder: kTransparentImage,
+              image: review.mediaUrl,
+            ),
           ),
           title: Text(review.restaurantName, style: TextStyle(fontSize: 18.0),),
           subtitle: Text(review.location),
