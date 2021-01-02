@@ -192,7 +192,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       title: review['restaurant_name'] + ' (${review['stars']}/4 ⭐)',
       snippet: review['gmap_address'],
       onTap: () {
-        launch('https://www.google.com/maps/search/?api=1&query=${review['gmap_address']}&query_place_id=${review['gmap_place_id']}');
+        launch("https://www.google.com/maps/search/?api=1&query=${review['gmap_address']}&query_place_id=${review['gmap_place_id']}");
       }
     );
     return Marker(
