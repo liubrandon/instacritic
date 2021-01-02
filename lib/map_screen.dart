@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:instacritic/instagram_repository.dart';
 import 'package:instacritic/review.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MapScreen extends StatefulWidget {
   final TabController tabController;
@@ -129,23 +130,23 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
   Padding _buildUpdateBoundsButton() {
     return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: SizedBox(
-                    width: 42,
-                    height: 42,
-                    child: FloatingActionButton(
-                        heroTag: 'updateBoundsButton',
-                        onPressed: _updateMapBounds,
-                        foregroundColor: Color(0xff666666),
-                        backgroundColor: Colors.white,
-                        hoverColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        child: Transform.rotate(child:Icon(Icons.control_camera, size: 33), angle: 0.785398),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-                      ),
-                    ),
-                );
+      padding: const EdgeInsets.only(bottom: 10),
+      child: SizedBox(
+        width: 42,
+        height: 42,
+        child: FloatingActionButton(
+            heroTag: 'updateBoundsButton',
+            onPressed: _updateMapBounds,
+            foregroundColor: Color(0xff666666),
+            backgroundColor: Colors.white,
+            hoverColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            focusColor: Colors.transparent,
+            child: Transform.rotate(child:Icon(Icons.control_camera, size: 33), angle: 0.785398),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+          ),
+        ),
+    );
   }
 
   Future _updateMapBounds() async {
@@ -190,6 +191,9 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     InfoWindow infoWindow = InfoWindow(
       title: review['restaurant_name'] + ' (${review['stars']}/4 ⭐)',
       snippet: review['gmap_address'],
+      onTap: () {
+        launch('https://www.google.com/maps/search/?api=1&query=${review['gmap_address']}&query_place_id=${review['gmap_place_id']}');
+      }
     );
     return Marker(
       markerId: MarkerId(review['media_id']),
