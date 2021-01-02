@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/link.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'chart_screen.dart';
 import 'instagram_repository.dart';
 import 'star_display.dart';
@@ -126,16 +127,14 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   Widget _buildRow(Review review) {
     return Card(
       elevation: 0,
-      child: Link(
-        uri: Uri.parse(review.permalink),
-        target: LinkTarget.self,
-        builder: (_, FollowLink followLink) => ListTile(
-          leading: ClipOval(
-            child: FadeInImage.memoryNetwork(
-              height: 50.0, width: 50.0,
-              placeholder: kTransparentImage,
-              image: review.mediaUrl,
-            ),
+      child: ListTile(
+          leading: RawMaterialButton(
+              onPressed: () => launch(review.permalink),
+              child: FadeInImage.memoryNetwork(
+                height: 50.0, width: 50.0,
+                placeholder: kTransparentImage,
+                image: review.mediaUrl,
+              ),
           ),
           title: Text(review.restaurantName, style: TextStyle(fontSize: 18.0),),
           subtitle: Text(review.location),
@@ -143,9 +142,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
             data: IconThemeData(color: Colors.amber[500], size: 25),
             child: StarDisplay(value: review.stars)
           ),
-          onTap: followLink,
         ),
-      ),
     );
   }
 
