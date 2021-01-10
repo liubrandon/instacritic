@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instacritic/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -158,10 +159,9 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildSearchTextField() {
-    return Container(
-      padding: const EdgeInsets.only(left: 12, right: 70),
-      child: Center(
-        child: TextField(
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, right: 70, top: 4),
+      child: TextField(
           focusNode: widget.searchBoxFocusNode,
           controller: widget.textController,
           textInputAction: TextInputAction.search,
@@ -192,7 +192,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               contentPadding: EdgeInsets.only(top: 14),
               focusedBorder: InputBorder.none,
               border: InputBorder.none,
-          ),),));
+          ),),);
   }
 
   Label _currentSortLabel = sortLabels[0];
@@ -201,8 +201,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       padding: EdgeInsets.only(right: 14),
       child: PopupMenuButton(
         offset: Offset(0,55),
-        tooltip: 'Sort',
-        icon: Icon(Icons.sort, size: 27, color: Colors.grey),
+        tooltip: 'Sort and filter',
+        icon: Icon(FontAwesomeIcons.slidersH, size: 20, color: Colors.grey),
         itemBuilder: (_) => List.generate(sortLabels.length, (index) {
           return CheckedPopupMenuItem(
               checked: (_currentSortLabel == sortLabels[index]),
