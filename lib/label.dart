@@ -7,10 +7,20 @@ class Label {
 }
 
 final List<Label> sortLabels = [
-  Label(text: 'Newest', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.postTimestamp.compareTo(a.postTimestamp));}),
-  Label(text: 'Oldest', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.postTimestamp.compareTo(b.postTimestamp));}),
-  Label(text: 'A-Z by restaurant', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.restaurantName.compareTo(b.restaurantName));}),
-  Label(text: 'A-Z by location', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.location.compareTo(b.location));}),
-  Label(text: 'Rating ascending', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.stars.compareTo(b.stars));}),
-  Label(text: 'Rating descending', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.stars.compareTo(a.stars));}),
+  Label(text: 'Rating ↓', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.stars.compareTo(a.stars));}),
+  Label(text: 'Rating ↑', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.stars.compareTo(b.stars));}),
+  Label(text: 'Newest',   mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.postTimestamp.compareTo(a.postTimestamp));}),
+  Label(text: 'Oldest',   mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.postTimestamp.compareTo(b.postTimestamp));}),
+  Label(text: 'Distance', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.postTimestamp.compareTo(b.postTimestamp));}),
 ];
+
+const int DEFAULT_SORT_INDEX = 2;
+
+int sortSelection = DEFAULT_SORT_INDEX;
+List<bool> filterBoxChecked = [true,true,true,true,true];
+
+void resetSortAndFilterOptions() {
+  sortSelection = DEFAULT_SORT_INDEX;
+  for(int i = 0; i < filterBoxChecked.length; i++)
+    filterBoxChecked[i] = true;
+}

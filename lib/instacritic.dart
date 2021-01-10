@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:instacritic/constants.dart';
+import 'package:instacritic/label.dart';
 import 'package:instacritic/review.dart';
 import 'package:instacritic/star_display.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'my_drawer.dart';
 import 'instagram_repository.dart';
 import 'map_screen.dart';
@@ -35,8 +35,8 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   // ignore: close_sinks
   final StreamController<List<Review>> _reviewController = BehaviorSubject(); 
   TabController _tabController;
-  List<bool> filterBoxChecked = [true,true,true,true,true];
   List<bool> filterBoxCheckedBackup;
+  int sortSelectionBackup;
   bool pressedApply = false;
 
   @override
@@ -60,7 +60,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
         body: TabBarView(
           controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
-          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController, _reviewController, _updateCurrentReviews),MapScreen(_tabController,_textController,_searchBoxFocusNode)],
+          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController, _reviewController, _updateCurrentReviews, _openSortAndFilterModal),MapScreen(_tabController,_textController,_searchBoxFocusNode)],
         ),
         floatingActionButton: _buildReviewCountFAB(),
         scrollController: _scrollController,
@@ -85,13 +85,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
             )),
             child: FloatingActionButton.extended(
               heroTag: 'filterButton',
-              onPressed: () {
-                Future<void> f = _showFilterModal();
-                f.then((_) {
-                  if(!pressedApply) // If you didn't press apply, don't save changes to filter check boxes
-                    filterBoxChecked = List.from(filterBoxCheckedBackup);
-                });
-              },
+              onPressed: () => _openSortAndFilterModal(),
               backgroundColor: Colors.transparent,
               hoverColor: Colors.transparent,
               splashColor: Colors.transparent,
@@ -102,77 +96,143 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     );
   }
 
-  Future<void> _showFilterModal() {
-    filterBoxCheckedBackup = List.from(filterBoxChecked);
-    return showModalBottomSheet(
-            context: context,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-            ),
-            builder: (context) {
-              return LayoutBuilder(
-                builder: (context, constraint) {
-                  return StatefulBuilder(
-                    builder: (BuildContext context, StateSetter state) {
-                      return Theme(
-                      data: ThemeData(
-                        unselectedWidgetColor: Colors.transparent,
-                        // fontFamily: 'Roboto',
-                        // textTheme: GoogleFonts.notoSansTextTheme(Theme.of(context).textTheme),
-                      ),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            _buildFilterLabel(),
-                            for(int i = 0; i < 5; i++)
-                              _buildCheckboxListTile(i, state),
-                            _buildApplyFiltersButton(constraint, state)
-                          ],
-                          ),
-                      );
-                    },
-                  );
-                }
-              );
-            });
+  void _openSortAndFilterModal() {
+    Future<void> f = _showFilterModal();
+    f.then((_) {
+      if(!pressedApply) {// If you didn't press apply, don't save changes to filter check boxes
+        filterBoxChecked = List.from(filterBoxCheckedBackup);
+        sortSelection = sortSelectionBackup;
+      }
+    });
   }
 
-  CheckboxListTile _buildCheckboxListTile(int i, StateSetter state) {
-    int currNum = Provider.of<InstagramRepository>(context).currNumStars[i];
-    return CheckboxListTile(
-      checkColor: Colors.green,
-      activeColor: Colors.transparent,
-      title: Padding(padding: EdgeInsets.only(left: 0), child:StarDisplay(value:i)),
-      secondary: SizedBox(
-        width: 20,
-        height: 20,
-        child: Text(currNum.toString(), textAlign: TextAlign.right)
-      ),// + ' review' + ((currNum != 1) ? 's' : ''))),
-      controlAffinity: ListTileControlAffinity.trailing,
-      onChanged: (bool value) { 
-        state(() {
-          filterBoxChecked[i] = value;
-        });
-      },
-      value: filterBoxChecked[i],
+  Future<void> _showFilterModal() {
+    filterBoxCheckedBackup = List.from(filterBoxChecked);
+    sortSelectionBackup = sortSelection;
+    return showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+      ),
+      builder: (context) {
+        return LayoutBuilder(
+          builder: (context, constraint) {
+            return StatefulBuilder(
+              builder: (BuildContext context, StateSetter state) {
+                return Theme(
+                  data: ThemeData(unselectedWidgetColor: Colors.transparent,),
+                  child: Wrap(
+                      children: <Widget>[
+                        _buildFilterSortHeader(),
+                        _buildRatingLabel(),
+                        for(int i = 0; i < 5; i++)
+                          _buildCheckboxListTile(i, state),
+                        _buildSortLabel(),
+                        _buildSortButtons(state),
+                        _buildApplyFiltersButton(constraint, state),
+                      ],
+                    ),
+                );
+              },
+            );
+          }
+        );
+      });
+  }
+  
+  Widget _buildSortButtons(StateSetter state) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: ToggleButtons(
+          isSelected: [
+            for(int i = 0; i < sortLabels.length; i++)
+              i == sortSelection // Only sortSelected will be true and selected
+          ],
+          children: [
+            for(int i = 0; i < sortLabels.length; i++)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Text(sortLabels[i].text),
+              )
+          ],
+          onPressed: (int index) {
+            state(() => sortSelection = index);
+          },
+        ),
+      ),
     );
   }
 
-  Padding _buildFilterLabel() {
+  Widget _buildCheckboxListTile(int i, StateSetter state) {
+    int currNum = Provider.of<InstagramRepository>(context).currNumStars[i];
+    return Padding(
+      padding: const EdgeInsets.only(left: 5, right: 5),
+      child: ListTile(
+        title: Padding(padding: EdgeInsets.only(left: 0), child:StarDisplay(value:i)),
+        trailing: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: filterBoxChecked[i] ? GradientColors.purplePink : GradientColors.grey,
+          )),
+          width: 25,
+          height: 25,
+          child: Center(child: Text(currNum.toString(), textAlign: TextAlign.justify, style: TextStyle(color: Colors.white)))
+        ),
+        onTap: () { 
+          state(() => filterBoxChecked[i] = !filterBoxChecked[i]);
+        },
+      ),
+    );
+  }
+
+  Widget _buildFilterSortHeader() {
+    return Stack(
+      children: [
+        Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Center(child: Text('Sort and Filter', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600))),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 14, right: 10),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              icon: Icon(Icons.clear),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ),
+      ],
+    );
+    //(${_getNumReviewsString().split(' ')[0]} reviews)
+  }
+
+  Widget _buildRatingLabel() {
+    return Padding(
+      padding: EdgeInsets.only(left: 20, top: 20),
+      child: Text('Rating', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+    );
+  }
+
+  Widget _buildSortLabel() {
     return Padding(
       padding: EdgeInsets.only(left: 20, bottom: 10, top: 20),
-      child: Text('Filter ${_getNumReviewsString().split(' ')[0]} reviews', style: TextStyle(fontSize: 20, letterSpacing: .3)),
+      child: Text('Sort by', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
     );
   }
 
   Padding _buildApplyFiltersButton(BoxConstraints constraint, StateSetter state) {
     return Padding(
-      padding: EdgeInsets.only(top: 10, bottom: 15),
+      padding: EdgeInsets.only(top: 10, bottom: 11),
       child: Center(
         child:  TextButton(
           style: TextButton.styleFrom(
-            minimumSize: Size(constraint.minWidth-30, 50),
+            minimumSize: Size(constraint.minWidth-20, 50),
             backgroundColor: Constants.myPurple,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
           ),
@@ -180,7 +240,9 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
           onPressed: () {
             state(() {
               pressedApply = true; // Used in the modal closed callback to not apply checkbox updates if you swiped out/cancelled
-              if(!ListEquality().equals(filterBoxChecked, filterBoxCheckedBackup)) // Only update if you made a change
+              bool needToSort = sortSelection != sortSelectionBackup;
+              bool needToFilter = !ListEquality().equals(filterBoxChecked, filterBoxCheckedBackup);
+              if(needToSort || needToFilter) // Only update if you made a change
                 _updateCurrentReviews(_textController.text);
               Navigator.of(context).pop();
             });
@@ -207,6 +269,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
           Provider.of<InstagramRepository>(context,listen:false).currentReviews.add(review);
       }
     });
+    sortLabels[sortSelection].mySort(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
     _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
     Provider.of<InstagramRepository>(context,listen:false).showingAll = false;
     Provider.of<InstagramRepository>(context,listen:false).madeChange();

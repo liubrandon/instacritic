@@ -22,7 +22,8 @@ class ListScreen extends StatefulWidget {
   final TextEditingController textController;
   final FocusNode searchBoxFocusNode;
   final void Function(String) updateCurrentReviews;
-  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode, this.tabController, this.reviewController, this.updateCurrentReviews);
+  final void Function() openSortAndFilterModal;
+  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode, this.tabController, this.reviewController, this.updateCurrentReviews, this.openSortAndFilterModal);
   @override
   State<ListScreen> createState() => _ListScreenState();
 }
@@ -66,6 +67,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
               child: SmartRefresher(
                 controller: _refreshController,
                 header: ClassicHeader(
+                  height: 50,
                   idleText: 'Pull down to refresh',
                   refreshingText: '',
                   completeText: '',
@@ -75,7 +77,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   physics: const AlwaysScrollableScrollPhysics(),
                   // cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
                   slivers: [
-                    _buildSliverPadding(height: 4),
+                    _buildSliverPadding(height: 8),
                     _buildReviewList(snapshot),
                     _buildSliverPadding(height: 20)
                   ],
@@ -116,7 +118,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         backgroundColor: Colors.white,
         title: _buildSearchTextField(),
         leading: null,
-        actions: [_buildSortButton()],
+        actions: [_buildSortAndFilterButton()],
     );
   }
 
@@ -183,6 +185,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
               suffixIcon: (widget.textController.text.length > 0) ? IconButton(
+                icon: Icon(Icons.clear, size: 17, color: Colors.grey),
                 color:  Colors.black,
                 focusColor: Colors.transparent, hoverColor: Colors.transparent, highlightColor: Colors.transparent,
                 splashColor: Colors.transparent,
@@ -192,9 +195,9 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
                   Provider.of<InstagramRepository>(context,listen:false).currNumStars = 
                     List.from(Provider.of<InstagramRepository>(context,listen:false).allNumStars);
+                  resetSortAndFilterOptions();
                   Provider.of<InstagramRepository>(context,listen:false).madeChange();
                 }, 
-                icon: Icon(Icons.clear, size: 17, color: Colors.grey,),
               ) : null,
               hintText: 'Search',
               contentPadding: EdgeInsets.only(top: 14),
@@ -203,26 +206,15 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           ),),);
   }
 
-  Label _currentSortLabel = sortLabels[0];
-  Widget _buildSortButton() {
-    return Container(
+  Widget _buildSortAndFilterButton() {
+    return Padding(
       padding: EdgeInsets.only(right: 14),
-      child: PopupMenuButton(
-        offset: Offset(0,55),
+      child: IconButton(
         tooltip: 'Sort and filter',
-        icon: Icon(FontAwesomeIcons.slidersH, size: 20, color: Colors.grey),
-        itemBuilder: (_) => List.generate(sortLabels.length, (index) {
-          return CheckedPopupMenuItem(
-              checked: (_currentSortLabel == sortLabels[index]),
-              value: sortLabels[index],
-              child: Text(sortLabels[index].text),
-            );
-        }),
-        onSelected: (sortLabel) { 
-          sortLabel.mySort(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
-          widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
-          _currentSortLabel = sortLabel;
-        },));
+        icon: Icon(FontAwesomeIcons.slidersH, size: 20, color: Colors.grey[600]),
+        onPressed: () => widget.openSortAndFilterModal(),
+      )
+    );
   }
 
   Widget _buildViewChartsButton() {
@@ -231,19 +223,6 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         icon: const Icon(Icons.insert_chart_outlined),
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>ChartScreen(widget.textController)))
       );
-  }
-
-  Widget _buildRefreshButton() {
-    return IconButton(
-      padding: EdgeInsets.only(right: 23),
-      icon: const Icon(Icons.refresh),
-      tooltip: 'Reload',
-      onPressed: () {
-          Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
-          widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews); // Get latest data from IG
-          widget.textController.clear();
-          Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
-      });
   }
 
   @override
