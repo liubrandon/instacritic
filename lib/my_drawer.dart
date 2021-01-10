@@ -63,7 +63,7 @@ class MyDrawer extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 15),
-            child: Text('Version 1.${const String.fromEnvironment('APP_VERSION')}.', style: TextStyle(fontSize: 14),),
+            child: Text('Version 1.${(const String.fromEnvironment('APP_VERSION'))}', style: TextStyle(fontSize: 14),),
           ),
           Padding(padding: EdgeInsets.all(8)),
         ],

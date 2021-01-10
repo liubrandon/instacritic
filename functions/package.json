@@ -16,6 +16,7 @@
   "dependencies": {
     "firebase-admin": "^9.2.0",
     "firebase-functions": "^3.11.0",
+    "xmlhttprequest": "1.8.0",
     "@googlemaps/google-maps-services-js": "^3.1.13",
     "axios": "^0.21.1"
   },

@@ -6,13 +6,12 @@ import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instacritic/constants.dart';
 import 'package:instacritic/review.dart';
 import 'package:instacritic/star_display.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'chart_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'my_drawer.dart';
 import 'instagram_repository.dart';
 import 'map_screen.dart';
@@ -116,7 +115,11 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
                   return StatefulBuilder(
                     builder: (BuildContext context, StateSetter state) {
                       return Theme(
-                      data: ThemeData(unselectedWidgetColor: Colors.transparent),
+                      data: ThemeData(
+                        unselectedWidgetColor: Colors.transparent,
+                        // fontFamily: 'Roboto',
+                        // textTheme: GoogleFonts.notoSansTextTheme(Theme.of(context).textTheme),
+                      ),
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,

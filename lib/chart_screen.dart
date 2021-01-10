@@ -46,10 +46,15 @@ class _ChartScreenState extends State<ChartScreen> {
                 if(numTotal == 0)
                   Text('No reviews loaded'),
                 const SizedBox(height:12),
-                if(numShown != 0)
-                  _buildPieChart("$numShown review${numShown != 1 ? 's' : ''} matching '$searchQuery'", shownPercents),
+                if(numShown != 0 && numShown != numTotal)
+                  _buildPieChart("$numShown review${numShown != 1 ? 's' : ''} matching '$searchQuery'", shownPercents),  
                 if(numShown == 0)
                   Text('No search results'),
+                if(numShown != 0 && numShown == numTotal) 
+                  Padding(
+                    padding: const EdgeInsets.only(top: 80),
+                    child: Text('Search and return to this screen to see specific breakdowns', textAlign: TextAlign.center,),
+                  ),
                 const SizedBox(height:12),
               ]
             )

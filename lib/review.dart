@@ -86,8 +86,8 @@ class Review {
         a.mediaId == b.mediaId) {
           return true;
     }
-    print(a);
-    print(b);
+    // print(a);
+    // print(b);
     return false;
   }
 }
