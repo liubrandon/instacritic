@@ -228,11 +228,11 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
 
   Padding _buildApplyFiltersButton(BoxConstraints constraint, StateSetter state) {
     return Padding(
-      padding: EdgeInsets.only(top: 10, bottom: 11),
+      padding: EdgeInsets.only(top: 10, bottom: 20),
       child: Center(
         child:  TextButton(
           style: TextButton.styleFrom(
-            minimumSize: Size(constraint.minWidth-20, 50),
+            minimumSize: Size(constraint.minWidth-30, 50),
             backgroundColor: Constants.myPurple,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
           ),
