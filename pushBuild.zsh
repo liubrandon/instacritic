@@ -3,7 +3,7 @@
 # builds a release version for web, then pushes it to the Github page.
 
 # First save build time and push source code
-BUILD_TIME=$( date '+%Y%m%d.%k%M' )
+BUILD_TIME=$( date '+%Y%m%d.%H%M' )
 git add .
 git commit -m $1
 git push

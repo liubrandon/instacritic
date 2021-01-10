@@ -65,6 +65,11 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
             body: CupertinoScrollbar(
               child: SmartRefresher(
                 controller: _refreshController,
+                header: ClassicHeader(
+                  idleText: 'Pull down to refresh',
+                  refreshingText: '',
+                  completeText: '',
+                ),
                 child: CustomScrollView(
                   controller: widget.scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -103,11 +108,14 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   SliverAppBar _buildSearchBar() {
     return SliverAppBar(
+        centerTitle: false,
         automaticallyImplyLeading: false,
         elevation: 0,
         pinned: true,
+        floating: false,
         backgroundColor: Colors.white,
-        flexibleSpace: _buildSearchTextField(),
+        title: _buildSearchTextField(),
+        leading: null,
         actions: [_buildSortButton()],
     );
   }
@@ -160,7 +168,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   Widget _buildSearchTextField() {
     return Padding(
-      padding: const EdgeInsets.only(left: 12, right: 70, top: 4),
+      padding: const EdgeInsets.only(top: 4),
       child: TextField(
           focusNode: widget.searchBoxFocusNode,
           controller: widget.textController,
