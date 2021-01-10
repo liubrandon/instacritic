@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:instacritic/constants.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -30,14 +31,14 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   @override
   bool get wantKeepAlive => true;
   bool runOnce = true;
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
   firebase_storage.FirebaseStorage storage = firebase_storage.FirebaseStorage.instance;
   firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('/testsmall.jpg');
-  String imageTest;
-  @override
-  void initState() {
-    super.initState();
-    ref.getDownloadURL().then((value) => imageTest = value);
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  // }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -55,25 +56,32 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           return Center(child: CircularProgressIndicator());
         else {
           Provider.of<InstagramRepository>(context,listen:false).currentReviews = snapshot.data;
-          List<Widget> slivs = [
-            _buildSliverPadding(height: 4),
-            // for(int i = 0; i < snapshot.data.length; i++)
-            //   SliverToBoxAdapter(child: _buildRow(snapshot.data[i])),
-            _buildReviewList(snapshot),
-            _buildSliverPadding(height: 20)
-          ];
           return NestedScrollView(
             headerSliverBuilder: (context, bool innerBoxIsScrolled) {
               return [_buildAppBar(),_buildSearchBar()];
             },
             floatHeaderSlivers: true,
             body: CupertinoScrollbar(
-              child: CustomScrollView(
+              child: SmartRefresher(
+                controller: _refreshController,
+                child: CustomScrollView(
                   controller: widget.scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
-                  cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
-                  slivers: slivs
+                  // cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
+                  slivers: [
+                    _buildSliverPadding(height: 4),
+                    _buildReviewList(snapshot),
+                    _buildSliverPadding(height: 20)
+                  ],
                 ),
+                onRefresh: () async {
+                  await Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
+                  widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews); // Get latest data from IG
+                  widget.textController.clear();
+                  _refreshController.refreshCompleted();
+                },
+                onLoading: () async => _refreshController.loadComplete(),
+              ),
             ),
           );
         }
@@ -171,12 +179,12 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                 focusColor: Colors.transparent, hoverColor: Colors.transparent, highlightColor: Colors.transparent,
                 splashColor: Colors.transparent,
                 onPressed: () {
+                  widget.textController.clear();
                   widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
                   Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
-                  Provider.of<InstagramRepository>(context,listen:false).madeChange();
                   Provider.of<InstagramRepository>(context,listen:false).currNumStars = 
                     List.from(Provider.of<InstagramRepository>(context,listen:false).allNumStars);
-                  widget.textController.clear();
+                  Provider.of<InstagramRepository>(context,listen:false).madeChange();
                 }, 
                 icon: Icon(Icons.clear, size: 17, color: Colors.grey,),
               ) : null,
