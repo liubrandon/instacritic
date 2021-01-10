@@ -198,7 +198,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
             child: Center(child: Text('Sort and Filter', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600))),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 14, right: 10),
+          padding: const EdgeInsets.only(top: 12, right: 10),
           child: Align(
             alignment: Alignment.centerRight,
             child: IconButton(
@@ -214,7 +214,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
 
   Widget _buildRatingLabel() {
     return Padding(
-      padding: EdgeInsets.only(left: 20, top: 20),
+      padding: EdgeInsets.only(left: 20, top: 14),
       child: Text('Rating', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
     );
   }
