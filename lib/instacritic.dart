@@ -175,6 +175,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     return Padding(
       padding: const EdgeInsets.only(left: 5, right: 5),
       child: ListTile(
+        dense: true,
         title: Padding(padding: EdgeInsets.only(left: 0), child:StarDisplay(value:i)),
         trailing: Container(
           decoration: BoxDecoration(
@@ -182,12 +183,13 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: filterBoxChecked[i] ? GradientColors.purplePink : GradientColors.grey,
+              colors: currNum != 0 || !filterBoxChecked[i] ? GradientColors.grey : GradientColors.purplePink,
           )),
           width: 25,
           height: 25,
           child: Center(child: Text(currNum.toString(), textAlign: TextAlign.justify, style: TextStyle(color: Colors.white)))
         ),
+        enabled: currNum != 0, // disable if there are 0 reviews
         onTap: () { 
           state(() => filterBoxChecked[i] = !filterBoxChecked[i]);
         },
@@ -209,7 +211,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
                 child: Center(child: Text('Sort and Filter', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600))),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10, right: 10),
+              padding: const EdgeInsets.only(top: 8, right: 10),
               child: Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(
