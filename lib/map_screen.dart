@@ -96,7 +96,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
             shape: RoundedRectangleBorder(borderRadius: borderRadius),
             child: TextField(
                 focusNode: _mapFocusNode,
-                controller: _mapTextController,
+                controller: widget.textController,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
@@ -108,9 +108,11 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                   hintText: 'Search',
                   contentPadding: EdgeInsets.only(top: 14),
                 ),
-                onTap: () {
-                  widget.searchBoxFocusNode.requestFocus();
+                onTap: () async {
                   widget.tabController.animateTo(0);
+                  widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
+                  // await Future.delayed(Duration(milliseconds: 300));
+                  widget.searchBoxFocusNode.requestFocus();
                   widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
                 },
               ),

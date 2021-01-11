@@ -323,7 +323,6 @@ class HideFabOnScrollScaffold extends StatefulWidget {
 
 class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
   bool _fabVisible = true;
-  bool _appDrawerSwipingEnabled = true;
 
   @override
   void initState() {
@@ -361,7 +360,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           child: MyDrawer(widget.textController),
         ),
       ),
-      drawerEnableOpenDragGesture: widget.tabController.index != 1,//_appDrawerSwipingEnabled,
+      drawerEnableOpenDragGesture: widget.tabController.index != 1,
       bottomNavigationBar: _buildBottomBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
     );
@@ -382,13 +381,11 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           setState(() {
             _fabVisible = true;
             widget.scrollController.removeListener(_updateFabVisible);
-            _appDrawerSwipingEnabled = false;
           });
         } else if(i == 0) {
           setState(() {
             _fabVisible = true;
             widget.scrollController.addListener(_updateFabVisible);
-            _appDrawerSwipingEnabled = true;
           });
         }
       },
