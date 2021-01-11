@@ -95,8 +95,8 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
             elevation: 3.0,
             shape: RoundedRectangleBorder(borderRadius: borderRadius),
             child: TextField(
-                focusNode: _mapFocusNode,
-                controller: widget.textController,
+                // focusNode: _mapFocusNode,
+                // controller: widget.textController,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
@@ -110,10 +110,15 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                 ),
                 onTap: () async {
                   // widget.searchBoxFocusNode.requestFocus();
-                  _mapFocusNode.unfocus();
+                  // _mapFocusNode.unfocus();
                   FocusScope.of(context).requestFocus(widget.searchBoxFocusNode);
                   widget.tabController.animateTo(0);
-                  widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
+                  widget.textController.value = TextEditingValue(
+                    text: widget.textController.text,
+                    selection: TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length),
+                    composing: TextRange(start: 0, end: widget.textController.text.length),
+                  );
+                  // widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
                 },
               ),
           ),
