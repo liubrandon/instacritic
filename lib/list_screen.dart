@@ -176,10 +176,10 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           textInputAction: TextInputAction.search,
           onChanged: (text) => widget.updateCurrentReviews(text),
           onSubmitted: (text) {
-            widget.searchBoxFocusNode.unfocus();
             if(text.isNotEmpty) {
               widget.tabController.animateTo(1);
             }
+            widget.searchBoxFocusNode.unfocus();
           },
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
