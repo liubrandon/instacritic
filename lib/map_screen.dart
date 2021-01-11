@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:instacritic/instagram_repository.dart';
@@ -24,19 +25,13 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Set<Marker> _markers = {};
   List<BitmapDescriptor> _markerIcons = [null,null,null,null,null];
   GoogleMapController _mapController;
-  String lastSearchQuery = '';
-  
   double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
-  // bool _firstRun = true;
 
   void _onMapCreated(GoogleMapController controller) {
     if(controller != null) {
       _mapController = controller;
-    // Workaround from https://github.com/flutter/flutter/issues/34473#issuecomment-592962722
-      // if(lastSearchQuery.length < widget.textController.text.length)
-      if( ModalRoute.of(context).isCurrent)
+      if(ModalRoute.of(context).isCurrent)
         Timer(Duration(milliseconds: 500), _updateMapBounds); 
-      // lastSearchQuery = widget.textController.text;
     }
   }
   
@@ -53,7 +48,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Widget build(BuildContext context) {
     super.build(context);
     return FutureBuilder(
-      future: Provider.of<InstagramRepository>(context).getReviewsAsStream(),
+      future: Provider.of<InstagramRepository>(context, listen:false).getReviewsAsStream(),
       builder: (_, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
         if(!snapshot.hasData || !Provider.of<InstagramRepository>(context).ready)
           return Center(child: CircularProgressIndicator());
@@ -61,7 +56,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
           stream: snapshot.data,
           builder: (context, snapshot) {
             if(!this.mounted || snapshot == null || snapshot.connectionState == ConnectionState.waiting ||
-              !Provider.of<InstagramRepository>(context).ready || _markerIcons[4] == null) {
+              !Provider.of<InstagramRepository>(context,listen:false).ready || _markerIcons[4] == null) {
               return Center(child: CircularProgressIndicator());
             }
             if(this.mounted)
@@ -72,6 +67,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                   Scaffold(
                     body: _buildGoogleMap(), // TODO: Change to MapBox
                     floatingActionButton: _buildUpdateBoundsButton(),
+                    floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
                   ),
                 if(this.mounted)
                   _buildSearchBar(),
@@ -90,33 +86,40 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       alignment: isMobile ? Alignment.topCenter : Alignment.topLeft,
       child: Padding(
         padding: EdgeInsets.only(top: 15, left: isMobile ? 0 : 15),
-        child: Container(
-          width: isMobile ? MediaQuery.of(context).size.width - 30 : 400,
-          child: Material(
-            elevation: 3.0,
-            shape: RoundedRectangleBorder(borderRadius: borderRadius),
-            child: TextField(
-                focusNode: widget.searchBoxFocusNode,
-                controller: widget.textController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: borderRadius,
-                  ),
-                  prefixIcon: Icon(Icons.search),
-                  hintText: 'Search',
-                  contentPadding: EdgeInsets.only(top: 14),
+        child: GestureDetector(
+          child: Container(
+            width: isMobile ? MediaQuery.of(context).size.width - 30 : 400,
+            height: 48,
+            child: Material(
+              color: Colors.white,
+              elevation: 3.0,
+              shape: RoundedRectangleBorder(borderRadius: borderRadius),
+              child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 14.0),
+                      child: Icon(Icons.search, color: Colors.grey[600]),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        widget.textController.text.isEmpty ? 'Search' : widget.textController.text, 
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: widget.textController.text.isEmpty ? Colors.grey[600] : Colors.black,
+                        ),
+                      ),
+                    ),
+                  ]
                 ),
-                onTap: () async {
-                  widget.tabController.animateTo(0);
-                  widget.searchBoxFocusNode.requestFocus();
-                  // await Future.delayed(Duration(milliseconds: 50));
-                  widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
-                },
-              ),
+            ),
           ),
+          onTap: () {
+            FocusScope.of(context).requestFocus(widget.searchBoxFocusNode);
+            widget.tabController.animateTo(0);
+            widget.textController.selection = TextSelection(baseOffset: widget.textController.text.length, extentOffset: widget.textController.text.length);
+          },
         ),
       ),
     );
@@ -141,21 +144,35 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
   Padding _buildUpdateBoundsButton() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 40),
       child: SizedBox(
-        width: 42,
-        height: 42,
-        child: FloatingActionButton(
-            heroTag: 'updateBoundsButton',
-            onPressed: _updateMapBounds,
-            foregroundColor: Color(0xff666666),
-            backgroundColor: Colors.white,
-            hoverColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            focusColor: Colors.transparent,
-            child: Transform.rotate(child:Icon(Icons.control_camera, size: 33), angle: 0.785398),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-          ),
+        width: 90,
+        height: 35,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: GradientColors.purplePink,
+          )),
+          child: FloatingActionButton.extended(
+              heroTag: 'updateBoundsButton',
+              onPressed: _updateMapBounds,
+              backgroundColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              focusColor: Colors.transparent,
+              label: Text('Recenter', style: TextStyle(color: Colors.white, fontSize: 15, letterSpacing: .5)),
+              // foregroundColor: Color(0xff666666),
+              // backgroundColor: Colors.white,
+              // hoverColor: Colors.transparent,
+              // splashColor: Colors.transparent,
+              // focusColor: Colors.transparent,
+              // child: Transform.rotate(child:Icon(Icons.control_camera, size: 33), angle: 0.785398),
+              // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+            ),
+        ),
         ),
     );
   }

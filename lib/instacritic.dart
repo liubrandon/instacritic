@@ -175,6 +175,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     return Padding(
       padding: const EdgeInsets.only(left: 5, right: 5),
       child: ListTile(
+        dense: true,
         title: Padding(padding: EdgeInsets.only(left: 0), child:StarDisplay(value:i)),
         trailing: Container(
           decoration: BoxDecoration(
@@ -182,12 +183,13 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: filterBoxChecked[i] ? GradientColors.purplePink : GradientColors.grey,
+              colors: currNum == 0 || !filterBoxChecked[i] ? GradientColors.grey : GradientColors.purplePink,
           )),
           width: 25,
           height: 25,
           child: Center(child: Text(currNum.toString(), textAlign: TextAlign.justify, style: TextStyle(color: Colors.white)))
         ),
+        enabled: currNum != 0, // disable if there are 0 reviews
         onTap: () { 
           state(() => filterBoxChecked[i] = !filterBoxChecked[i]);
         },
@@ -196,7 +198,8 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   }
 
   Widget _buildFilterSortHeader() {
-    String numReviews = _getNumReviewsString().split(' ')[0];
+    int numReviews = 0;
+    Provider.of<InstagramRepository>(context).currNumStars.forEach((element) => numReviews+=element);
     String numReviewsText = 'All $numReviews reviews';
     if(processStringForSearch(_textController.text).isNotEmpty)
       numReviewsText = '$numReviews reviews matching \"${_textController.text}\"';
@@ -209,7 +212,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
                 child: Center(child: Text('Sort and Filter', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600))),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 12, right: 10),
+              padding: const EdgeInsets.only(top: 8, right: 10),
               child: Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(
@@ -220,10 +223,9 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
             ),
           ],
         ),
-        Text(numReviewsText),
+        Text(numReviewsText, style: TextStyle(fontSize: 14)),
       ],
     );
-    //(${_getNumReviewsString().split(' ')[0]} reviews)
   }
 
   Widget _buildRatingLabel() {
@@ -322,7 +324,6 @@ class HideFabOnScrollScaffold extends StatefulWidget {
 
 class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
   bool _fabVisible = true;
-  bool _appDrawerSwipingEnabled = true;
 
   @override
   void initState() {
@@ -360,7 +361,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           child: MyDrawer(widget.textController),
         ),
       ),
-      drawerEnableOpenDragGesture: widget.tabController.index == 1,//_appDrawerSwipingEnabled,
+      drawerEnableOpenDragGesture: widget.tabController.index != 1,
       bottomNavigationBar: _buildBottomBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
     );
@@ -381,13 +382,11 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           setState(() {
             _fabVisible = true;
             widget.scrollController.removeListener(_updateFabVisible);
-            _appDrawerSwipingEnabled = false;
           });
         } else if(i == 0) {
           setState(() {
             _fabVisible = true;
             widget.scrollController.addListener(_updateFabVisible);
-            _appDrawerSwipingEnabled = true;
           });
         }
       },

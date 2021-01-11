@@ -71,15 +71,18 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   refreshingText: '',
                   completeText: '',
                 ),
-                child: CustomScrollView(
-                  controller: widget.scrollController,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  // cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
-                  slivers: [
-                    _buildSliverPadding(height: 8),
-                    _buildReviewList(snapshot),
-                    _buildSliverPadding(height: 20)
-                  ],
+                child: Container(
+                  color: Colors.grey[100],
+                  child: CustomScrollView(
+                    controller: widget.scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
+                    slivers: [
+                      _buildSliverPadding(height: 8),
+                      _buildReviewList(snapshot),
+                      _buildSliverPadding(height: 20)
+                    ],
+                  ),
                 ),
                 onRefresh: () async {
                   await Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
@@ -109,11 +112,10 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   SliverAppBar _buildSearchBar() {
     return SliverAppBar(
-        // centerTitle: false,
         automaticallyImplyLeading: false,
-        elevation: 5,
+        elevation: 1,
+        forceElevated: true,
         pinned: true,
-        // floating: false,
         backgroundColor: Colors.white,
         flexibleSpace: _buildSearchTextField(),
         leading: null,
@@ -169,17 +171,20 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   Widget _buildSearchTextField() {
     return Padding(
-      padding: const EdgeInsets.only(left: 9, top: 4),
+      padding: const EdgeInsets.only(left: 7, top: 4, right: 60),
       child: TextField(
+          // autofocus: true,
           focusNode: widget.searchBoxFocusNode,
           controller: widget.textController,
           textInputAction: TextInputAction.search,
-          onChanged: (text) => widget.updateCurrentReviews(text),
+          onChanged: (text) {
+            widget.updateCurrentReviews(text);
+          },
           onSubmitted: (text) {
-            widget.searchBoxFocusNode.unfocus();
             if(text.isNotEmpty) {
               widget.tabController.animateTo(1);
             }
+            widget.searchBoxFocusNode.unfocus();
           },
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
