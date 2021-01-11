@@ -89,46 +89,45 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       alignment: isMobile ? Alignment.topCenter : Alignment.topLeft,
       child: Padding(
         padding: EdgeInsets.only(top: 15, left: isMobile ? 0 : 15),
-        child: Container(
-          width: isMobile ? MediaQuery.of(context).size.width - 30 : 400,
-          child: Material(
-            elevation: 3.0,
-            shape: RoundedRectangleBorder(borderRadius: borderRadius),
-            child: ListTile(
-                // decoration: InputDecoration(
-                //   filled: true,
-                //   fillColor: Colors.white,
-                //   border: OutlineInputBorder(
-                //     borderSide: BorderSide.none,
-                //     borderRadius: borderRadius,
-                //   ),
-                //   prefixIcon: Icon(Icons.search),
-                //   hintText: 'Search',
-                //   contentPadding: EdgeInsets.only(top: 14),
-                // ),
-                tileColor: Colors.white,
-                leading: Icon(Icons.search),
-                title: Text(
-                  widget.textController.text.isEmpty ? 'Search' : widget.textController.text, 
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    color: widget.textController.text.isEmpty ? Colors.grey : Colors.black,
-                  ),
+        child: GestureDetector(
+          child: Container(
+            width: isMobile ? MediaQuery.of(context).size.width - 30 : 400,
+            height: 44,
+            child: Material(
+              color: Colors.white,
+              elevation: 3.0,
+              shape: RoundedRectangleBorder(borderRadius: borderRadius),
+              child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Icon(Icons.search, color: Colors.grey),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        widget.textController.text.isEmpty ? 'Search' : widget.textController.text, 
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: widget.textController.text.isEmpty ? Colors.grey : Colors.black,
+                        ),
+                      ),
+                    ),
+                  ]
                 ),
-                onTap: () async {
-                  // widget.searchBoxFocusNode.requestFocus();
-                  // _mapFocusNode.unfocus();
-                  widget.tabController.animateTo(0);
-                  widget.textController.value = TextEditingValue(
-                    text: widget.textController.text,
-                    selection: TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length),
-                    composing: TextRange.empty,
-                  );
-                  FocusScope.of(context).requestFocus(widget.searchBoxFocusNode);
-                  // widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
-                },
-              ),
+            ),
           ),
+          onTap: () async {
+            widget.tabController.animateTo(0);
+            widget.textController.value = TextEditingValue(
+              text: widget.textController.text,
+              selection: TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length),
+              composing: TextRange.empty,
+            );
+            Future.delayed(Duration(milliseconds: 200));
+            FocusScope.of(context).requestFocus(widget.searchBoxFocusNode);
+            // widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
+          },
         ),
       ),
     );

@@ -111,7 +111,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
     return SliverAppBar(
         // centerTitle: false,
         automaticallyImplyLeading: false,
-        elevation: 5,
+        elevation: 2,
+        forceElevated: true,
         pinned: true,
         // floating: false,
         backgroundColor: Colors.white,

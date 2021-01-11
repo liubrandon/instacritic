@@ -183,7 +183,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: currNum != 0 || !filterBoxChecked[i] ? GradientColors.grey : GradientColors.purplePink,
+              colors: currNum == 0 || !filterBoxChecked[i] ? GradientColors.grey : GradientColors.purplePink,
           )),
           width: 25,
           height: 25,
@@ -198,7 +198,8 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   }
 
   Widget _buildFilterSortHeader() {
-    String numReviews = _getNumReviewsString().split(' ')[0];
+    int numReviews = 0;
+    Provider.of<InstagramRepository>(context).currNumStars.forEach((element) => numReviews+=element);
     String numReviewsText = 'All $numReviews reviews';
     if(processStringForSearch(_textController.text).isNotEmpty)
       numReviewsText = '$numReviews reviews matching \"${_textController.text}\"';
