@@ -153,7 +153,7 @@ class InstagramRepository with ChangeNotifier {
                 print('Upload to firebase storage failed');
                 print(e);
               }
-              await Future.delayed(Duration(milliseconds: 4000));
+              await Future.delayed(Duration(milliseconds: 4000)); // Dumb way to make sure resized image is done saving (better to have a callback)
               firebase_storage.Reference thumbRef = storage.ref('users/ig_media/$igUserId/${rev.mediaId}_100x100.jpg');
               thumbRef.getDownloadURL().then((thumbnailUrl) {
                 allReviews[i].thumbnailUrl = thumbnailUrl;
@@ -166,6 +166,7 @@ class InstagramRepository with ChangeNotifier {
             currentReviews[i].thumbnailUrl = firestoreReview.thumbnailUrl;
           }
           if(i == postList.length - 1) {
+            // Once you've added the thumbnail data from the last post build list screen
             ready = true;
             notifyListeners();
           }

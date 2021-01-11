@@ -24,7 +24,7 @@ sed -i '' 's#"/instacritic/"#"/"#' web/index.html # Undo relative path href base
 
 # Then build the app for Meghna's site and push it
 sed -i '' 's#"/"#"/meggnoms/"#' web/index.html # Set relative path href base
-flutter build web --dart-define=APP_VERSION=$BUILD_TIME --dart-define=USERNAME='asia.yum' --release
+flutter build web --dart-define=APP_VERSION=$BUILD_TIME --dart-define=USERNAME='meggnoms' --release
 pushd build/web
 git init
 git remote add meggnoms git@github.com:instacritic/meggnoms.git

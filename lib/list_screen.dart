@@ -112,7 +112,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   SliverAppBar _buildSearchBar() {
     return SliverAppBar(
         automaticallyImplyLeading: false,
-        elevation: .5,
+        elevation: .1,
         forceElevated: true,
         pinned: true,
         backgroundColor: Colors.white,
