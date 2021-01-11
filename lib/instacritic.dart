@@ -278,18 +278,18 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
             bool sortingByDistance = sortSelection == 4;
             if(sortingByDistance && !Provider.of<InstagramRepository>(context,listen:false).calculatedDistances) {
               await getLocation();
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (_) => AlertDialog(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-                  title: Text('Calculating distances to all restaurants...'),
-                )
-              );
+              // showDialog(
+              //   context: context,
+              //   // barrierDismissible: false,
+              //   builder: (_) => AlertDialog(
+              //     // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+              //     title: Text('Calculating distances to all restaurants...'),
+              //   )
+              // );
               await Provider.of<InstagramRepository>(context,listen:false).addLatLngToAllReviews();
               Provider.of<InstagramRepository>(context,listen:false).calculateDistances(_locationData.latitude, _locationData.longitude);
               Provider.of<InstagramRepository>(context,listen:false).calculatedDistances = true;
-              Navigator.of(context, rootNavigator: true).pop();
+              // Navigator.of(context, rootNavigator: true).pop();
             }
             state(() {
               pressedApply = true; // Used in the modal closed callback to not apply checkbox updates if you swiped out/cancelled
