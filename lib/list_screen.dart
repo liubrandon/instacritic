@@ -169,7 +169,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   Widget _buildSearchTextField() {
     return Padding(
-      padding: const EdgeInsets.only(left: 9, top: 4),
+      padding: const EdgeInsets.only(left: 7, top: 4, right: 70),
       child: TextField(
           focusNode: widget.searchBoxFocusNode,
           controller: widget.textController,
