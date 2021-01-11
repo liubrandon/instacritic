@@ -10,6 +10,7 @@ import 'package:instacritic/constants.dart';
 import 'package:instacritic/sort_filter.dart';
 import 'package:instacritic/review.dart';
 import 'package:instacritic/star_display.dart';
+import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'app_drawer.dart';
@@ -37,6 +38,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   List<bool> filterBoxCheckedBackup;
   int sortSelectionBackup;
   bool pressedApply = false;
+  LocationData _locationData;
 
   @override
   void initState() {
@@ -46,8 +48,34 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     _searchBoxFocusNode = FocusNode();
     _reviewController = BehaviorSubject(); // ignore: close_sinks
     _tabController = TabController(vsync: this, length: _homeTabs.length, initialIndex: 0);
+    getLocation();
   }
+  void getLocation() async {
+    Location location = new Location();
 
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _locationData = await location.getLocation();
+    print(_locationData.latitude);
+    print(_locationData.longitude);
+  }
   @override
   void dispose() {
     _textController.dispose();
@@ -129,6 +157,8 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
                   child: Wrap(
                       children: <Widget>[
                         _buildFilterSortHeader(),
+                        if(_locationData != null)
+                          Text(_locationData.latitude.toString() + ' ' + _locationData.longitude.toString()),
                         _buildRatingLabel(),
                         for(int i = 0; i < 5; i++)
                           _buildCheckboxListTile(i, state),
