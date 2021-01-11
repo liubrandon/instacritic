@@ -110,7 +110,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                 ),
                 onTap: () async {
                   widget.tabController.animateTo(0);
-                  widget.searchBoxFocusNode.requestFocus();
+                  // widget.searchBoxFocusNode.requestFocus();
                   // await Future.delayed(Duration(milliseconds: 50));
                   widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
                 },
