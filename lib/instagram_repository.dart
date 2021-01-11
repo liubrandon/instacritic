@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:latlong/latlong.dart';
 import 'review.dart';
 
 class InstagramRepository with ChangeNotifier {
@@ -16,6 +17,7 @@ class InstagramRepository with ChangeNotifier {
   List<int> allNumStars = [0,0,0,0,0];
   bool ready = false;
   bool showingAll = true;
+  bool calculatedDistances = false;
 
   InstagramRepository() {
     getReviews();
@@ -49,6 +51,24 @@ class InstagramRepository with ChangeNotifier {
     if(!doc.exists)
       return Review(); // if nothing in Firestore return empty review
     return Review.fromFirestoreDocSnap(doc);
+  }
+
+  Future<void> addLatLngToAllReviews() async {
+    for(int i = 0; i < allReviews.length; i++) {
+      getReviewFromFirestore(allReviews[i].mediaId).then((review) {
+        allReviews[i].lat = review.lat;
+        allReviews[i].lng = review.lng;
+      });
+    }
+  }
+
+  void calculateDistances(double lat, double lng) {
+    for(int i = 0; i < allReviews.length; i++) {
+      if(allReviews[i].lat == null || allReviews[i].lng == null) continue;
+      final Distance distance = Distance();
+      final int meters = distance(LatLng(allReviews[i].lat,allReviews[i].lng), LatLng(lat,lng));
+      allReviews[i].distanceToUser = meters;
+    }
   }
 
   Future<Stream<QuerySnapshot>> getReviewsAsStream() async =>

@@ -11,7 +11,7 @@ final List<Label> sortLabels = [
   Label(text: 'Rating ↑', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.stars.compareTo(b.stars));}),
   Label(text: 'Newest',   mySort: (reviewList) {return reviewList.sort((Review a, Review b) => b.postTimestamp.compareTo(a.postTimestamp));}),
   Label(text: 'Oldest',   mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.postTimestamp.compareTo(b.postTimestamp));}),
-  Label(text: 'Distance', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.postTimestamp.compareTo(b.postTimestamp));}),
+  Label(text: 'Distance', mySort: (reviewList) {return reviewList.sort((Review a, Review b) => a.distanceToUser.compareTo(b.distanceToUser));}),
 ];
 
 const int DEFAULT_SORT_INDEX = 2;

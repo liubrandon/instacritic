@@ -10,6 +10,10 @@ class Review {
   String mediaId;
   bool hasError;
   bool isVideo;
+  double lat;
+  double lng;
+  int distanceToUser; // meters
+  
 
   Review({
     this.restaurantName, 
@@ -20,6 +24,9 @@ class Review {
     this.mediaUrl, 
     this.mediaId,
     this.hasError = false,
+    this.lat,
+    this.lng,
+    this.distanceToUser,
   });
   
   // Takes in a map representing a single Instagram post from the
@@ -50,10 +57,12 @@ class Review {
       postTimestamp: DateTime.parse(postData['timestamp']),
       mediaUrl: mediaUrl,
       mediaId: postData['id'],
+      distanceToUser: 1<<31,
     );
   }
 
   factory Review.fromFirestoreDocSnap(DocumentSnapshot doc) {
+    
     return Review(
       restaurantName: doc['restaurant_name'],
       stars: doc['stars'],
@@ -62,6 +71,8 @@ class Review {
       postTimestamp: doc['post_timestamp'].toDate(),
       mediaUrl: doc['media_url'],
       mediaId: doc['media_id'],
+      lat: doc.data()['gmap_location'] == null ? null : doc['gmap_location'].latitude,
+      lng: doc.data()['gmap_location'] == null ? null : doc['gmap_location'].longitude,
     );
   }
 

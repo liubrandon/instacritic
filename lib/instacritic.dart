@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'package:ars_progress_dialog/ars_progress_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
@@ -48,36 +49,27 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     _searchBoxFocusNode = FocusNode();
     _reviewController = BehaviorSubject(); // ignore: close_sinks
     _tabController = TabController(vsync: this, length: _homeTabs.length, initialIndex: 0);
-    getLocation();
   }
-  void getLocation() async {
-    Location location = new Location();
 
-    if (!kIsWeb) {
+  Future<void> getLocation() async {
+    Location location = new Location();
+    if(!kIsWeb) {
         bool _serviceEnabled;
         PermissionStatus _permissionGranted;
-
         _serviceEnabled = await location.serviceEnabled();
-        if (!_serviceEnabled) {
+        if(!_serviceEnabled) {
           _serviceEnabled = await location.requestService();
-          if (!_serviceEnabled) {
-            return;
-          }
+          if(!_serviceEnabled) return;
         }
-
         _permissionGranted = await location.hasPermission();
-        if (_permissionGranted == PermissionStatus.denied) {
+        if(_permissionGranted == PermissionStatus.denied) {
           _permissionGranted = await location.requestPermission();
-          if (_permissionGranted != PermissionStatus.granted) {
-            return;
-          }
+          if(_permissionGranted != PermissionStatus.granted) return;
         }
     }
-
     _locationData = await location.getLocation();
-    print(_locationData.latitude);
-    print(_locationData.longitude);
   }
+
   @override
   void dispose() {
     _textController.dispose();
@@ -159,8 +151,6 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
                   child: Wrap(
                       children: <Widget>[
                         _buildFilterSortHeader(),
-                        if(_locationData != null)
-                          Text(_locationData.latitude.toString() + ' ' + _locationData.longitude.toString()),
                         _buildRatingLabel(),
                         for(int i = 0; i < 5; i++)
                           _buildCheckboxListTile(i, state),
@@ -285,7 +275,23 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
           ),
           child: Text('Apply', style: TextStyle(color: Colors.white, fontSize: 14, letterSpacing: .5, fontWeight: FontWeight.w600)),
-          onPressed: () {
+          onPressed: () async {
+            ArsProgressDialog progressDialog = ArsProgressDialog(
+              context,
+              blur: 2,
+              backgroundColor: Color(0x33000000),
+              animationDuration: Duration(milliseconds: 500)
+            );
+            bool sortingByDistance = sortSelection == 4;
+            if(sortingByDistance && !Provider.of<InstagramRepository>(context,listen:false).calculatedDistances) {
+              if(_locationData == null)  
+                await getLocation();
+              progressDialog.show();
+              await Provider.of<InstagramRepository>(context,listen:false).addLatLngToAllReviews();
+              Provider.of<InstagramRepository>(context,listen:false).calculateDistances(_locationData.latitude, _locationData.longitude);
+              Provider.of<InstagramRepository>(context,listen:false).calculatedDistances = true;
+              progressDialog.dismiss();
+            }
             state(() {
               pressedApply = true; // Used in the modal closed callback to not apply checkbox updates if you swiped out/cancelled
               bool needToSort = sortSelection != sortSelectionBackup;

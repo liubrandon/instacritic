@@ -21,6 +21,8 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  ars_progress_dialog: ^0.1.2
+  latlong: ^0.6.1
   location: ^3.0.0
   firebase_storage: ^5.2.0
   google_fonts: ^1.1.1
