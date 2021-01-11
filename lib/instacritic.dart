@@ -64,7 +64,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
         body: TabBarView(
           controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
-          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController, _reviewController, _updateCurrentReviews, _openSortAndFilterModal),MapScreen(_tabController,_textController,_searchBoxFocusNode, _returnToSearch)],
+          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController, _reviewController, _updateCurrentReviews, _openSortAndFilterModal),MapScreen(_tabController,_textController,_searchBoxFocusNode)],
         ),
         floatingActionButton: _buildReviewCountFAB(),
         scrollController: _scrollController,
@@ -108,11 +108,6 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
         sortSelection = sortSelectionBackup;
       }
     });
-  }
-  void _returnToSearch() {
-    _searchBoxFocusNode.requestFocus();
-    _textController.selection = TextSelection(baseOffset: 0, extentOffset: _textController.text.length);
-    _tabController.animateTo(0);
   }
 
   Future<void> _showFilterModal() {
