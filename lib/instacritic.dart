@@ -209,7 +209,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
                 child: Center(child: Text('Sort and Filter', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600))),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 12, right: 10),
+              padding: const EdgeInsets.only(top: 10, right: 10),
               child: Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(
@@ -220,10 +220,9 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
             ),
           ],
         ),
-        Text(numReviewsText),
+        Text(numReviewsText, style: TextStyle(fontSize: 14)),
       ],
     );
-    //(${_getNumReviewsString().split(' ')[0]} reviews)
   }
 
   Widget _buildRatingLabel() {
