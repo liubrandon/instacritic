@@ -109,13 +109,13 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   SliverAppBar _buildSearchBar() {
     return SliverAppBar(
-        centerTitle: false,
+        // centerTitle: false,
         automaticallyImplyLeading: false,
-        elevation: 0,
+        elevation: 5,
         pinned: true,
         // floating: false,
         backgroundColor: Colors.white,
-        title: _buildSearchTextField(),
+        flexibleSpace: _buildSearchTextField(),
         leading: null,
         actions: [_buildSortAndFilterButton()],
     );
@@ -169,7 +169,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   Widget _buildSearchTextField() {
     return Padding(
-      padding: const EdgeInsets.only(left: 0, top: 0, right: 0),
+      padding: const EdgeInsets.only(left: 7, top: 4, right: 60),
       child: TextField(
           // autofocus: true,
           focusNode: widget.searchBoxFocusNode,
@@ -182,7 +182,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
             if(text.isNotEmpty) {
               widget.tabController.animateTo(1);
             }
-            widget.searchBoxFocusNode.unfocus();
+            // widget.searchBoxFocusNode.unfocus();
           },
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
