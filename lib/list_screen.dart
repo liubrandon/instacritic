@@ -71,15 +71,18 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   refreshingText: '',
                   completeText: '',
                 ),
-                child: CustomScrollView(
-                  controller: widget.scrollController,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  // cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
-                  slivers: [
-                    _buildSliverPadding(height: 8),
-                    _buildReviewList(snapshot),
-                    _buildSliverPadding(height: 20)
-                  ],
+                child: Container(
+                  color: Colors.grey[100],
+                  child: CustomScrollView(
+                    controller: widget.scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    // cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
+                    slivers: [
+                      _buildSliverPadding(height: 8),
+                      _buildReviewList(snapshot),
+                      _buildSliverPadding(height: 20)
+                    ],
+                  ),
                 ),
                 onRefresh: () async {
                   await Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
@@ -109,12 +112,10 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   SliverAppBar _buildSearchBar() {
     return SliverAppBar(
-        // centerTitle: false,
         automaticallyImplyLeading: false,
-        elevation: 2,
+        elevation: 1,
         forceElevated: true,
         pinned: true,
-        // floating: false,
         backgroundColor: Colors.white,
         flexibleSpace: _buildSearchTextField(),
         leading: null,

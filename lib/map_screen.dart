@@ -24,8 +24,6 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Set<Marker> _markers = {};
   List<BitmapDescriptor> _markerIcons = [null,null,null,null,null];
   GoogleMapController _mapController;
-  TextEditingController _mapTextController;
-  FocusNode _mapFocusNode;
   
   double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
 
@@ -40,8 +38,6 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   @override
   void initState() {
     super.initState();
-    _mapTextController = TextEditingController();
-    _mapFocusNode = FocusNode();
     for(int i = 0; i < _markerIcons.length; i++) { // initialize custom markers
       BitmapDescriptor.fromAssetImage(ImageConfiguration(devicePixelRatio: 3.5), 'assets/star-$i.png').then(
         (value) => _markerIcons[i] = value);
@@ -117,16 +113,10 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                 ),
             ),
           ),
-          onTap: () async {
-            widget.tabController.animateTo(0);
-            widget.textController.value = TextEditingValue(
-              text: widget.textController.text,
-              selection: TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length),
-              composing: TextRange.empty,
-            );
-            Future.delayed(Duration(milliseconds: 200));
+          onTap: () {
             FocusScope.of(context).requestFocus(widget.searchBoxFocusNode);
-            // widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
+            widget.tabController.animateTo(0);
+            widget.textController.selection = TextSelection(baseOffset: widget.textController.text.length, extentOffset: widget.textController.text.length);
           },
         ),
       ),
