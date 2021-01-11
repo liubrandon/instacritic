@@ -24,25 +24,24 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Set<Marker> _markers = {};
   List<BitmapDescriptor> _markerIcons = [null,null,null,null,null];
   GoogleMapController _mapController;
-  String lastSearchQuery = '';
+  TextEditingController _mapTextController;
+  FocusNode _mapFocusNode;
   
   double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
-  // bool _firstRun = true;
 
   void _onMapCreated(GoogleMapController controller) {
     if(controller != null) {
       _mapController = controller;
-    // Workaround from https://github.com/flutter/flutter/issues/34473#issuecomment-592962722
-      // if(lastSearchQuery.length < widget.textController.text.length)
-      if( ModalRoute.of(context).isCurrent)
+      if(ModalRoute.of(context).isCurrent)
         Timer(Duration(milliseconds: 500), _updateMapBounds); 
-      // lastSearchQuery = widget.textController.text;
     }
   }
   
   @override
   void initState() {
     super.initState();
+    _mapTextController = TextEditingController();
+    _mapFocusNode = FocusNode();
     for(int i = 0; i < _markerIcons.length; i++) { // initialize custom markers
       BitmapDescriptor.fromAssetImage(ImageConfiguration(devicePixelRatio: 3.5), 'assets/star-$i.png').then(
         (value) => _markerIcons[i] = value);
@@ -96,7 +95,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
             elevation: 3.0,
             shape: RoundedRectangleBorder(borderRadius: borderRadius),
             child: TextField(
-                focusNode: widget.searchBoxFocusNode,
+                focusNode: _mapFocusNode,
                 controller: widget.textController,
                 decoration: InputDecoration(
                   filled: true,
