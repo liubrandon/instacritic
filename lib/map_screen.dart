@@ -15,7 +15,8 @@ class MapScreen extends StatefulWidget {
   final TabController tabController;
   final TextEditingController textController;
   final FocusNode searchBoxFocusNode;
-  const MapScreen(this.tabController, this.textController, this.searchBoxFocusNode);
+  final void Function() returnToSearch;
+  const MapScreen(this.tabController, this.textController, this.searchBoxFocusNode, this.returnToSearch);
   @override _MapScreenState createState() => _MapScreenState();
 }
 
@@ -109,10 +110,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                   contentPadding: EdgeInsets.only(top: 14),
                 ),
                 onTap: () async {
-                  widget.searchBoxFocusNode.requestFocus();
-                  widget.tabController.animateTo(0);
-                  await Future.delayed(Duration(milliseconds: 300));
-                  widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
+                  widget.returnToSearch();                  
                 },
               ),
           ),
