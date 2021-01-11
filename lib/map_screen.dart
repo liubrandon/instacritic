@@ -94,19 +94,26 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
           child: Material(
             elevation: 3.0,
             shape: RoundedRectangleBorder(borderRadius: borderRadius),
-            child: TextField(
-                // focusNode: _mapFocusNode,
-                // controller: widget.textController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: borderRadius,
+            child: ListTile(
+                // decoration: InputDecoration(
+                //   filled: true,
+                //   fillColor: Colors.white,
+                //   border: OutlineInputBorder(
+                //     borderSide: BorderSide.none,
+                //     borderRadius: borderRadius,
+                //   ),
+                //   prefixIcon: Icon(Icons.search),
+                //   hintText: 'Search',
+                //   contentPadding: EdgeInsets.only(top: 14),
+                // ),
+                tileColor: Colors.white,
+                leading: Icon(Icons.search),
+                title: Text(
+                  widget.textController.text.isEmpty ? 'Search' : widget.textController.text, 
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    color: widget.textController.text.isEmpty ? Colors.grey : Colors.black,
                   ),
-                  prefixIcon: Icon(Icons.search),
-                  hintText: 'Search',
-                  contentPadding: EdgeInsets.only(top: 14),
                 ),
                 onTap: () async {
                   // widget.searchBoxFocusNode.requestFocus();
@@ -116,7 +123,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                   widget.textController.value = TextEditingValue(
                     text: widget.textController.text,
                     selection: TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length),
-                    composing: TextRange(start: 0, end: widget.textController.text.length),
+                    composing: TextRange.empty,
                   );
                   // widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
                 },
