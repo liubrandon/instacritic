@@ -171,7 +171,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
     return Padding(
       padding: const EdgeInsets.only(left: 7, top: 4, right: 60),
       child: TextField(
-          autofocus: true,
+          // autofocus: true,
           focusNode: widget.searchBoxFocusNode,
           controller: widget.textController,
           textInputAction: TextInputAction.search,
@@ -182,7 +182,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
             if(text.isNotEmpty) {
               widget.tabController.animateTo(1);
             }
-            // widget.searchBoxFocusNode.unfocus();
+            widget.searchBoxFocusNode.unfocus();
           },
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
