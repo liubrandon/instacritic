@@ -63,6 +63,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
             },
             floatHeaderSlivers: true,
             body: CupertinoScrollbar(
+              child: Container(
+              color: Colors.grey[100],
               child: SmartRefresher(
                 controller: _refreshController,
                 header: ClassicHeader(
@@ -71,18 +73,15 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   refreshingText: '',
                   completeText: '',
                 ),
-                child: Container(
-                  color: Colors.grey[100],
-                  child: CustomScrollView(
-                    controller: widget.scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    // cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
-                    slivers: [
-                      _buildSliverPadding(height: 8),
-                      _buildReviewList(snapshot),
-                      _buildSliverPadding(height: 20)
-                    ],
-                  ),
+                child: CustomScrollView(
+                  controller: widget.scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  // cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
+                  slivers: [
+                    _buildSliverPadding(height: 5),
+                    _buildReviewList(snapshot),
+                    _buildSliverPadding(height: 20)
+                  ],
                 ),
                 onRefresh: () async {
                   await Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
@@ -91,6 +90,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   _refreshController.refreshCompleted();
                 },
                 onLoading: () async => _refreshController.loadComplete(),
+              ),
               ),
             ),
           );
@@ -113,7 +113,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   SliverAppBar _buildSearchBar() {
     return SliverAppBar(
         automaticallyImplyLeading: false,
-        elevation: 1,
+        elevation: .5,
         forceElevated: true,
         pinned: true,
         backgroundColor: Colors.white,
