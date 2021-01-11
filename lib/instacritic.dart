@@ -361,7 +361,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           child: MyDrawer(widget.textController),
         ),
       ),
-      drawerEnableOpenDragGesture: widget.tabController.index == 1,//_appDrawerSwipingEnabled,
+      drawerEnableOpenDragGesture: widget.tabController.index != 1,//_appDrawerSwipingEnabled,
       bottomNavigationBar: _buildBottomBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
     );
