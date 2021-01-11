@@ -76,7 +76,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   child: CustomScrollView(
                     controller: widget.scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
-                    cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
+                    // cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
                     slivers: [
                       _buildSliverPadding(height: 8),
                       _buildReviewList(snapshot),
