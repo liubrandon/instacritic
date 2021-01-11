@@ -118,13 +118,13 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                 onTap: () async {
                   // widget.searchBoxFocusNode.requestFocus();
                   // _mapFocusNode.unfocus();
-                  FocusScope.of(context).requestFocus(widget.searchBoxFocusNode);
                   widget.tabController.animateTo(0);
                   widget.textController.value = TextEditingValue(
                     text: widget.textController.text,
                     selection: TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length),
                     composing: TextRange.empty,
                   );
+                  FocusScope.of(context).requestFocus(widget.searchBoxFocusNode);
                   // widget.textController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textController.text.length);
                 },
               ),
