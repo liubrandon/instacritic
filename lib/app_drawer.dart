@@ -25,10 +25,8 @@ class MyDrawer extends StatelessWidget {
             children: [
               const SizedBox(width: 10),
               ClipOval(
-                child: FadeInImage(
+                child: Image.asset('assets/icon.png',
                   height: 50.0, width: 50.0,
-                  image: AssetImage('assets/icon.png'),
-                  placeholder: MemoryImage(kTransparentImage),
                 ),
               ),
               const SizedBox(width: 10),
