@@ -1,6 +1,5 @@
 
 import 'dart:async';
-import 'package:ars_progress_dialog/ars_progress_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
@@ -276,21 +275,21 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
           ),
           child: Text('Apply', style: TextStyle(color: Colors.white, fontSize: 14, letterSpacing: .5, fontWeight: FontWeight.w600)),
           onPressed: () async {
-            ArsProgressDialog progressDialog = ArsProgressDialog(
-              context,
-              blur: 2,
-              backgroundColor: Color(0x33000000),
-              animationDuration: Duration(milliseconds: 500)
-            );
             bool sortingByDistance = sortSelection == 4;
             if(sortingByDistance && !Provider.of<InstagramRepository>(context,listen:false).calculatedDistances) {
-              if(_locationData == null)  
-                await getLocation();
-              progressDialog.show();
+              await getLocation();
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => AlertDialog(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                  title: Text('Calculating distances to all restaurants...'),
+                )
+              );
               await Provider.of<InstagramRepository>(context,listen:false).addLatLngToAllReviews();
               Provider.of<InstagramRepository>(context,listen:false).calculateDistances(_locationData.latitude, _locationData.longitude);
               Provider.of<InstagramRepository>(context,listen:false).calculatedDistances = true;
-              progressDialog.dismiss();
+              Navigator.of(context, rootNavigator: true).pop();
             }
             state(() {
               pressedApply = true; // Used in the modal closed callback to not apply checkbox updates if you swiped out/cancelled
