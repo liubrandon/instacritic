@@ -33,10 +33,12 @@ class Review {
       return null;
     }
     String mediaUrl = (postData['media_type'] == 'VIDEO') ? postData['thumbnail_url'] : postData['media_url'];
-    if(captionData.length != 3)
+    bool isSkull = captionData[0].contains('💀');
+    int slashIndex = captionData[0].indexOf('/');
+    if(captionData.length != 3 || (!isSkull && slashIndex == -1))
       return Review(hasError: true, restaurantName: postData['caption'], permalink: postData['permalink'], postTimestamp: DateTime.parse(postData['timestamp']));
     for(int i = 0; i < captionData.length; i++) captionData[i] = captionData[i].trim();
-    int stars = (captionData[0].contains('💀')) ? 0 : int.parse(captionData[0].substring(0,captionData[0].indexOf('/')));
+    int stars = (isSkull) ? 0 : int.parse(captionData[0].substring(0,slashIndex));
     String location = captionData[2];
     if(location == 'New York, New York')
       location = 'New York, NY';

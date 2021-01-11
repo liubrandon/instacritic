@@ -13,7 +13,7 @@ import 'chart_screen.dart';
 import 'instagram_repository.dart';
 import 'star_display.dart';
 import 'review.dart';
-import 'label.dart';
+import 'sort_filter.dart';
 
 class ListScreen extends StatefulWidget {
   final StreamController<List<Review>> reviewController; // ignore: close_sinks  
@@ -29,13 +29,12 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMixin {
-  // RefreshController _refreshController = RefreshController(initialRefresh: false);
   @override
   bool get wantKeepAlive => true;
   bool runOnce = true;
   RefreshController _refreshController = RefreshController(initialRefresh: false);
-  firebase_storage.FirebaseStorage storage = firebase_storage.FirebaseStorage.instance;
-  firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('/testsmall.jpg');
+  // firebase_storage.FirebaseStorage storage = firebase_storage.FirebaseStorage.instance;
+  // firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('/testsmall.jpg');
   // @override
   // void initState() {
   //   super.initState();
@@ -110,13 +109,13 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   SliverAppBar _buildSearchBar() {
     return SliverAppBar(
-        centerTitle: false,
+        // centerTitle: false,
         automaticallyImplyLeading: false,
-        elevation: 0,
+        elevation: 5,
         pinned: true,
-        floating: false,
+        // floating: false,
         backgroundColor: Colors.white,
-        title: _buildSearchTextField(),
+        flexibleSpace: _buildSearchTextField(),
         leading: null,
         actions: [_buildSortAndFilterButton()],
     );
@@ -160,7 +159,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
             widget.updateCurrentReviews(review.restaurantName);
             await Future.delayed(Duration(milliseconds: 80));
             widget.tabController.animateTo(1);
-            widget.searchBoxFocusNode.unfocus();
+            // widget.searchBoxFocusNode.unfocus();
           },
         ),
         const SizedBox(height: 5),
@@ -170,16 +169,16 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   Widget _buildSearchTextField() {
     return Padding(
-      padding: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(left: 9, top: 4),
       child: TextField(
           focusNode: widget.searchBoxFocusNode,
           controller: widget.textController,
           textInputAction: TextInputAction.search,
           onChanged: (text) => widget.updateCurrentReviews(text),
           onSubmitted: (text) {
+            widget.searchBoxFocusNode.unfocus();
             if(text.isNotEmpty) {
               widget.tabController.animateTo(1);
-              widget.searchBoxFocusNode.unfocus();
             }
           },
           decoration: InputDecoration(
@@ -208,7 +207,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   Widget _buildSortAndFilterButton() {
     return Padding(
-      padding: EdgeInsets.only(right: 14),
+      padding: EdgeInsets.only(right: 10),
       child: IconButton(
         tooltip: 'Sort and filter',
         icon: Icon(FontAwesomeIcons.slidersH, size: 20, color: Colors.grey[600]),
@@ -227,8 +226,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
 
   @override
   void dispose() {
-    widget.reviewController.close(); // Not sure if needed
-    widget.textController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 }

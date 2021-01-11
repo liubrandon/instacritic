@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:instacritic/instagram_repository.dart';
-import 'package:instacritic/review.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 

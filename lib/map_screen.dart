@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:instacritic/instagram_repository.dart';
@@ -21,7 +22,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin {
   @override bool get wantKeepAlive => true; // Used to keep tab alive
   Set<Marker> _markers = {};
-  List<BitmapDescriptor> _markerIcons = List.filled(5,null);
+  List<BitmapDescriptor> _markerIcons = [null,null,null,null,null];
   GoogleMapController _mapController;
   String lastSearchQuery = '';
   
@@ -43,7 +44,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   void initState() {
     super.initState();
     for(int i = 0; i < _markerIcons.length; i++) { // initialize custom markers
-      BitmapDescriptor.fromAssetImage(ImageConfiguration(), 'assets/star-$i.png').then(
+      BitmapDescriptor.fromAssetImage(ImageConfiguration(devicePixelRatio: 3.5), 'assets/star-$i.png').then(
         (value) => _markerIcons[i] = value);
     }
   }
@@ -203,13 +204,12 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
   Marker _markerFromFirestoreDocSnap(Map<String, dynamic> review) {
     InfoWindow infoWindow = InfoWindow(
-      title: review['restaurant_name'] + ' (${review['stars']}/4 ⭐)',
-      snippet: review['gmap_address'],
+      title: review['restaurant_name'] + ' (${review['stars'] > 0 ? '${review['stars']}/4 ⭐' : '💀'})',
+      snippet: review['gmap_address'] + '\n (Tap window to view in Google Maps)',
       onTap: () {
         String cleanedAddress = review['gmap_address'].replaceAll(RegExp(r"[!*'();:@&=+$,/?%#\[\]]"), '');
         String cleanedUrl = "https://www.google.com/maps/search/?api=1&query=$cleanedAddress&query_place_id=${review['gmap_place_id']}";
-        print(cleanedUrl);
-        launch(cleanedUrl);
+        launch(cleanedUrl, webOnlyWindowName: '_blank');
       }
     );
     return Marker(

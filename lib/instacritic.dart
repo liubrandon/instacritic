@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:instacritic/constants.dart';
-import 'package:instacritic/label.dart';
+import 'package:instacritic/sort_filter.dart';
 import 'package:instacritic/review.dart';
 import 'package:instacritic/star_display.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'my_drawer.dart';
+import 'app_drawer.dart';
 import 'instagram_repository.dart';
 import 'map_screen.dart';
 import 'list_screen.dart';
@@ -29,11 +29,10 @@ class Instacritic extends StatefulWidget {
 
 class _InstacriticState extends State<Instacritic> with SingleTickerProviderStateMixin {
   // Used by ListScreen and HideFabOnScrollScaffold
-  final TextEditingController _textController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-  final FocusNode _searchBoxFocusNode = FocusNode();
-  // ignore: close_sinks
-  final StreamController<List<Review>> _reviewController = BehaviorSubject(); 
+  TextEditingController _textController;
+  ScrollController _scrollController;
+  FocusNode _searchBoxFocusNode;
+  StreamController<List<Review>> _reviewController;
   TabController _tabController;
   List<bool> filterBoxCheckedBackup;
   int sortSelectionBackup;
@@ -42,14 +41,19 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
+    _textController = TextEditingController();
+    _scrollController = ScrollController();
+    _searchBoxFocusNode = FocusNode();
+    _reviewController = BehaviorSubject(); // ignore: close_sinks
     _tabController = TabController(vsync: this, length: _homeTabs.length, initialIndex: 0);
   }
 
   @override
   void dispose() {
-    // _textController.dispose();
+    _textController.dispose();
     _scrollController.dispose();
     _searchBoxFocusNode.dispose();
+    _reviewController.close();
     _tabController.dispose();
     super.dispose();
   }
@@ -146,6 +150,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
       child: Padding(
         padding: const EdgeInsets.only(bottom: 15),
         child: ToggleButtons(
+          borderRadius: BorderRadius.circular(5.0),
           isSelected: [
             for(int i = 0; i < sortLabels.length; i++)
               i == sortSelection // Only sortSelected will be true and selected
@@ -191,22 +196,31 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   }
 
   Widget _buildFilterSortHeader() {
-    return Stack(
+    String numReviews = _getNumReviewsString().split(' ')[0];
+    String numReviewsText = 'All $numReviews reviews';
+    if(processStringForSearch(_textController.text).isNotEmpty)
+      numReviewsText = '$numReviews reviews matching \"${_textController.text}\"';
+    return Column(
       children: [
-        Padding(
-            padding: EdgeInsets.only(top: 20),
-            child: Center(child: Text('Sort and Filter', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600))),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 12, right: 10),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              icon: Icon(Icons.clear),
-              onPressed: () => Navigator.of(context).pop(),
+        Stack(
+          children: [
+            Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Center(child: Text('Sort and Filter', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600))),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.only(top: 12, right: 10),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ),
+          ],
         ),
+        Text(numReviewsText),
       ],
     );
     //(${_getNumReviewsString().split(' ')[0]} reviews)
@@ -274,14 +288,14 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
     Provider.of<InstagramRepository>(context,listen:false).showingAll = false;
     Provider.of<InstagramRepository>(context,listen:false).madeChange();
   }
+}
 
-  bool _reviewMatchesSearchQuery(Review review, String searchQuery) {
-    Map<String, String> terms = {'name': review.restaurantName, 'place': review.location, 'query': searchQuery};
-    terms.forEach((key, value) => terms[key] = value.toLowerCase().replaceAll(RegExp(r"[^\w]"), ''));
-    if(terms['query'].isEmpty) return true;
-    return terms['name'].contains(terms['query']) ||
-        terms['place'].toLowerCase().contains(terms['query']);
-  }
+bool _reviewMatchesSearchQuery(Review review, String searchQuery) {
+  Map<String, String> terms = {'name': review.restaurantName, 'place': review.location, 'query': searchQuery};
+  terms.forEach((key, value) => terms[key] = processStringForSearch(value));
+  if(terms['query'].isEmpty) return true;
+  return terms['name'].contains(terms['query']) ||
+      terms['place'].toLowerCase().contains(terms['query']);
 }
 
 class HideFabOnScrollScaffold extends StatefulWidget {
@@ -346,7 +360,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
           child: MyDrawer(widget.textController),
         ),
       ),
-      drawerEnableOpenDragGesture: _appDrawerSwipingEnabled,
+      drawerEnableOpenDragGesture: widget.tabController.index == 1,//_appDrawerSwipingEnabled,
       bottomNavigationBar: _buildBottomBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
     );
