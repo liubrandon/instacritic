@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'chart_screen.dart';
 import 'instagram_repository.dart';
 import 'star_display.dart';
@@ -137,6 +136,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildRow(Review review) {
+    if(review.thumbnailUrl == null) print(review);
     return Column(
       children: [
         ListTile(
@@ -147,7 +147,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                 fit: BoxFit.fitWidth,
                 height: 50.0, width: 50.0,
                 placeholder: kTransparentImage,
-                image: review.mediaUrl,
+                image: review.thumbnailUrl == null ? review.mediaUrl : review.thumbnailUrl,
             ),
           ),
           title: Text(review.restaurantName, style: TextStyle(fontSize: 18.0),),

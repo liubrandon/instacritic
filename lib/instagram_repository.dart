@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:intl/intl.dart';
 import 'package:latlong/latlong.dart';
 import 'review.dart';
 
@@ -10,6 +11,7 @@ class InstagramRepository with ChangeNotifier {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   firebase_storage.FirebaseStorage storage = firebase_storage.FirebaseStorage.instance;
   String igUsername;
+  String igUserId;
   List<Review> allReviews = [];
   List<Review> currentReviews = [];
   List<Review> reviewsWithErrors = [];
@@ -35,7 +37,7 @@ class InstagramRepository with ChangeNotifier {
   }
 
   Future<Map<String, Review>> getReviewsAsMap() async {
-    CollectionReference reviewsCollection = firestore.collection('users/$igUsername/reviews');
+    CollectionReference reviewsCollection = firestore.collection('users/$igUserId/reviews');
     QuerySnapshot reviews = await reviewsCollection.get();
     if(reviews.docs.length == 0) return null;
     Map<String, Review> reviewMap = {};
@@ -47,7 +49,7 @@ class InstagramRepository with ChangeNotifier {
   }
   
   Future<Review> getReviewFromFirestore(String mediaId) async {
-    DocumentSnapshot doc = await firestore.collection('users/$igUsername/reviews').doc('$mediaId').get();
+    DocumentSnapshot doc = await firestore.collection('users/$igUserId/reviews').doc('$mediaId').get();
     if(!doc.exists)
       return Review(); // if nothing in Firestore return empty review
     return Review.fromFirestoreDocSnap(doc);
@@ -72,10 +74,10 @@ class InstagramRepository with ChangeNotifier {
   }
 
   Future<Stream<QuerySnapshot>> getReviewsAsStream() async =>
-    FirebaseFirestore.instance.collection('users/$igUsername/reviews').snapshots();
+    FirebaseFirestore.instance.collection('users/$igUserId/reviews').snapshots();
   
-  void addReviewToFirestore(Review r) {
-    DocumentReference newReview = FirebaseFirestore.instance.collection('users/$igUsername/reviews/').doc('${r.mediaId}');
+  Future<void> addReviewToFirestore(Review r) async {
+    DocumentReference newReview = FirebaseFirestore.instance.collection('users/$igUserId/reviews/').doc('${r.mediaId}');
     newReview.set({
       'restaurant_name': r.restaurantName,
       'stars': r.stars,
@@ -88,15 +90,29 @@ class InstagramRepository with ChangeNotifier {
     .catchError((error) => print("Failed to add review: ${r.restaurantName} $error"));
   }
 
+  Future<void> addThumbnailUrlToFirestore(Review r, String thumbnailUrl) async {
+    DocumentReference newReview = FirebaseFirestore.instance.collection('users/$igUserId/reviews/').doc('${r.mediaId}');
+    newReview.set({
+      'thumbnail_url': thumbnailUrl,
+    }, SetOptions(merge: true)).then((value) => print("Download url for ${r.restaurantName} added to Firestore: $thumbnailUrl"))
+    .catchError((error) => print("Failed to add thumbnailUrl to firestore: ${r.restaurantName} $error"));
+  }
+
   int get numReviewsShown => (showingAll) ? allReviews.length : currentReviews.length;
 
   int get totalNumReviews => allReviews.length;
 
   Future<void> getReviews() async {
-    // Construct the Instagram API call and get the response
+    // Construct the Instagram API calls and get the response
     final String igToken = await getInstagramToken();
+    final String igUrlMe = 'https://graph.instagram.com/me/';
+    String queryStringMe = Uri(queryParameters: {'fields': 'id,media_count,username', 'access_token': igToken}).query;
+    var resMe = await http.get(igUrlMe + '?' + queryStringMe);
+    var user = jsonDecode(resMe.body);
+    igUsername = user['username'];
+    igUserId = user['id'];
     final String igUrl = 'https://graph.instagram.com/me/media';
-    final String igFields = 'caption,id,media_type,thumbnail_url,media_url,permalink,timestamp,username';
+    final String igFields = 'caption,id,media_type,thumbnail_url,media_url,permalink,timestamp';
     String queryString = Uri(queryParameters: {'fields': igFields, 'access_token': igToken}).query;
     var res = await http.get(igUrl + '?' + queryString);
     var curr25 = jsonDecode(res.body);
@@ -108,31 +124,53 @@ class InstagramRepository with ChangeNotifier {
       curr25 = jsonDecode(res.body);
       postList.addAll(curr25['data']);
     }
-    if(postList.length > 0)
-      igUsername = postList[0]['username'];
-    allReviews = [];
-    currentReviews = [];
+    allReviews = List.filled(postList.length, Review());
+    currentReviews = List.filled(postList.length, Review());
     reviewsWithErrors = [];
     allNumStars = [0,0,0,0,0];
     currNumStars = [0,0,0,0,0];
     for(int i = 0; i < postList.length; i++) {
-      Review rev = Review.fromJson(postList[i]);
+      final Review rev = Review.fromJson(postList[i]);
       if(rev.hasError) { // Issue parsing review
         reviewsWithErrors.add(rev);
       }
       else {
         currNumStars[rev.stars]++;
         allNumStars[rev.stars]++;
-        allReviews.add(rev);
-        currentReviews.add(rev);
+        allReviews[i] = rev;
+        currentReviews[i] = rev;
         getReviewFromFirestore(rev.mediaId).then((firestoreReview) {
           if(!Review.reviewsEqual(rev, firestoreReview)) { // Update Firestore if the data from Instagram is different
               addReviewToFirestore(rev);
           }
+          if(firestoreReview.thumbnailUrl == null) {
+            http.get(rev.mediaUrl).then((response) async {
+              final String base64Str = base64.encode(response.bodyBytes);
+              firebase_storage.Reference ref = storage.ref('users/ig_media/$igUserId/${rev.mediaId}.jpg');
+              try {
+                await ref.putString(base64Str, format: firebase_storage.PutStringFormat.base64, metadata: firebase_storage.SettableMetadata(contentType: 'image/jpeg'));
+              } on firebase_storage.FirebaseException catch(e) {
+                print('Upload to firebase storage failed');
+                print(e);
+              }
+              await Future.delayed(Duration(milliseconds: 4000));
+              firebase_storage.Reference thumbRef = storage.ref('users/ig_media/$igUserId/${rev.mediaId}_100x100.jpg');
+              thumbRef.getDownloadURL().then((thumbnailUrl) {
+                allReviews[i].thumbnailUrl = thumbnailUrl;
+                currentReviews[i].thumbnailUrl = thumbnailUrl;
+                addThumbnailUrlToFirestore(rev, thumbnailUrl);
+              });
+            });
+          } else {
+            allReviews[i].thumbnailUrl = firestoreReview.thumbnailUrl;
+            currentReviews[i].thumbnailUrl = firestoreReview.thumbnailUrl;
+          }
+          if(i == postList.length - 1) {
+            ready = true;
+            notifyListeners();
+          }
         });
       }
     }
-    ready = true;
-    notifyListeners();
   }
 }

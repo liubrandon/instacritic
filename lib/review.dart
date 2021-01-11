@@ -13,7 +13,7 @@ class Review {
   double lat;
   double lng;
   int distanceToUser; // meters
-  
+  String thumbnailUrl;
 
   Review({
     this.restaurantName, 
@@ -27,6 +27,7 @@ class Review {
     this.lat,
     this.lng,
     this.distanceToUser,
+    this.thumbnailUrl,
   });
   
   // Takes in a map representing a single Instagram post from the
@@ -62,7 +63,6 @@ class Review {
   }
 
   factory Review.fromFirestoreDocSnap(DocumentSnapshot doc) {
-    
     return Review(
       restaurantName: doc['restaurant_name'],
       stars: doc['stars'],
@@ -73,6 +73,7 @@ class Review {
       mediaId: doc['media_id'],
       lat: doc.data()['gmap_location'] == null ? null : doc['gmap_location'].latitude,
       lng: doc.data()['gmap_location'] == null ? null : doc['gmap_location'].longitude,
+      thumbnailUrl: doc.data()['thumbnail_url'] == null ? null : doc['thumbnail_url'],
     );
   }
 
@@ -81,10 +82,11 @@ class Review {
     return restaurantName+'\n'+
     stars.toString()+'\n'+
     location+'\n'+
-    permalink+'\n'+
+    // permalink+'\n'+
     // postTimestamp.toString()+'/'+
-    mediaUrl+'\n'+
+    // mediaUrl+'\n'+
     mediaId;
+    // thumbnailUrl;
   }
 
   static bool reviewsEqual(Review a, Review b) {
