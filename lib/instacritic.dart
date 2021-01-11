@@ -1,6 +1,5 @@
 
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,7 @@ import 'package:instacritic/sort_filter.dart';
 import 'package:instacritic/review.dart';
 import 'package:instacritic/star_display.dart';
 import 'package:location/location.dart';
+import "package:flutter/foundation.dart" show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'app_drawer.dart';
@@ -53,23 +53,25 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   void getLocation() async {
     Location location = new Location();
 
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
+    if (!kIsWeb) {
+        bool _serviceEnabled;
+        PermissionStatus _permissionGranted;
 
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
+        _serviceEnabled = await location.serviceEnabled();
+        if (!_serviceEnabled) {
+          _serviceEnabled = await location.requestService();
+          if (!_serviceEnabled) {
+            return;
+          }
+        }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
+        _permissionGranted = await location.hasPermission();
+        if (_permissionGranted == PermissionStatus.denied) {
+          _permissionGranted = await location.requestPermission();
+          if (_permissionGranted != PermissionStatus.granted) {
+            return;
+          }
+        }
     }
 
     _locationData = await location.getLocation();
