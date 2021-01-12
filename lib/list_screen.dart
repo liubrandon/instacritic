@@ -211,6 +211,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildSortAndFilterButton() {
+    print(Provider.of<InstagramRepository>(context,listen:false).allTags);
     return Padding(
       padding: EdgeInsets.only(right: 10),
       child: IconButton(

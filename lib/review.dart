@@ -1,4 +1,7 @@
+import 'dart:collection';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:instacritic/tag.dart';
 
 class Review {
   String restaurantName;
@@ -14,6 +17,7 @@ class Review {
   double lng;
   int distanceToUser; // meters
   String thumbnailUrl;
+  HashSet<Tag> tags;
 
   Review({
     this.restaurantName, 
@@ -28,6 +32,7 @@ class Review {
     this.lng,
     this.distanceToUser,
     this.thumbnailUrl,
+    this.tags,
   });
   
   // Takes in a map representing a single Instagram post from the
@@ -59,10 +64,19 @@ class Review {
       mediaUrl: mediaUrl,
       mediaId: postData['id'],
       distanceToUser: 1<<31,
+      tags: HashSet<Tag>(),
     );
   }
 
   factory Review.fromFirestoreDocSnap(DocumentSnapshot doc) {
+    HashSet<Tag> tags;
+    if(doc.data()['tags'] == null) 
+      tags = HashSet<Tag>();
+    else {
+      List<String> l = List<String>.from(doc['tags']);
+      List<Tag> l1 = l.map((e) => Tag(e)).toList();
+      tags = HashSet<Tag>.from(l1); 
+    }
     return Review(
       restaurantName: doc['restaurant_name'],
       stars: doc['stars'],
@@ -74,6 +88,7 @@ class Review {
       lat: doc.data()['gmap_location'] == null ? null : doc['gmap_location'].latitude,
       lng: doc.data()['gmap_location'] == null ? null : doc['gmap_location'].longitude,
       thumbnailUrl: doc.data()['thumbnail_url'] == null ? null : doc['thumbnail_url'],
+      tags: tags,
     );
   }
 

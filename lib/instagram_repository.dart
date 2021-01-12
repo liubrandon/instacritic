@@ -1,8 +1,11 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:instacritic/constants.dart';
+import 'package:instacritic/tag.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong/latlong.dart';
 import 'review.dart';
@@ -20,6 +23,7 @@ class InstagramRepository with ChangeNotifier {
   bool ready = false;
   bool showingAll = true;
   bool calculatedDistances = false;
+  HashMap<Tag, int> allTags = HashMap<Tag, int>();
 
   InstagramRepository() {
     getReviews();
@@ -91,11 +95,19 @@ class InstagramRepository with ChangeNotifier {
   }
 
   Future<void> addThumbnailUrlToFirestore(Review r, String thumbnailUrl) async {
-    DocumentReference newReview = FirebaseFirestore.instance.collection('users/$igUserId/reviews/').doc('${r.mediaId}');
-    newReview.set({
+    DocumentReference reviewRef = FirebaseFirestore.instance.collection('users/$igUserId/reviews/').doc('${r.mediaId}');
+    reviewRef.set({
       'thumbnail_url': thumbnailUrl,
     }, SetOptions(merge: true)).then((value) => print("Download url for ${r.restaurantName} added to Firestore: $thumbnailUrl"))
     .catchError((error) => print("Failed to add thumbnailUrl to firestore: ${r.restaurantName} $error"));
+  }
+
+  Future<void> addTagsToFirestore(Review r, Set<Tag> tags) async {
+    DocumentReference reviewRef = FirebaseFirestore.instance.collection('users/$igUserId/reviews/').doc('${r.mediaId}');
+    reviewRef.set({
+      'tags': tags.map((e) => e.displayName).toList(),
+    }, SetOptions(merge: true)).then((value) => print("Tags for ${r.restaurantName} added to Firestore"))
+    .catchError((error) => print("Failed to add tags to firestore: ${r.restaurantName} $error"));
   }
 
   int get numReviewsShown => (showingAll) ? allReviews.length : currentReviews.length;
@@ -165,8 +177,29 @@ class InstagramRepository with ChangeNotifier {
             allReviews[i].thumbnailUrl = firestoreReview.thumbnailUrl;
             currentReviews[i].thumbnailUrl = firestoreReview.thumbnailUrl;
           }
+          if(firestoreReview.tags == null || firestoreReview.tags.isEmpty) {
+            HashSet<Tag> tags = HashSet<Tag>();
+            List<String> parts;
+            if(processStringForSearch(rev.location) == 'washingtondc')
+              parts = [rev.location];
+            else
+              parts = rev.location.split(',');
+            parts.forEach((part) {
+              Tag t = Tag(part);
+              tags.add(t);
+              allTags.update(t, (value) => value+1, ifAbsent: ()=>1); // track total occurences of each tag
+            });
+            addTagsToFirestore(rev, tags);
+            allReviews[i].tags = tags;
+            currentReviews[i].tags = tags;
+          } else { // If there are tags in firestore just use them
+            allReviews[i].tags = firestoreReview.tags;
+            currentReviews[i].tags = firestoreReview.tags;
+            for(Tag t in firestoreReview.tags)
+              allTags.update(t, (value) => value+1, ifAbsent: ()=>1); // track total 
+          }
           if(i == postList.length - 1) {
-            // Once you've added the thumbnail data from the last post build list screen
+            // Once you've added the thumbnail/tag data from the last post build list screen
             ready = true;
             notifyListeners();
           }
