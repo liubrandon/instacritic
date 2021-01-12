@@ -24,6 +24,7 @@ class InstagramRepository with ChangeNotifier {
   bool showingAll = true;
   bool calculatedDistances = false;
   HashMap<Tag, int> allTags = HashMap<Tag, int>();
+  Map<Tag, int> allTagsSorted = Map<Tag, int>();
 
   InstagramRepository() {
     getReviews();
@@ -200,6 +201,9 @@ class InstagramRepository with ChangeNotifier {
           }
           if(i == postList.length - 1) {
             // Once you've added the thumbnail/tag data from the last post build list screen
+            // and also make the sorted list of tags
+            var mapEntries = allTags.entries.toList()..sort((a,b)=> b.value.compareTo(a.value));
+            allTagsSorted..clear()..addEntries(mapEntries);
             ready = true;
             notifyListeners();
           }

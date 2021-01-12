@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:instacritic/chip_list.dart';
 import 'package:instacritic/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -32,12 +33,6 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   bool get wantKeepAlive => true;
   bool runOnce = true;
   RefreshController _refreshController = RefreshController(initialRefresh: false);
-  // firebase_storage.FirebaseStorage storage = firebase_storage.FirebaseStorage.instance;
-  // firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('/testsmall.jpg');
-  // @override
-  // void initState() {
-  //   super.initState();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -178,6 +173,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           controller: widget.textController,
           textInputAction: TextInputAction.search,
           onChanged: (text) {
+            clearCurrTag();
             widget.updateCurrentReviews(text);
           },
           onSubmitted: (text) {
@@ -211,7 +207,6 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildSortAndFilterButton() {
-    print(Provider.of<InstagramRepository>(context,listen:false).allTags);
     return Padding(
       padding: EdgeInsets.only(right: 10),
       child: IconButton(

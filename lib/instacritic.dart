@@ -9,6 +9,7 @@ import 'package:instacritic/constants.dart';
 import 'package:instacritic/sort_filter.dart';
 import 'package:instacritic/review.dart';
 import 'package:instacritic/star_display.dart';
+import 'package:instacritic/tag.dart';
 import 'package:location/location.dart';
 import "package:flutter/foundation.dart" show kIsWeb;
 import 'package:provider/provider.dart';
@@ -81,18 +82,21 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return HideFabOnScrollScaffold(
+    return AbsorbPointer(
+      absorbing: !Provider.of<InstagramRepository>(context).ready, // until first load don't respond to touch
+      child: HideFabOnScrollScaffold(
         body: TabBarView(
           controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
-          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController, _reviewController, _updateCurrentReviews, _openSortAndFilterModal),MapScreen(_tabController,_textController,_searchBoxFocusNode)],
+          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController, _reviewController, _updateCurrentReviews, _openSortAndFilterModal),MapScreen(_tabController,_textController,_searchBoxFocusNode,_updateCurrentReviews)],
         ),
         floatingActionButton: _buildReviewCountFAB(),
         scrollController: _scrollController,
         textController: _textController,
         focusNode: _searchBoxFocusNode,
         tabController: _tabController,
-      );
+      ),
+    );
   }
 
   Widget _buildReviewCountFAB() {
@@ -312,11 +316,12 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   }
 
   // https://medium.com/level-up-programming/flutter-stream-tutorial-asynchronous-dart-programming-991e6cf97c5a
-  void _updateCurrentReviews(String searchQuery) {
+  void _updateCurrentReviews(String searchQuery, {Tag tag}) {
     Provider.of<InstagramRepository>(context,listen:false).currentReviews = [];
     Provider.of<InstagramRepository>(context,listen:false).currNumStars = [0,0,0,0,0];
     Provider.of<InstagramRepository>(context,listen:false).allReviews.forEach((review) {
-      if(_reviewMatchesSearchQuery(review, searchQuery)) {
+      bool isMatch = (tag == null) ? _reviewMatchesSearchQuery(review, searchQuery) : review.tags.contains(tag);
+      if(isMatch) {
         Provider.of<InstagramRepository>(context,listen:false).currNumStars[review.stars]++;
         if (filterBoxChecked[review.stars])
           Provider.of<InstagramRepository>(context,listen:false).currentReviews.add(review);

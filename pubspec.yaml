@@ -21,43 +21,42 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  ars_progress_dialog: ^0.1.2
-  latlong: ^0.6.1
-  location: ^3.0.0
-  firebase_storage: ^5.2.0
-  google_fonts: ^1.1.1
-  transparent_image: ^1.0.0
-  pull_to_refresh: ^1.6.3
-  syncfusion_flutter_charts: ^18.4.32+1
-  intl: ^0.16.1
-  provider: ^4.3.2+3
-  google_maps_flutter: ^0.5.28
-  google_maps_flutter_web: ^0.1.0+8
-  rxdart: ^0.25.0
-  font_awesome_flutter: ^8.11.0
-  flutter_gradient_colors: ^1.0.0
-  convex_bottom_bar: ^2.6.0
-  url_launcher: ^5.1.4
-  url_launcher_web: ^0.1.5+1
-  firebase_core: ^0.5.3
-  cloud_firestore: ^0.14.4
-  http: ^0.12.2
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  json_serializable: ^3.3.0
+  ars_progress_dialog: ^0.1.2
+  cloud_firestore: ^0.14.4
+  convex_bottom_bar: ^2.6.0
   cupertino_icons: ^1.0.0
+  firebase_core: ^0.5.3
+  firebase_storage: ^5.2.0
+  flutter_gradient_colors: ^1.0.0
+  font_awesome_flutter: ^8.11.0
+  google_fonts: ^1.1.1
+  google_maps_flutter: ^0.5.28
+  google_maps_flutter_web: ^0.1.0+8
+  http: ^0.12.2
+  intl: ^0.16.1
+  json_serializable: ^3.3.0
+  latlong: ^0.6.1
+  location: ^3.0.0
+  provider: ^4.3.2+3
+  pull_to_refresh: ^1.6.3
+  rxdart: ^0.25.0
+  syncfusion_flutter_charts: ^18.4.32+1
+  transparent_image: ^1.0.0
+  url_launcher: ^5.1.4
+  url_launcher_web: ^0.1.5+1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  pedantic: ^1.9.0
   build_runner: ^1.10.0
+  pedantic: ^1.9.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
 # The following section is specific to Flutter.
 flutter:
 
@@ -69,14 +68,10 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-  
-
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
-
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
-
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a
