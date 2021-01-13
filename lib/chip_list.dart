@@ -44,14 +44,15 @@ class _ChipListState extends State<ChipList> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
         child: ChoiceChip(
-          avatar: isoCode == null ? null : Padding(
-            padding: const EdgeInsets.only(left:4),
-            child: Text(iso2EmojiFlag(isoCode)),
-          ),
+          // avatar: isoCode == null ? null : Padding(
+          //   padding: const EdgeInsets.only(left:6),
+          //   child: Text(),
+          // ),
+          padding: EdgeInsets.symmetric(horizontal: 6),
           elevation: 3,
           label: Padding(
             padding: EdgeInsets.only(bottom: 0),
-            child: Text(tag.displayName, style: TextStyle(
+            child: Text('${isoCode == null ? tag.displayName : iso2EmojiFlag(isoCode) + '  ' + tag.displayName}', style: TextStyle(
               color: selected ? Colors.white : Colors.black, 
               fontWeight: FontWeight.w500
               ),
