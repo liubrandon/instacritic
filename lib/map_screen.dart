@@ -15,8 +15,15 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin {
+  ScrollController _scrollController;
+  // bool _ignoreMapGestures = false;
   @override bool get wantKeepAlive => true; // Used to keep tab alive
-
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+  // void disableMapGestures() => _ignoreMapGestures = false;
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -24,24 +31,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       children: [
         MapLayer(),
         _buildSearchBar(),
-        GestureDetector(
-          onHorizontalDragStart: (_) {},
-          onHorizontalDragUpdate: (_) {},
-          onHorizontalDragEnd: (_) {},
-          onPanStart: (_) {},
-          onPanUpdate: (_) {},
-          onPanEnd: (_) {},
-          onTap: () {},
-          behavior: HitTestBehavior.opaque,
-          // child: Align(
-          //   alignment: Alignment.topCenter,
-          //   child: Padding(
-          //     padding: EdgeInsets.only(top: 72),
-          //     child: Container(height:25)
-          //   ),
-          // ),
-        ),
-        
+        _buildTagChips(),
       ]
     );
   }
@@ -53,7 +43,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
         padding: EdgeInsets.only(top: 72),
         child: Container(
           height: 40,
-          child: ChipList(widget.updateCurrentReviews, widget.textController),
+          child: ChipList(widget.updateCurrentReviews, widget.textController, _scrollController),
         ),
       )
     );

@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -45,55 +42,53 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      body: FutureBuilder(
-        future: Provider.of<InstagramRepository>(context, listen:false).getReviewsAsStream(),
-        builder: (_, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
-          if(!snapshot.hasData || !Provider.of<InstagramRepository>(context).ready)
-            return Center(child: CircularProgressIndicator());
-          return StreamBuilder(
-          stream: snapshot.data,
-          builder: (context, snapshot) {
-            if(!this.mounted || snapshot == null || snapshot.connectionState == ConnectionState.waiting ||
-              !Provider.of<InstagramRepository>(context,listen:false).ready || _markerIcons[4] == null) {
-                return Center(child: CircularProgressIndicator());
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      child: Scaffold(
+        body: FutureBuilder(
+          future: Provider.of<InstagramRepository>(context, listen:false).getReviewsAsStream(),
+          builder: (_, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
+            if(!snapshot.hasData || !Provider.of<InstagramRepository>(context).ready)
+              return Center(child: CircularProgressIndicator());
+            return StreamBuilder(
+            stream: snapshot.data,
+            builder: (context, snapshot) {
+              if(!this.mounted || snapshot == null || snapshot.connectionState == ConnectionState.waiting ||
+                !Provider.of<InstagramRepository>(context,listen:false).ready || _markerIcons[4] == null) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if(this.mounted)
+                  _updateMarkers(snapshot);
+                return _buildGoogleMap();
               }
-              if(this.mounted)
-                _updateMarkers(snapshot);
-              return Stack(
-                children: [
-                  _buildGoogleMap(),
-                ],
-              );
-            }
-          );
-        }
+            );
+          }
+        ),
+        floatingActionButton: _buildUpdateBoundsButton(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
-      floatingActionButton: _buildUpdateBoundsButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
-  GoogleMap _buildGoogleMap() {
+  Widget _buildGoogleMap() {
     return GoogleMap(
-      onTap: (_) {},
-      zoomControlsEnabled: false,
-      markers: _markers,
-      mapType: MapType.normal,
-      initialCameraPosition: CameraPosition(
-        target: LatLng(0, 0),
-        zoom: 0,
-      ),
-      onMapCreated: _onMapCreated,
-      //https://stackoverflow.com/questions/54280541/google-map-in-flutter-not-responding-to-touch-events
-      // gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-      //   Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer(),),
-      // ].toSet(),
-      gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-        new Factory<OneSequenceGestureRecognizer>(
-          () => new PanGestureRecognizer(),
+        onTap: (_) {},
+        zoomControlsEnabled: false,
+        markers: _markers,
+        mapType: MapType.normal,
+        initialCameraPosition: CameraPosition(
+          target: LatLng(0, 0),
+          zoom: 0,
         ),
-      ].toSet(),
+        onMapCreated: _onMapCreated,
+        //https://stackoverflow.com/questions/54280541/google-map-in-flutter-not-responding-to-touch-events
+        // gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+        //   Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer(),),
+        // ].toSet(),
+        // gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+        //   Factory<OneSequenceGestureRecognizer>(() => PanGestureRecognizer())
+        // ].toSet(),
     );
   }
 

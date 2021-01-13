@@ -4,22 +4,25 @@ import 'package:instacritic/tag.dart';
 import 'package:provider/provider.dart';
 import 'instagram_repository.dart';
 
+int selectedTagIndex = -1;
 void clearCurrTag() => selectedTagIndex= -1;
 
 class ChipList extends StatefulWidget {
   final void Function(String, {Tag tag}) updateCurrentReviews;
   final TextEditingController textController;
-  const ChipList(this.updateCurrentReviews, this.textController);
+  final ScrollController scrollController;
+  const ChipList(this.updateCurrentReviews, this.textController, this.scrollController);
   @override
   _ChipListState createState() => _ChipListState();
 }
 
-int selectedTagIndex = -1;
 class _ChipListState extends State<ChipList> {
   @override
   Widget build(BuildContext context) {
     List<Tag> tags = Provider.of<InstagramRepository>(context,listen:false).allTagsSorted.keys.toList();
     return ListView(
+      controller: widget.scrollController,
+      physics: AlwaysScrollableScrollPhysics(),
       scrollDirection: Axis.horizontal,
       children: [
         const SizedBox(width: 15),
