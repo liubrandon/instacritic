@@ -191,6 +191,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                 splashColor: Colors.transparent,
                 onPressed: () {
                   widget.textController.clear();
+                  clearCurrTag();
                   widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
                   Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
                   Provider.of<InstagramRepository>(context,listen:false).currNumStars = 
