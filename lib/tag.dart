@@ -2,7 +2,10 @@ class Tag {
   String displayName;
   String _logicalName;
   Tag(String tagName) {
-    displayName = tagName.trim();
+    String tagName1 = tagName.trim();
+    if(tagName == 'Lisbon')
+      tagName1 = 'Lisbon ';
+    displayName = tagName1;
     _logicalName = normalize(tagName);
   }
   String normalize(String str) => str.replaceAll(RegExp(r"[^\w\s]"), '').trim();

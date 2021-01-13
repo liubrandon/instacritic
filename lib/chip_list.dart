@@ -48,7 +48,7 @@ class _ChipListState extends State<ChipList> {
           //   padding: const EdgeInsets.only(left:6),
           //   child: Text(),
           // ),
-          padding: EdgeInsets.symmetric(horizontal: 10),
+          padding: EdgeInsets.symmetric(horizontal: 5),
           elevation: 3,
           label: Padding(
             padding: EdgeInsets.only(bottom: 0),
