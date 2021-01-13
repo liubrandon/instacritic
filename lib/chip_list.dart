@@ -44,11 +44,7 @@ class _ChipListState extends State<ChipList> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
         child: ChoiceChip(
-          avatar: isoCode == null ? null : Padding(
-            padding: const EdgeInsets.only(left: 5),
-            child: Text(iso2EmojiFlag(isoCode))
-          ),
-          // avatarBorder: CircleBorder(),
+          avatar: isoCode == null ? null : Text(iso2EmojiFlag(isoCode)),
           elevation: 3,
           label: Padding(
             padding: EdgeInsets.only(bottom: 0),
