@@ -31,7 +31,6 @@ dependencies:
   cupertino_icons: ^1.0.0
   firebase_core: ^0.5.3
   firebase_storage: ^5.2.0
-  # flag: ^3.0.5
   flutter_gradient_colors: ^1.0.0
   font_awesome_flutter: ^8.11.0
   google_fonts: ^1.1.1
@@ -39,6 +38,7 @@ dependencies:
   google_maps_flutter_web: ^0.1.0+8
   http: ^0.12.2
   intl: ^0.16.1
+  iso_2_emoji_flag: ^1.0.1
   json_serializable: ^3.3.0
   latlong: ^0.6.1
   location: ^3.0.0
