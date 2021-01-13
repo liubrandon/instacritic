@@ -36,7 +36,7 @@ class _ChipListState extends State<ChipList> {
       child: ChoiceChip(
         elevation: 3,
         label: Padding(
-          padding: EdgeInsets.only(bottom: 5),
+          padding: EdgeInsets.only(bottom: 2),
           child: Text(tag.displayName, style: TextStyle(
             color: selected ? Colors.white : Colors.black, 
             fontWeight: FontWeight.w500

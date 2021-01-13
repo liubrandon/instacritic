@@ -33,7 +33,6 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
           onPanEnd: (_) {},
           onTap: () {},
           behavior: HitTestBehavior.opaque,
-          child: _buildTagChips(),
           // child: Align(
           //   alignment: Alignment.topCenter,
           //   child: Padding(
