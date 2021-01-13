@@ -4,7 +4,7 @@ import 'package:instacritic/constants.dart';
 import 'package:instacritic/tag.dart';
 import 'package:provider/provider.dart';
 import 'instagram_repository.dart';
-import 'package:flag/flag.dart';
+// import 'package:flag/flag.dart';
 
 int selectedTagIndex = -1;
 void clearCurrTag() => selectedTagIndex= -1;
