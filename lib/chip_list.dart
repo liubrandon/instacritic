@@ -34,8 +34,9 @@ class _ChipListState extends State<ChipList> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: ChoiceChip(
+        elevation: 3,
         label: Padding(
-          padding: EdgeInsets.only(bottom: 3),
+          padding: EdgeInsets.only(bottom: 5),
           child: Text(tag.displayName, style: TextStyle(
             color: selected ? Colors.white : Colors.black, 
             fontWeight: FontWeight.w500

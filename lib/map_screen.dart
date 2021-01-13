@@ -24,7 +24,25 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       children: [
         MapLayer(),
         _buildSearchBar(),
-        _buildTagChips(),
+        GestureDetector(
+          onHorizontalDragStart: (_) {},
+          onHorizontalDragUpdate: (_) {},
+          onHorizontalDragEnd: (_) {},
+          onPanStart: (_) {},
+          onPanUpdate: (_) {},
+          onPanEnd: (_) {},
+          onTap: () {},
+          behavior: HitTestBehavior.opaque,
+          child: _buildTagChips(),
+          // child: Align(
+          //   alignment: Alignment.topCenter,
+          //   child: Padding(
+          //     padding: EdgeInsets.only(top: 72),
+          //     child: Container(height:25)
+          //   ),
+          // ),
+        ),
+        
       ]
     );
   }
@@ -35,7 +53,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       child: Padding(
         padding: EdgeInsets.only(top: 72),
         child: Container(
-          height: 25,
+          height: 40,
           child: ChipList(widget.updateCurrentReviews, widget.textController),
         ),
       )

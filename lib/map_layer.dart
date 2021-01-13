@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -58,7 +60,11 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
               }
               if(this.mounted)
                 _updateMarkers(snapshot);
-              return _buildGoogleMap();
+              return Stack(
+                children: [
+                  _buildGoogleMap(),
+                ],
+              );
             }
           );
         }
@@ -83,6 +89,11 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
       // gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
       //   Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer(),),
       // ].toSet(),
+      gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+        new Factory<OneSequenceGestureRecognizer>(
+          () => new PanGestureRecognizer(),
+        ),
+      ].toSet(),
     );
   }
 
