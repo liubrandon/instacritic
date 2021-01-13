@@ -31,6 +31,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   firebase_core: ^0.5.3
   firebase_storage: ^5.2.0
+  flag: ^3.0.5
   flutter_gradient_colors: ^1.0.0
   font_awesome_flutter: ^8.11.0
   google_fonts: ^1.1.1

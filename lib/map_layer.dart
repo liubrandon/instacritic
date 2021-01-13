@@ -30,8 +30,19 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
         (value) => _markerIcons[i] = value);
     }
   }
-  
+  // Future<void> waitForGoogleMap(GoogleMapController c) {
+  //   return c.getVisibleRegion().then((value) {
+  //     if (value.southwest.latitude != 0) {
+  //       return Future.value();
+  //     }
+
+  //     return Future.delayed(Duration(milliseconds: 100))
+  //         .then((_) => waitForGoogleMap(c));
+  //   });
+  // }
+
   void _onMapCreated(GoogleMapController controller) {
+    // waitForGoogleMap(controller);
     if(controller != null) {
       _mapController = controller;
       if(ModalRoute.of(context).isCurrent)
@@ -82,13 +93,10 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
           zoom: 0,
         ),
         onMapCreated: _onMapCreated,
-        //https://stackoverflow.com/questions/54280541/google-map-in-flutter-not-responding-to-touch-events
-        // gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-        //   Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer(),),
-        // ].toSet(),
-        // gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-        //   Factory<OneSequenceGestureRecognizer>(() => PanGestureRecognizer())
-        // ].toSet(),
+        cameraTargetBounds: CameraTargetBounds(LatLngBounds(
+          northeast: LatLng(1.3343784, 103.85696139999999),
+          southwest: LatLng(1.2840326, 103.74278349999997)
+        )),
     );
   }
 
