@@ -156,9 +156,9 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
           onTap: () async {
             widget.textController.value = TextEditingValue(text: review.restaurantName);
             widget.updateCurrentReviews(review.restaurantName);
+            clearCurrTag();
             await Future.delayed(Duration(milliseconds: 80));
             widget.tabController.animateTo(1);
-            // widget.searchBoxFocusNode.unfocus();
           },
         ),
         const SizedBox(height: 5),
