@@ -7,7 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:instacritic/review.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'constants.dart';
 import 'instagram_repository.dart';
 
 class MapLayer extends StatefulWidget {
@@ -22,7 +22,7 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
   GoogleMapController _mapController;
   InstagramRepository igRepository;
   double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
-  bool _fabVisible = false;
+  bool isMobile;
   @override
   void initState() {
     super.initState();
@@ -35,14 +35,16 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
   void _onMapCreated(GoogleMapController controller) {
     if(controller != null) {
       _mapController = controller;
-      if(ModalRoute.of(context).isCurrent)
-        Timer(Duration(milliseconds: 500), _updateMapBounds); 
+      if(ModalRoute.of(context).isCurrent) {
+        Timer(Duration(milliseconds: 250), _updateMapBounds); 
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    isMobile = MediaQuery.of(context).size.width < Constants.mobileWidth;
     igRepository = Provider.of<InstagramRepository>(context,listen:false);
     return SizedBox(
       width: MediaQuery.of(context).size.width,
@@ -67,7 +69,7 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
             );
           }
         ),
-        floatingActionButton: _fabVisible ? _buildUpdateBoundsButton() : null,
+        floatingActionButton: _buildUpdateBoundsButton(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
@@ -81,7 +83,7 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
       mapType: MapType.normal,
       initialCameraPosition: CameraPosition(
         target: LatLng(0, 0),
-        zoom: 0,
+        zoom: isMobile ? 0 : 1,
       ),
       onMapCreated: _onMapCreated,
     );
@@ -151,8 +153,9 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
             1000.0,
           )
         );
+        _mapController.animateCamera(CameraUpdate.zoomOut());
         if(_markers.length == 1) {
-          for(int i = 0; i < 5; i++)
+          for(int i = 0; i < 4; i++)
             _mapController.animateCamera(CameraUpdate.zoomOut());    
         }
       }

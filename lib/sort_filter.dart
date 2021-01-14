@@ -24,3 +24,6 @@ void resetSortAndFilterOptions() {
   for(int i = 0; i < filterBoxChecked.length; i++)
     filterBoxChecked[i] = true;
 }
+
+int selectedTagIndex = -1;
+void clearCurrTag() => selectedTagIndex= -1;

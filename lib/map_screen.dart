@@ -34,17 +34,14 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       children: [
         MapLayer(),
         if(isMobile)
-          Column(
-            children: [
-              _buildSearchBar(),
-              _buildTagChips(),
-            ],
-          ),
+          _buildSearchBar(),
+        if(isMobile)
+          _buildTagChips(),
         if(!isMobile)
           Row(
             children: [
               _buildSearchBar(),
-              _buildTagChips(),
+              Expanded(child:_buildTagChips()),
             ],
           )
       ]
@@ -52,8 +49,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   }
 
   Widget _buildTagChips() {
-    return Expanded(
-      child: Align(
+    return Align(
         alignment: Alignment.topLeft,
         child: Padding(
           padding: EdgeInsets.only(top: isMobile ? 72 : 19),
@@ -62,8 +58,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
             child: ChipList(widget.updateCurrentReviews, widget.textController, _scrollController),
           ),
         )
-      ),
-    );
+      );
   }
 
   Widget _buildSearchBar() {

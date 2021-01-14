@@ -109,7 +109,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   Widget _buildReviewCountFAB() {
     pressedApply = false;
     return SizedBox(
-          width: 120,
+          width: 110,
           height: 35,
           child: Container(
             decoration: BoxDecoration(

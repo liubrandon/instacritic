@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:instacritic/chip_list.dart';
 import 'package:instacritic/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +13,7 @@ import 'chart_screen.dart';
 import 'instagram_repository.dart';
 import 'star_display.dart';
 import 'review.dart';
+import 'sort_filter.dart';
 
 class ListScreen extends StatefulWidget {
   final StreamController<List<Review>> reviewController; // ignore: close_sinks  
