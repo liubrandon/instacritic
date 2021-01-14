@@ -17,11 +17,12 @@ class MapLayer extends StatefulWidget {
 
 class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin {
   @override bool get wantKeepAlive => true; // Used to keep tab alive
-
   Set<Marker> _markers = {};
   List<BitmapDescriptor> _markerIcons = [null,null,null,null,null];
   GoogleMapController _mapController;
+  InstagramRepository igRepository;
   double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
+  bool _fabVisible = false;
   @override
   void initState() {
     super.initState();
@@ -30,19 +31,8 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
         (value) => _markerIcons[i] = value);
     }
   }
-  // Future<void> waitForGoogleMap(GoogleMapController c) {
-  //   return c.getVisibleRegion().then((value) {
-  //     if (value.southwest.latitude != 0) {
-  //       return Future.value();
-  //     }
-
-  //     return Future.delayed(Duration(milliseconds: 100))
-  //         .then((_) => waitForGoogleMap(c));
-  //   });
-  // }
 
   void _onMapCreated(GoogleMapController controller) {
-    // waitForGoogleMap(controller);
     if(controller != null) {
       _mapController = controller;
       if(ModalRoute.of(context).isCurrent)
@@ -53,12 +43,13 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    igRepository = Provider.of<InstagramRepository>(context,listen:false);
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       child: Scaffold(
         body: FutureBuilder(
-          future: Provider.of<InstagramRepository>(context, listen:false).getReviewsAsStream(),
+          future: igRepository.getReviewsAsStream(),
           builder: (_, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
             if(!snapshot.hasData || !Provider.of<InstagramRepository>(context).ready)
               return Center(child: CircularProgressIndicator());
@@ -66,7 +57,7 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
             stream: snapshot.data,
             builder: (context, snapshot) {
               if(!this.mounted || snapshot == null || snapshot.connectionState == ConnectionState.waiting ||
-                !Provider.of<InstagramRepository>(context,listen:false).ready || _markerIcons[4] == null) {
+                !igRepository.ready || _markerIcons[4] == null) {
                   return Center(child: CircularProgressIndicator());
                 }
                 if(this.mounted)
@@ -76,7 +67,7 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
             );
           }
         ),
-        floatingActionButton: _buildUpdateBoundsButton(),
+        floatingActionButton: _fabVisible ? _buildUpdateBoundsButton() : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
@@ -84,25 +75,21 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
 
   Widget _buildGoogleMap() {
     return GoogleMap(
-        onTap: (_) {},
-        zoomControlsEnabled: false,
-        markers: _markers,
-        mapType: MapType.normal,
-        initialCameraPosition: CameraPosition(
-          target: LatLng(0, 0),
-          zoom: 0,
-        ),
-        onMapCreated: _onMapCreated,
-        cameraTargetBounds: CameraTargetBounds(LatLngBounds(
-          northeast: LatLng(1.3343784, 103.85696139999999),
-          southwest: LatLng(1.2840326, 103.74278349999997)
-        )),
+      onTap: (_) {},
+      zoomControlsEnabled: false,
+      markers: _markers,
+      mapType: MapType.normal,
+      initialCameraPosition: CameraPosition(
+        target: LatLng(0, 0),
+        zoom: 0,
+      ),
+      onMapCreated: _onMapCreated,
     );
   }
 
   void _updateMarkers(AsyncSnapshot<QuerySnapshot> snapshot) {
     _markers = {};
-    List<Review> currReviews = Provider.of<InstagramRepository>(context, listen: false).currentReviews;
+    List<Review> currReviews = Provider.of<InstagramRepository>(context,listen: false).currentReviews;
     Set<String> currMediaIds = {};
     currReviews.forEach((rev) {currMediaIds.add(rev.mediaId);});
     List<QueryDocumentSnapshot> docs = snapshot.data.docs;
@@ -153,21 +140,26 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
   Future _updateMapBounds() async {
     LatLng ne = LatLng(maxLat,maxLng);
     LatLng sw = LatLng(minLat,minLng);
-    if(_mapController != null && this.mounted && _markers.isNotEmpty) {
-      _mapController.animateCamera(
-        CameraUpdate.newLatLngBounds(
-          LatLngBounds(
-            northeast: ne,
-            southwest: sw,
-          ),
-          1000.0,
-        )
-      );
-      if(_markers.length == 1) {
-        for(int i = 0; i < 5; i++)
-          _mapController.animateCamera(CameraUpdate.zoomOut());    
+    try {
+      if(_mapController != null && this.mounted && _markers.isNotEmpty) {
+        _mapController.animateCamera(
+          CameraUpdate.newLatLngBounds(
+            LatLngBounds(
+              northeast: ne,
+              southwest: sw,
+            ),
+            1000.0,
+          )
+        );
+        if(_markers.length == 1) {
+          for(int i = 0; i < 5; i++)
+            _mapController.animateCamera(CameraUpdate.zoomOut());    
+        }
       }
+    } catch(e) {
+      print('Update bounds failed');
     }
+    
   }
 
   Marker _markerFromFirestoreDocSnap(Map<String, dynamic> review) {

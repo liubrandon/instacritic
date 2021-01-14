@@ -3,7 +3,7 @@ class Tag {
   String _logicalName;
   Tag(String tagName) {
     String tagName1 = tagName.trim();
-    if(tagName == 'Lisbon')
+    if(tagName == 'Lisbon') // Idk why the trailing n is cut off on mobile
       tagName1 = 'Lisbon ';
     displayName = tagName1;
     _logicalName = normalize(tagName);

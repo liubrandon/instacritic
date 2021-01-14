@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
@@ -15,6 +14,7 @@ import "package:flutter/foundation.dart" show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'app_drawer.dart';
+import 'chip_list.dart';
 import 'instagram_repository.dart';
 import 'map_screen.dart';
 import 'list_screen.dart';
@@ -30,6 +30,7 @@ class Instacritic extends StatefulWidget {
 }
 
 class _InstacriticState extends State<Instacritic> with SingleTickerProviderStateMixin {
+  InstagramRepository igRepository;
   // Used by ListScreen and HideFabOnScrollScaffold
   TextEditingController _textController;
   ScrollController _scrollController;
@@ -52,7 +53,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   }
 
   Future<void> getLocation() async {
-    Location location = new Location();
+    Location location = Location();
     if(!kIsWeb) {
         bool _serviceEnabled;
         PermissionStatus _permissionGranted;
@@ -82,13 +83,19 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    igRepository = Provider.of<InstagramRepository>(context,listen:false);
     return AbsorbPointer(
       absorbing: !Provider.of<InstagramRepository>(context).ready, // until first load don't respond to touch
       child: HideFabOnScrollScaffold(
         body: TabBarView(
           controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
-          children: [ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController, _reviewController, _updateCurrentReviews, _openSortAndFilterModal),MapScreen(_tabController,_textController,_searchBoxFocusNode,_updateCurrentReviews)],
+          children: [
+            ListScreen(_scrollController, _textController, _searchBoxFocusNode, _tabController, _reviewController,
+                        _updateCurrentReviews, _openSortAndFilterModal, _clearSearchText),
+            MapScreen(_tabController,_textController,_searchBoxFocusNode,
+                      _updateCurrentReviews,_clearSearchText)
+          ],
         ),
         floatingActionButton: _buildReviewCountFAB(),
         scrollController: _scrollController,
@@ -280,20 +287,21 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
           child: Text('Apply', style: TextStyle(color: Colors.white, fontSize: 14, letterSpacing: .5, fontWeight: FontWeight.w600)),
           onPressed: () async {
             bool sortingByDistance = sortSelection == 4;
-            if(sortingByDistance && !Provider.of<InstagramRepository>(context,listen:false).calculatedDistances) {
-              await Provider.of<InstagramRepository>(context,listen:false).addLatLngToAllReviews();
-              await getLocation();
-              showDialog(
-                context: context,
-                // barrierDismissible: false,
-                builder: (_) => AlertDialog(
-                  // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-                  title: Text('Calculating distances to all restaurants...'),
-                )
-              );
-              Provider.of<InstagramRepository>(context,listen:false).calculateDistances(_locationData.latitude, _locationData.longitude);
-              Provider.of<InstagramRepository>(context,listen:false).calculatedDistances = true;
-              Navigator.of(context, rootNavigator: true).pop();
+            if(sortingByDistance && !igRepository.calculatedDistances) {
+              await igRepository.addLatLngToAllReviews();
+              try {
+                await getLocation();
+              } catch(_) { 
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: Text('Location permission required to sort by distance.'),
+                  )
+                );
+                return;
+              }
+              igRepository.calculateDistances(_locationData.latitude, _locationData.longitude);
+              igRepository.calculatedDistances = true;
             }
             state(() {
               pressedApply = true; // Used in the modal closed callback to not apply checkbox updates if you swiped out/cancelled
@@ -317,30 +325,43 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
 
   // https://medium.com/level-up-programming/flutter-stream-tutorial-asynchronous-dart-programming-991e6cf97c5a
   void _updateCurrentReviews(String searchQuery, {Tag tag}) {
-    Provider.of<InstagramRepository>(context,listen:false).currentReviews = [];
-    Provider.of<InstagramRepository>(context,listen:false).currNumStars = [0,0,0,0,0];
-    Provider.of<InstagramRepository>(context,listen:false).allReviews.forEach((review) {
+    igRepository.currentReviews = [];
+    igRepository.currNumStars = [0,0,0,0,0];
+    igRepository.allReviews.forEach((review) {
       bool isMatch = (tag == null) ? _reviewMatchesSearchQuery(review, searchQuery) : review.tags.contains(tag);
       if(isMatch) {
-        Provider.of<InstagramRepository>(context,listen:false).currNumStars[review.stars]++;
+        igRepository.currNumStars[review.stars]++;
         if (filterBoxChecked[review.stars])
-          Provider.of<InstagramRepository>(context,listen:false).currentReviews.add(review);
+          igRepository.currentReviews.add(review);
       }
     });
-    sortLabels[sortSelection].mySort(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
-    _reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).currentReviews);
-    Provider.of<InstagramRepository>(context,listen:false).showingAll = false;
-    Provider.of<InstagramRepository>(context,listen:false).madeChange();
+    sortLabels[sortSelection].mySort(igRepository.currentReviews);
+    _reviewController.sink.add(igRepository.currentReviews);
+    igRepository.showingAll = false;
+    igRepository.madeChange();
+  }
+
+  void _clearSearchText() {
+    _textController.clear();
+    clearCurrTag();
+    _reviewController.sink.add(igRepository.allReviews);
+    igRepository.showingAll = true;
+    igRepository.currNumStars = 
+      List.from(igRepository.allNumStars);
+    resetSortAndFilterOptions();
+    igRepository.madeChange();
+  }
+
+  bool _reviewMatchesSearchQuery(Review review, String searchQuery) {
+    Map<String, String> terms = {'name': review.restaurantName, 'place': review.location, 'query': searchQuery};
+    terms.forEach((key, value) => terms[key] = processStringForSearch(value));
+    if(terms['query'].isEmpty) return true;
+    return terms['name'].contains(terms['query']) ||
+        terms['place'].toLowerCase().contains(terms['query']);
   }
 }
 
-bool _reviewMatchesSearchQuery(Review review, String searchQuery) {
-  Map<String, String> terms = {'name': review.restaurantName, 'place': review.location, 'query': searchQuery};
-  terms.forEach((key, value) => terms[key] = processStringForSearch(value));
-  if(terms['query'].isEmpty) return true;
-  return terms['name'].contains(terms['query']) ||
-      terms['place'].toLowerCase().contains(terms['query']);
-}
+
 
 class HideFabOnScrollScaffold extends StatefulWidget {
   const HideFabOnScrollScaffold({

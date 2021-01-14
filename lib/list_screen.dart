@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instacritic/chip_list.dart';
 import 'package:instacritic/constants.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -13,7 +14,6 @@ import 'chart_screen.dart';
 import 'instagram_repository.dart';
 import 'star_display.dart';
 import 'review.dart';
-import 'sort_filter.dart';
 
 class ListScreen extends StatefulWidget {
   final StreamController<List<Review>> reviewController; // ignore: close_sinks  
@@ -23,7 +23,8 @@ class ListScreen extends StatefulWidget {
   final FocusNode searchBoxFocusNode;
   final void Function(String) updateCurrentReviews;
   final void Function() openSortAndFilterModal;
-  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode, this.tabController, this.reviewController, this.updateCurrentReviews, this.openSortAndFilterModal);
+  final void Function() clearSearchText;
+  const ListScreen(this.scrollController, this.textController, this.searchBoxFocusNode, this.tabController, this.reviewController, this.updateCurrentReviews, this.openSortAndFilterModal, this.clearSearchText);
   @override
   State<ListScreen> createState() => _ListScreenState();
 }
@@ -32,16 +33,18 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   @override
   bool get wantKeepAlive => true;
   bool runOnce = true;
+  InstagramRepository igRepository;
   RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    igRepository = Provider.of<InstagramRepository>(context,listen:false);
     if(!Provider.of<InstagramRepository>(context,listen: true).ready) {
       return Center(child: CircularProgressIndicator());
     }
     if(runOnce) { // This is the initial building of the list
-      widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
+      widget.reviewController.sink.add(igRepository.allReviews);
       runOnce = false;
     }
     return StreamBuilder( // Get the reviews as a stream so if you search or sort it updates again
@@ -50,7 +53,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
         if(snapshot == null || snapshot.connectionState == ConnectionState.waiting)
           return Center(child: CircularProgressIndicator());
         else {
-          Provider.of<InstagramRepository>(context,listen:false).currentReviews = snapshot.data;
+          igRepository.currentReviews = snapshot.data;
           return NestedScrollView(
             headerSliverBuilder: (context, bool innerBoxIsScrolled) {
               return [_buildAppBar(),_buildSearchBar()];
@@ -70,7 +73,6 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                 child: CustomScrollView(
                   controller: widget.scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
-                  // cacheExtent: 10000.0, // https://github.com/flutter/flutter/issues/22314
                   slivers: [
                     _buildSliverPadding(height: 5),
                     _buildReviewList(snapshot),
@@ -78,8 +80,8 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                   ],
                 ),
                 onRefresh: () async {
-                  await Provider.of<InstagramRepository>(context,listen:false).getReviews(); // Get latest data from IG
-                  widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews); // Get latest data from IG
+                  await igRepository.getReviews(); // Get latest data from IG
+                  widget.reviewController.sink.add(igRepository.allReviews); // Get latest data from IG
                   widget.textController.clear();
                   _refreshController.refreshCompleted();
                 },
@@ -123,7 +125,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       floating: true,
       pinned: true,
       centerTitle: true,
-      title: Text(Provider.of<InstagramRepository>(context,listen:false).igUsername + '\'s reviews'),
+      title: Text(igRepository.igUsername + '\'s reviews'),
       toolbarHeight: 48,
       backgroundColor: Constants.myPurple,
       actions: [_buildViewChartsButton()]
@@ -146,7 +148,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
             ),
           ),
           title: Text(review.restaurantName, style: TextStyle(fontSize: 18.0),),
-          subtitle: Text(review.location),
+          subtitle: Text('${review.location} · ${DateFormat('M/d/yy').format(review.postTimestamp)}'),
           trailing: IconTheme(
             data: IconThemeData(color: Colors.amber[500], size: 25),
             child: StarDisplay(value: review.stars)
@@ -189,16 +191,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
                 color:  Colors.black,
                 focusColor: Colors.transparent, hoverColor: Colors.transparent, highlightColor: Colors.transparent,
                 splashColor: Colors.transparent,
-                onPressed: () {
-                  widget.textController.clear();
-                  clearCurrTag();
-                  widget.reviewController.sink.add(Provider.of<InstagramRepository>(context,listen:false).allReviews);
-                  Provider.of<InstagramRepository>(context,listen:false).showingAll = true;
-                  Provider.of<InstagramRepository>(context,listen:false).currNumStars = 
-                    List.from(Provider.of<InstagramRepository>(context,listen:false).allNumStars);
-                  resetSortAndFilterOptions();
-                  Provider.of<InstagramRepository>(context,listen:false).madeChange();
-                }, 
+                onPressed: widget.clearSearchText, 
               ) : null,
               hintText: 'Search',
               contentPadding: EdgeInsets.only(top: 14),

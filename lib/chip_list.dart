@@ -1,3 +1,4 @@
+import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:instacritic/constants.dart';
@@ -29,30 +30,31 @@ class _ChipListState extends State<ChipList> {
       physics: AlwaysScrollableScrollPhysics(),
       scrollDirection: Axis.horizontal,
       children: [
-        const SizedBox(width: 15),
+        const SizedBox(width: 13),
         for(int i = 0; i < tags.length; i++)
           _buildChip(tags[i], i),
-        const SizedBox(width: 15),
+        const SizedBox(width: 13),
       ],
     );
   }
   Widget _buildChip(Tag tag, int index) {
     bool selected = index == selectedTagIndex;
+    bool isMobile = MediaQuery.of(context).size.width < Constants.mobileWidth;
     String isoCode;
     if(countryCodes.containsKey(tag.displayName))
       isoCode = countryCodes[tag.displayName];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
         child: ChoiceChip(
-          // avatar: isoCode == null ? null : Padding(
-          //   padding: const EdgeInsets.only(left:6),
-          //   child: Text(),
-          // ),
           padding: EdgeInsets.symmetric(horizontal: 5),
+          avatar: isoCode == null || isMobile ? null : Padding(
+            padding: EdgeInsets.only(left: 5),
+            child: Flag(isoCode, height: 10),
+          ),
           elevation: 3,
           label: Padding(
             padding: EdgeInsets.only(bottom: 0),
-            child: Text('${isoCode == null ? tag.displayName : iso2EmojiFlag(isoCode) + '  ' + tag.displayName}', style: TextStyle(
+            child: Text('${!isMobile || isoCode == null ? tag.displayName : iso2EmojiFlag(isoCode) + '  ' + tag.displayName}', style: TextStyle(
               color: selected ? Colors.white : Colors.black, 
               fontWeight: FontWeight.w500
               ),
