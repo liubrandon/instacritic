@@ -83,7 +83,7 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
       mapType: MapType.normal,
       initialCameraPosition: CameraPosition(
         target: LatLng(0, 0),
-        zoom: isMobile ? 0 : 1,
+        zoom: 1,
       ),
       onMapCreated: _onMapCreated,
     );
@@ -153,7 +153,8 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
             1000.0,
           )
         );
-        _mapController.animateCamera(CameraUpdate.zoomOut());
+        if(_markers.length != Provider.of<InstagramRepository>(context,listen: false).allReviews.length)
+          _mapController.animateCamera(CameraUpdate.zoomOut());
         if(_markers.length == 1) {
           for(int i = 0; i < 4; i++)
             _mapController.animateCamera(CameraUpdate.zoomOut());    
