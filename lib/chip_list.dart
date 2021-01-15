@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:instacritic/constants.dart';
 import 'package:instacritic/tag.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:provider/provider.dart';
 import 'instagram_repository.dart';
 import 'package:iso_2_emoji_flag/iso_2_emoji_flag.dart';
@@ -25,16 +26,18 @@ class _ChipListState extends State<ChipList> {
   Widget build(BuildContext context) {
     List<Tag> tags = Provider.of<InstagramRepository>(context,listen:false).allTagsSorted.keys.toList();
     isMobile = MediaQuery.of(context).size.width < Constants.mobileWidth;
-    return ListView(
-      controller: widget.scrollController,
-      physics: AlwaysScrollableScrollPhysics(),
-      scrollDirection: Axis.horizontal,
-      children: [
-        const SizedBox(width: 13),
-        for(int i = 0; i < tags.length; i++)
-          _buildChip(tags[i], i),
-        const SizedBox(width: 13),
-      ],
+    return PointerInterceptor(
+      child: ListView(
+        controller: widget.scrollController,
+        physics: AlwaysScrollableScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        children: [
+          const SizedBox(width: 13),
+          for(int i = 0; i < tags.length; i++)
+            _buildChip(tags[i], i),
+          const SizedBox(width: 13),
+        ],
+      ),
     );
   }
 
