@@ -35,7 +35,7 @@ class MyDrawer extends StatelessWidget {
           Padding(padding: EdgeInsets.all(5)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 15),
-            child: Text('Restaurant reviews from Instagram with searching, filtering, and a map.', style: TextStyle(fontSize: 15),)
+            child: Text('Restaurant ratings from Instagram with searching, filtering, and a map.', style: TextStyle(fontSize: 15),)
           ),
           Padding(padding: EdgeInsets.all(5)),
           ListTile(

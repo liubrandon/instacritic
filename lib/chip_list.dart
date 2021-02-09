@@ -26,7 +26,7 @@ class _ChipListState extends State<ChipList> {
   Widget build(BuildContext context) {
     List<Tag> tags = Provider.of<InstagramRepository>(context,listen:false).allTagsSorted.keys.toList();
     isMobile = MediaQuery.of(context).size.width < Constants.mobileWidth;
-    return PointerInterceptor(
+    return PointerInterceptor( // Bless
       child: ListView(
         controller: widget.scrollController,
         physics: AlwaysScrollableScrollPhysics(),
@@ -50,10 +50,10 @@ class _ChipListState extends State<ChipList> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
         child: ChoiceChip(
           padding: EdgeInsets.symmetric(horizontal: 5),
-          avatar: isoCode == null || isMobile ? null : Padding(
+          avatar: isoCode != null && !isMobile ? Padding(
             padding: EdgeInsets.only(left: 5),
             child: Flag(isoCode, height: 10),
-          ),
+          ) : null,
           elevation: 3,
           label: Padding(
             padding: EdgeInsets.only(bottom: 0),
