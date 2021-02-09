@@ -41,9 +41,9 @@ class _ChartScreenState extends State<ChartScreen> {
               children: [
                 const SizedBox(height:12),
                 if(numTotal != 0)
-                  _buildPieChart('$numTotal total reviews', allPercents),
+                  _buildPieChart('$numTotal total ratings', allPercents),
                 if(numTotal == 0)
-                  Text('No reviews loaded'),
+                  Text('No ratings loaded'),
                 const SizedBox(height:12),
                 if(numShown != 0 && numShown != numTotal)
                   _buildPieChart("$numShown review${numShown != 1 ? 's' : ''} matching '$searchQuery'", shownPercents),  
@@ -100,7 +100,7 @@ class _ChartScreenState extends State<ChartScreen> {
     return SliverAppBar(
               elevation: 0,
               pinned: true,
-              title: Text(Provider.of<InstagramRepository>(context,listen:false).igUsername + '\'s reviews'),
+              title: Text(Provider.of<InstagramRepository>(context,listen:false).igUsername + '\'s ratings'),
               toolbarHeight: 48,
               backgroundColor: Constants.myPurple,
             );

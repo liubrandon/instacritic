@@ -50,10 +50,10 @@ class _ChipListState extends State<ChipList> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
         child: ChoiceChip(
           padding: EdgeInsets.symmetric(horizontal: 5),
-          avatar: isoCode != null && !isMobile ? Padding(
-            padding: EdgeInsets.only(left: 5),
-            child: Flag(isoCode, height: 10),
-          ) : null,
+          // avatar: isoCode != null && !isMobile ? Padding(
+          //   padding: EdgeInsets.only(left: 5),
+          //   child: Flag(isoCode, height: 10),
+          // ) : null,
           elevation: 3,
           label: Padding(
             padding: EdgeInsets.only(bottom: 0),

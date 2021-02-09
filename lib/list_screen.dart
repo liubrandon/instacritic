@@ -125,7 +125,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
       floating: true,
       pinned: true,
       centerTitle: true,
-      title: Text(igRepository.igUsername + '\'s reviews'),
+      title: Text(igRepository.igUsername + '\'s ratings'),
       toolbarHeight: 48,
       backgroundColor: Constants.myPurple,
       actions: [_buildViewChartsButton()]

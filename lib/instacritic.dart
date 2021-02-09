@@ -232,9 +232,9 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   Widget _buildFilterSortHeader() {
     int numReviews = 0;
     Provider.of<InstagramRepository>(context).currNumStars.forEach((element) => numReviews+=element);
-    String numReviewsText = 'All $numReviews reviews';
+    String numReviewsText = 'All $numReviews ratings';
     if(processStringForSearch(_textController.text).isNotEmpty)
-      numReviewsText = '$numReviews reviews matching \"${_textController.text}\"';
+      numReviewsText = '$numReviews ratings matching \"${_textController.text}\"';
     return Column(
       children: [
         Stack(
@@ -319,8 +319,8 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   String _getNumReviewsString() {
     int _numReviews = Provider.of<InstagramRepository>(context).numReviewsShown;
     if(_numReviews == 1)
-      return '$_numReviews Review';
-    return '$_numReviews Reviews';
+      return '$_numReviews Rating';
+    return '$_numReviews Ratings';
   }
 
   // https://medium.com/level-up-programming/flutter-stream-tutorial-asynchronous-dart-programming-991e6cf97c5a
