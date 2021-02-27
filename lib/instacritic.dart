@@ -162,6 +162,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
                       children: <Widget>[
                         _buildFilterSortHeader(),
                         _buildRatingLabel(),
+                        _buildCheckboxListTile(5, state),
                         for(int i = 0; i < 5; i++)
                           _buildCheckboxListTile(i, state),
                         _buildSortLabel(),
@@ -326,7 +327,7 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
   // https://medium.com/level-up-programming/flutter-stream-tutorial-asynchronous-dart-programming-991e6cf97c5a
   void _updateCurrentReviews(String searchQuery, {Tag tag}) {
     igRepository.currentReviews = [];
-    igRepository.currNumStars = [0,0,0,0,0];
+    igRepository.currNumStars = [0,0,0,0,0,0];
     igRepository.allReviews.forEach((review) {
       bool isMatch = (tag == null) ? _reviewMatchesSearchQuery(review, searchQuery) : review.tags.contains(tag);
       if(isMatch) {

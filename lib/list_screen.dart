@@ -133,6 +133,7 @@ class _ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildRow(Review review) {
+    // print(review);
     if(review.thumbnailUrl == null) print(review);
     return Column(
       children: [

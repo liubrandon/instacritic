@@ -139,8 +139,8 @@ class InstagramRepository with ChangeNotifier {
     allReviews = List.filled(postList.length, Review());
     currentReviews = List.filled(postList.length, Review());
     reviewsWithErrors = [];
-    allNumStars = [0,0,0,0,0];
-    currNumStars = [0,0,0,0,0];
+    allNumStars = [0,0,0,0,0,0]; // last index is skulls
+    currNumStars = [0,0,0,0,0,0];
     for(int i = 0; i < postList.length; i++) {
       final Review rev = Review.fromJson(postList[i]);
       if(rev.hasError) { // Issue parsing review

@@ -11,7 +11,7 @@ class StarDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: (value == 0) ? [Icon(FontAwesomeIcons.skull, size: 20, color: Colors.grey[400])] : List.generate(value, (index) {
+      children: (value == 5) ? [Icon(FontAwesomeIcons.skull, size: 20, color: Colors.grey[400])] : List.generate(value, (index) {
         return Icon( Icons.star, color: Colors.amber[500], size: 25);
       }),
     );

@@ -17,7 +17,7 @@ final List<Label> sortLabels = [
 const int DEFAULT_SORT_INDEX = 2;
 
 int sortSelection = DEFAULT_SORT_INDEX;
-List<bool> filterBoxChecked = [true,true,true,true,true];
+List<bool> filterBoxChecked = [true,true,true,true,true,true];
 
 void resetSortAndFilterOptions() {
   sortSelection = DEFAULT_SORT_INDEX;

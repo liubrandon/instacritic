@@ -45,17 +45,26 @@ class Review {
       print(e);
       return null;
     }
+    bool isZero = false;
+    if(captionData.length == 2) {
+      captionData.insert(0, '');
+      isZero = true;
+    }
     String mediaUrl = (postData['media_type'] == 'VIDEO') ? postData['thumbnail_url'] : postData['media_url'];
     bool isSkull = captionData[0].contains('💀');
     int slashIndex = captionData[0].indexOf('/');
-    if(captionData.length != 3 || (!isSkull && slashIndex == -1))
+    
+    if(captionData.length != 3 || ((!isSkull && slashIndex == -1) && !isZero))
       return Review(hasError: true, restaurantName: postData['caption'], permalink: postData['permalink'], postTimestamp: DateTime.parse(postData['timestamp']));
     for(int i = 0; i < captionData.length; i++) captionData[i] = captionData[i].trim();
-    int stars = (isSkull) ? 0 : int.parse(captionData[0].substring(0,slashIndex));
+    int stars = 0;
+    if(!isZero) {
+      stars = (isSkull) ? 5 : int.parse(captionData[0].substring(0,slashIndex)); // last index is 5 in the getReviews star counters 
+    }
     String location = captionData[2];
     if(location == 'New York, New York')
       location = 'New York, NY';
-    return Review(
+    Review r = Review(
       restaurantName: captionData[1],
       stars: stars,
       location: location,
@@ -66,6 +75,7 @@ class Review {
       distanceToUser: 1<<31,
       tags: HashSet<Tag>(),
     );
+    return r;
   }
 
   factory Review.fromFirestoreDocSnap(DocumentSnapshot doc) {
