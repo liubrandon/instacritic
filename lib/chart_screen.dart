@@ -21,14 +21,18 @@ class _ChartScreenState extends State<ChartScreen> {
     int numTotal = Provider.of<InstagramRepository>(context).totalNumReviews;
     List<int> allNumStars = Provider.of<InstagramRepository>(context).allNumStars;
     List<int> shownNumStars = Provider.of<InstagramRepository>(context).currNumStars;
-    List<PercentData> shownPercents = [null,null,null,null,null];
-    List<PercentData> allPercents = [null,null,null,null,null];
-    List<String> labels = ['💀','⭐️','⭐️⭐️','⭐️⭐️⭐️','⭐️⭐️⭐️⭐️',];
+    List<PercentData> shownPercents = [null,null,null,null,null,null];
+    List<PercentData> allPercents = [null,null,null,null,null,null];
+    List<String> labels = ['No star','⭐️','⭐️⭐️','⭐️⭐️⭐️','⭐️⭐️⭐️⭐️','💀'];
+    if(numTotal != 0)
+      allPercents[(5+10)%6] = (PercentData(number: allNumStars[5], percent: format((allNumStars[5]/numTotal)*100.0), label: labels[5]));  
+    if(numShown != 0)
+      shownPercents[(5+10)%6] = (PercentData(number: shownNumStars[5], percent: format((shownNumStars[5]/numShown)*100.0), label: labels[5]));  
     for(int i = 0; i < 5; i++) {
       if(numTotal != 0)
-        allPercents[(i+9)%5] = (PercentData(number: allNumStars[i], percent: format((allNumStars[i]/numTotal)*100.0), label: labels[i]));  
+        allPercents[(i+10)%6] = (PercentData(number: allNumStars[i], percent: format((allNumStars[i]/numTotal)*100.0), label: labels[i]));  
       if(numShown != 0)
-        shownPercents[(i+9)%5] = (PercentData(number: shownNumStars[i], percent: format((shownNumStars[i]/numShown)*100.0), label: labels[i]));  
+        shownPercents[(i+10)%6] = (PercentData(number: shownNumStars[i], percent: format((shownNumStars[i]/numShown)*100.0), label: labels[i]));  
     }
     String searchQuery = widget.textController.text;
     return Scaffold(
