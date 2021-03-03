@@ -18,7 +18,7 @@ class MapLayer extends StatefulWidget {
 class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin {
   @override bool get wantKeepAlive => true; // Used to keep tab alive
   Set<Marker> _markers = {};
-  List<BitmapDescriptor> _markerIcons = [null,null,null,null,null];
+  List<BitmapDescriptor> _markerIcons = [null,null,null,null,null,null];
   GoogleMapController _mapController;
   InstagramRepository igRepository;
   double maxLat = -90.0, minLat =  90.0, maxLng = -180.0, minLng = 180.0;
@@ -59,7 +59,7 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
             stream: snapshot.data,
             builder: (context, snapshot) {
               if(!this.mounted || snapshot == null || snapshot.connectionState == ConnectionState.waiting ||
-                !igRepository.ready || _markerIcons[4] == null) {
+                !igRepository.ready || _markerIcons[5] == null) {
                   return Center(child: CircularProgressIndicator());
                 }
                 if(this.mounted)
@@ -167,8 +167,13 @@ class _MapLayerState extends State<MapLayer> with AutomaticKeepAliveClientMixin 
   }
 
   Marker _markerFromFirestoreDocSnap(Map<String, dynamic> review) {
+    String title = review['restaurant_name'];
+    if(review['stars'] == 5)
+      title += ' 💀';
+    else if(review['stars'] != 0)
+      title += ' ${review['stars']}/4 ⭐';
     InfoWindow infoWindow = InfoWindow(
-      title: review['restaurant_name'] + ' (${review['stars'] > 0 ? '${review['stars']}/4 ⭐' : '💀'})',
+      title: title,
       snippet: review['gmap_address'] + '\n (Tap window to view in Google Maps)',
       onTap: () {
         String cleanedAddress = review['gmap_address'].replaceAll(RegExp(r"[!*'();:@&=+$,/?%#\[\]]"), '');
