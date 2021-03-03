@@ -11,6 +11,7 @@ import 'package:instacritic/star_display.dart';
 import 'package:instacritic/tag.dart';
 import 'package:location/location.dart';
 import "package:flutter/foundation.dart" show kIsWeb;
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'app_drawer.dart';
@@ -158,18 +159,20 @@ class _InstacriticState extends State<Instacritic> with SingleTickerProviderStat
               builder: (BuildContext context, StateSetter state) {
                 return Theme(
                   data: ThemeData(unselectedWidgetColor: Colors.transparent,),
-                  child: Wrap(
-                      children: <Widget>[
-                        _buildFilterSortHeader(),
-                        _buildRatingLabel(),
-                        _buildCheckboxListTile(5, state),
-                        for(int i = 0; i < 5; i++)
-                          _buildCheckboxListTile(i, state),
-                        _buildSortLabel(),
-                        _buildSortButtons(state),
-                        _buildApplyFiltersButton(constraint, state),
-                      ],
-                    ),
+                  child: PointerInterceptor(
+                    child: Wrap(
+                        children: <Widget>[
+                          _buildFilterSortHeader(),
+                          _buildRatingLabel(),
+                          _buildCheckboxListTile(5, state),
+                          for(int i = 0; i < 5; i++)
+                            _buildCheckboxListTile(i, state),
+                          _buildSortLabel(),
+                          _buildSortButtons(state),
+                          _buildApplyFiltersButton(constraint, state),
+                        ],
+                      ),
+                  ),
                 );
               },
             );
