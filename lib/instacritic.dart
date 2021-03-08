@@ -438,7 +438,7 @@ class HideFabOnScrollScaffoldState extends State<HideFabOnScrollScaffold> {
     return ConvexAppBar(
       controller: widget.tabController,
       items: _homeTabs,
-      elevation: 0,
+      // elevation: 0,
       style: TabStyle.reactCircle,
       gradient: LinearGradient(colors: GradientColors.purplePink),
       backgroundColor: Constants.myPurple,
