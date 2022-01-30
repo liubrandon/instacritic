@@ -162,7 +162,6 @@ lib/generated_plugin_registrant.dart
 *.wasm
 *.wat
 *.xhtml
-!index.html
 
 # End of https://www.toptal.com/developers/gitignore/api/flutter,dart,web,firebase,vscode
 pushBuild.zsh
