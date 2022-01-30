@@ -20,12 +20,12 @@ class Review {
   HashSet<Tag> tags;
 
   Review({
-    this.restaurantName, 
-    this.stars, 
-    this.location, 
-    this.permalink, 
-    this.postTimestamp, 
-    this.mediaUrl, 
+    this.restaurantName,
+    this.stars,
+    this.location,
+    this.permalink,
+    this.postTimestamp,
+    this.mediaUrl,
     this.mediaId,
     this.hasError = false,
     this.lat,
@@ -34,11 +34,11 @@ class Review {
     this.thumbnailUrl,
     this.tags,
   });
-  
+
   // Takes in a map representing a single Instagram post from the
   // json returned by the Instagram API and creates a Review
   factory Review.fromJson(Map<String, dynamic> postData) {
-    List<dynamic> captionData; 
+    List<dynamic> captionData;
     try {
       captionData = postData['caption'].split("-");
     } catch (e) {
@@ -46,23 +46,40 @@ class Review {
       return null;
     }
     bool isZero = false;
-    if(captionData.length == 2) {
+    if (captionData.length == 2) {
       captionData.insert(0, '');
       isZero = true;
     }
-    String mediaUrl = (postData['media_type'] == 'VIDEO') ? postData['thumbnail_url'] : postData['media_url'];
+    String mediaUrl = (postData['media_type'] == 'VIDEO')
+        ? postData['thumbnail_url']
+        : postData['media_url'];
     bool isSkull = captionData[0].contains('💀');
     int slashIndex = captionData[0].indexOf('/');
-    if(captionData.length != 3)
-      return Review(hasError: true, restaurantName: postData['caption'], permalink: postData['permalink'], postTimestamp: DateTime.parse(postData['timestamp']));
-    for(int i = 0; i < captionData.length; i++) captionData[i] = captionData[i].trim();
+    if (captionData.length != 3)
+      return Review(
+          hasError: true,
+          restaurantName: postData['caption'],
+          permalink: postData['permalink'],
+          postTimestamp: DateTime.parse(postData['timestamp']));
+    for (int i = 0; i < captionData.length; i++)
+      captionData[i] = captionData[i].trim();
     int stars = 0;
-    if(!isZero) {
-      stars = (isSkull) ? 5 : int.parse(captionData[0].substring(0,slashIndex == -1 ? 1 : slashIndex)); // last index is 5 in the getReviews star counters 
+    if (!isZero) {
+      if (isSkull) {
+        stars = 5; // last index is 5 in the getReviews star counters
+      } else {
+        int numStars = int.tryParse(
+            captionData[0].substring(0, slashIndex < 0 ? 1 : slashIndex));
+        if (numStars == null) {
+          String withoutSpaces = captionData[0].replaceAll(' ', '');
+          stars = (withoutSpaces.length / 2) as int;
+        } else {
+          stars = numStars;
+        }
+      }
     }
     String location = captionData[2];
-    if(location == 'New York, New York')
-      location = 'New York, NY';
+    if (location == 'New York, New York') location = 'New York, NY';
     Review r = Review(
       restaurantName: captionData[1],
       stars: stars,
@@ -71,7 +88,7 @@ class Review {
       postTimestamp: DateTime.parse(postData['timestamp']),
       mediaUrl: mediaUrl,
       mediaId: postData['id'],
-      distanceToUser: 1<<31,
+      distanceToUser: 1 << 31,
       tags: HashSet<Tag>(),
     );
     return r;
@@ -79,12 +96,12 @@ class Review {
 
   factory Review.fromFirestoreDocSnap(DocumentSnapshot doc) {
     HashSet<Tag> tags;
-    if(doc.data()['tags'] == null) 
+    if (doc.data()['tags'] == null)
       tags = HashSet<Tag>();
     else {
       List<String> l = List<String>.from(doc['tags']);
       List<Tag> l1 = l.map((e) => Tag(e)).toList();
-      tags = HashSet<Tag>.from(l1); 
+      tags = HashSet<Tag>.from(l1);
     }
     return Review(
       restaurantName: doc['restaurant_name'],
@@ -94,28 +111,35 @@ class Review {
       postTimestamp: doc['post_timestamp'].toDate(),
       mediaUrl: doc['media_url'],
       mediaId: doc['media_id'],
-      lat: doc.data()['gmap_location'] == null ? null : doc['gmap_location'].latitude,
-      lng: doc.data()['gmap_location'] == null ? null : doc['gmap_location'].longitude,
-      thumbnailUrl: doc.data()['thumbnail_url'] == null ? null : doc['thumbnail_url'],
+      lat: doc.data()['gmap_location'] == null
+          ? null
+          : doc['gmap_location'].latitude,
+      lng: doc.data()['gmap_location'] == null
+          ? null
+          : doc['gmap_location'].longitude,
+      thumbnailUrl:
+          doc.data()['thumbnail_url'] == null ? null : doc['thumbnail_url'],
       tags: tags,
     );
   }
 
   @override
   String toString() {
-    return restaurantName+'\n'+
-    stars.toString()+'\n'+
-    location+'\n'+
-    // permalink+'\n'+
-    // postTimestamp.toString()+'/'+
-    // mediaUrl+'\n'+
-    mediaId;
+    return restaurantName +
+        '\n' +
+        stars.toString() +
+        '\n' +
+        location +
+        '\n' +
+        // permalink+'\n'+
+        // postTimestamp.toString()+'/'+
+        // mediaUrl+'\n'+
+        mediaId;
     // thumbnailUrl;
   }
 
   static bool reviewsEqual(Review a, Review b) {
-    if(a == null || b == null)
-      return false;
+    if (a == null || b == null) return false;
     if (a.restaurantName == b.restaurantName &&
         a.stars == b.stars &&
         a.location == b.location &&
@@ -123,7 +147,7 @@ class Review {
         // a.postTimestamp == b.postTimestamp && // Ignore differences in DateTime objects (looks slight)
         // a.mediaUrl == b.mediaUrl && // Instagram CDN changes urls regularly
         a.mediaId == b.mediaId) {
-          return true;
+      return true;
     }
     // print(a);
     // print(b);
