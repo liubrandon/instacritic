@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Leave base href "/instacritic/", pushBuild script edits to fix the relative path bug
+  when deploying the site. https://github.com/flutter/flutter/issues/68686 -->
+  <base href="/instacritic/"> 
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A food diary database.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Instacritic">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/ico" href="icons/favicon.ico"/>
+
+  <title>Instacritic</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body style="background-color: #953c71;">
+  <!-- This script installs service_worker.js to provide PWA functionality to
+       application. For more information, see:
+       https://developers.google.com/web/fundamentals/primers/service-workers -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('flutter_service_worker.js?v=1841738770');
+      });
+    }
+  </script>
+  <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDagGkzsqL5cDnTJoSzM3jLYHWPW8dWSds"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    var firebaseConfig = {
+      apiKey: "AIzaSyAfZq9iKQxGd1dKNTMLiaib3hfHNUjqKAc",
+      authDomain: "critic-980a8.firebaseapp.com",
+      databaseURL: "https://critic-980a8.firebaseio.com",
+      projectId: "critic-980a8",
+      storageBucket: "critic-980a8.appspot.com",
+      messagingSenderId: "137390892043",
+      appId: "1:137390892043:web:6349ff7f9ee0461641d30e",
+      measurementId: "G-QSGTP62VWL"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-storage.js"></script>
+  <script src="main.dart.js" type="application/javascript"></script>
+</body>
+</html>
